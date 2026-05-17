@@ -88,4 +88,26 @@ describe("simularDespachoGreedy", () => {
     // SoC pre-descarga = 100*√rte ≈ 92.2. Descarga AC = SoC * √rte ≈ 85.
     expect(descarga_h11).toBeCloseTo(100 * 0.85, 2);
   });
+
+  it("greedy descarga en horas sin energía en categoría (no se limita a hora-punta)", () => {
+    // Generación 8-15 (inicio-intervalo). Greedy debe descargar APENAS termina
+    // la energía de la categoría, incluyendo horas 16-23 (fuera de punta CFE).
+    const registros = generarDiaConGeneracion("2025-06-15", 300, [
+      8, 9, 10, 11, 12, 13, 14, 15,
+    ]);
+    const energia_categoria_mwh = registros.map((r) => r.energia_mwh);
+
+    const detalle = simularDespachoGreedy(
+      registros,
+      energia_categoria_mwh,
+      CONFIG_BESS_TEST
+    );
+
+    // Greedy DEBE tener descarga fuera del horario solar.
+    const descargasNoSol = detalle.filter((e, i) => {
+      const h = i;
+      return e.descargado_kwh > 0 && (h < 8 || h >= 16);
+    });
+    expect(descargasNoSol.length).toBeGreaterThan(0);
+  });
 });
