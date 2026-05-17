@@ -201,6 +201,39 @@ Estos valores son la referencia para validar el preview del Tab SFV cuando se in
 **Decisión:** Cuando ninguna categoría tiene energía capturable (típico de "Exceso capacidad CFE" en SFV no ampliado), no se fuerza una recomendación. La UI muestra una alerta amarilla con copy honesto ("El caso de negocio del BESS no se sostiene bajo esta categoría…") y las 3 cards del catálogo se renderizan con `opacity-50`. Las Secciones 4, 5 y 6 también dejan de destacar cualquier equipo.
 **Razón:** Recomendar un equipo cuando la categoría no tiene energía sería deshonesto y mina la credibilidad del producto. La transparencia metodológica refuerza la confianza en las recomendaciones que sí aplican.
 
+## 2026-05-17 — Motor BESS (Módulo 4): despacho horario greedy + arbitraje
+
+**Decisión:** Motor de simulación con dos estrategias y N categorías. La unidad mínima es la hora; cada `EstadoHorario` reporta `gen_mwh`, `energia_categoria_mwh`, `cargado_kwh`, `descargado_kwh`, `no_capturada_kwh`, `soc_kwh`. Convención energética: las pérdidas de RTE se aplican como √rte en carga y √rte en descarga (modelo simétrico estándar para BESS).
+**Razón:** Replica las estrategias usadas en el Colab (carga continua vs. descarga acotada a hora-punta), pero portado a TS para que el motor sea fuente única de verdad para el Tab SFV+BESS y para futuros tabs.
+**Alternativa descartada:** Modelar pérdidas con un solo factor RTE en descarga (asimétrico). Habría hecho la simetría carga/descarga inconsistente y dificultado validación cruzada con Python.
+
+## 2026-05-17 — Categoría "Exceso capacidad CFE" se reporta vacía sin esconderlo
+
+**Decisión:** Para SFV no ampliado, la categoría `exceso_capacidad_cfe_kw` da ~0 MWh capturables y el motor lo reporta con `fraccion_capturada=0`, `cargado_total_mwh≈0`. La UI del Módulo 5 mostrará la fila de esa categoría con números pequeños, no la oculta.
+**Razón:** Mantiene la transparencia metodológica del producto: la anatomía de la energía nunca esconde una categoría. El usuario sabe explícitamente que ese supuesto no aplica a su caso.
+
+## 2026-05-17 — `simularCompleto` corre 2 × N (estrategias × categorías)
+
+**Decisión:** El orquestador devuelve todas las combinaciones (8 para las 4 categorías default). La UI elige cuál(es) mostrar según la selección del usuario en el Tab BESS.
+**Razón:** El cómputo es barato (8 simulaciones sobre 8,760 registros ≈ < 100 ms) y simplifica la integración: la UI no toma decisiones de qué calcular.
+
+## 2026-05-17 — Rangos esperados Tequila 2025 + HyperCube II Max (Módulo 5)
+
+Con `p_kw=250, e_kwh=836, dod=0.95, rte=0.85` y los 8,760 registros de Tequila:
+
+| Categoría | Estrategia | energia_categoria (MWh) | cargado esperado (MWh) |
+|---|---|---|---|
+| Toda la energía | greedy | ~913 | ~180–220 |
+| Toda la energía | arbitraje | ~913 | ~150–180 |
+| Fuera de hora-punta CFE | greedy | ~878–890 | similar |
+| Fuera de hora-punta CFE | arbitraje | ~878–890 | similar |
+| Arriba del compromiso PPA (~76 MWh/mes) | greedy | depende del mes | proporcional |
+| Arriba del compromiso PPA | arbitraje | depende del mes | proporcional |
+| Excede capacidad CFE (500 kW) | greedy | ~0 | ~0 |
+| Excede capacidad CFE (500 kW) | arbitraje | ~0 | ~0 |
+
+Validación visual viene en el Tab SFV+BESS (Módulo 5).
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.
