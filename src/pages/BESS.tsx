@@ -14,5 +14,5 @@ export function BESS() {
 
   if (!datos) return null;
 
-  return <TabBESS config={datos.config} />;
+  return <TabBESS datos={datos} />;
 }

@@ -5,10 +5,20 @@ import userEvent from "@testing-library/user-event";
 import { Seccion2Catalogo } from "./Seccion2Catalogo";
 import { recomendarEquipoOptimo } from "@/lib/bess/recomendacion";
 
+const PROPS_BASE = {
+  seleccion: "ninguna" as const,
+  resumenes: [],
+};
+
 describe("Seccion2Catalogo", () => {
   it("sin planta: muestra las 3 cards sin destacar ninguna", () => {
     render(
-      <Seccion2Catalogo recomendacion={null} onVerFicha={() => {}} />
+      <Seccion2Catalogo
+        recomendacion={null}
+        poi_kw={null}
+        onVerFicha={() => {}}
+        {...PROPS_BASE}
+      />
     );
     expect(screen.getByText("II Plus")).toBeInTheDocument();
     expect(screen.getByText("II Max")).toBeInTheDocument();
@@ -23,12 +33,13 @@ describe("Seccion2Catalogo", () => {
     render(
       <Seccion2Catalogo
         recomendacion={recomendacion}
+        poi_kw={500}
         onVerFicha={() => {}}
+        {...PROPS_BASE}
       />
     );
     const badge = screen.getByText(/punto de partida sugerido/i);
     expect(badge).toBeInTheDocument();
-    // El badge debe estar en la card del II Max.
     const cardMax = screen.getByText("II Max").closest("[class*='border-2']");
     expect(cardMax).not.toBeNull();
   });
@@ -37,7 +48,12 @@ describe("Seccion2Catalogo", () => {
     const user = userEvent.setup();
     const onVerFicha = vi.fn();
     render(
-      <Seccion2Catalogo recomendacion={null} onVerFicha={onVerFicha} />
+      <Seccion2Catalogo
+        recomendacion={null}
+        poi_kw={null}
+        onVerFicha={onVerFicha}
+        {...PROPS_BASE}
+      />
     );
     const botones = screen.getAllByRole("button", {
       name: /ver ficha completa/i,

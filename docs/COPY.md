@@ -111,6 +111,24 @@ Toda la copy del Tab BESS vive en `src/lib/copy/modulo-3.ts` bajo `COPY_M3`.
 - Título: "Catálogo de equipos BESS".
 - Subtítulo: "Sistemas de almacenamiento Hyperstrong disponibles para tu SFV."
 
+### Estructura reordenada (post-fix)
+
+1. Intro.
+2. **Anatomía de la energía (nueva)** — captura de parámetros PPA + 4 categorías + selector + bloque puente.
+3. Equipos disponibles — narrativa cambia según categoría seleccionada.
+4. Comparativa técnica.
+5. Comparativas visuales.
+6. Fichas técnicas detalladas.
+
+### Sección 2 — Anatomía de la energía
+
+- Título: "2. ¿Cuánta energía podríamos almacenar de tu SFV?"
+- Intro: "Tu SFV genera {N} MWh al año. La pregunta es: ¿cuánto de eso es energía técnicamente almacenable? La respuesta depende de tu PPA."
+- **Parámetros de tu PPA** — compromiso mensual (sugerido: promedio mensual del SFV), ventana hora-punta CFE (default 18-22h), capacidad CFE (read-only del onboarding). Botón "Restaurar valores sugeridos".
+- **Anatomía de tu energía** — 4 categorías como barras horizontales con tooltip extendido.
+- **Selector de categoría** — radios con "Aún no sabemos" como default + las 4 categorías con su MWh/año y % del SFV.
+- **Bloque puente** — "Energía a almacenar para la recomendación de equipo": categoría seleccionada + total (o rango si "Aún no sabemos").
+
 ### Sección 1 — Intro
 Bloques "¿Qué hace un BESS?", "¿Por qué importa para tu SFV?", lista de las 3 familias. Diagrama SVG: `SFV (genera de día) → BESS (almacena) → Red CFE (hora-punta 18-22 h)`.
 
