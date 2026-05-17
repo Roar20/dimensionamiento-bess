@@ -11,7 +11,6 @@ import {
 const HEADER_DIA = "día de operación";
 const HEADER_HORA = "hora";
 const HEADER_ENERGIA = "energía registrada [mwh]";
-const TOTAL_GENERAL = "total general";
 
 type ResultadoCarga = {
   datos: DatosSFV;
@@ -79,6 +78,24 @@ type HeaderInfo = {
   colEnergia: number;
 };
 
+/**
+ * Detecta filas de totales (mensuales o anuales) sin importar en qué columna
+ * cayó la etiqueta. El operador exporta el reporte con la palabra "Total" en
+ * la columna padding o en la columna de fecha, según la versión del template.
+ *
+ * Una fila legítima de datos no contiene strings con "total" en ningún campo
+ * relevante (fecha es Date/serial, hora es número 1-24, energía es número),
+ * por lo que el escaneo es seguro.
+ */
+function esFilaDeTotales(fila: readonly unknown[]): boolean {
+  for (const valor of fila) {
+    if (typeof valor === "string" && valor.toLowerCase().includes("total")) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function localizarHeader(filas: unknown[][]): HeaderInfo | null {
   for (let i = 0; i < filas.length; i += 1) {
     const fila = filas[i];
@@ -109,8 +126,10 @@ function leerRegistros(
     const fila = filas[i];
     if (!fila) continue;
 
-    const primeraCelda = normalizar(fila[0]);
-    if (primeraCelda.startsWith(TOTAL_GENERAL)) break;
+    // Saltar (no terminar) filas de totales — mensuales, trimestrales o el
+    // anual final. Aparecen en distintas posiciones según cómo el operador
+    // exporte el reporte, así que escaneamos la fila completa.
+    if (esFilaDeTotales(fila)) continue;
 
     const valorDia = fila[header.colDia];
     const valorHora = fila[header.colHora];

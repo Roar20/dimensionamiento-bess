@@ -3,18 +3,21 @@ import { Label } from "@/components/ui/label";
 import { COPY_M1A } from "@/lib/copy/modulo-1a";
 import { SeccionCard } from "@/components/onboarding/SeccionCard";
 
-export type DatosCliente = {
+interface Props {
   nombre: string;
   cliente: string;
   ubicacion: string;
-};
-
-interface Props {
-  valores: DatosCliente;
-  onChange: (next: DatosCliente) => void;
+  onChange: (
+    parcial: Partial<{ nombre: string; cliente: string; ubicacion: string }>
+  ) => void;
 }
 
-export function SeccionDatosCliente({ valores, onChange }: Props) {
+export function SeccionDatosCliente({
+  nombre,
+  cliente,
+  ubicacion,
+  onChange,
+}: Props) {
   const copy = COPY_M1A.secciones.cliente;
   const campos = copy.campos;
 
@@ -31,8 +34,8 @@ export function SeccionDatosCliente({ valores, onChange }: Props) {
           helper={campos.nombre.helper}
           placeholder={campos.nombre.placeholder}
           required
-          value={valores.nombre}
-          onChange={(v) => onChange({ ...valores, nombre: v })}
+          value={nombre}
+          onChange={(v) => onChange({ nombre: v })}
           maxLength={80}
         />
         <div className="grid gap-4 md:grid-cols-2">
@@ -41,8 +44,8 @@ export function SeccionDatosCliente({ valores, onChange }: Props) {
             label={campos.cliente.label}
             helper={campos.cliente.helper}
             placeholder={campos.cliente.placeholder}
-            value={valores.cliente}
-            onChange={(v) => onChange({ ...valores, cliente: v })}
+            value={cliente}
+            onChange={(v) => onChange({ cliente: v })}
             maxLength={120}
           />
           <Campo
@@ -50,8 +53,8 @@ export function SeccionDatosCliente({ valores, onChange }: Props) {
             label={campos.ubicacion.label}
             helper={campos.ubicacion.helper}
             placeholder={campos.ubicacion.placeholder}
-            value={valores.ubicacion}
-            onChange={(v) => onChange({ ...valores, ubicacion: v })}
+            value={ubicacion}
+            onChange={(v) => onChange({ ubicacion: v })}
             maxLength={120}
           />
         </div>
