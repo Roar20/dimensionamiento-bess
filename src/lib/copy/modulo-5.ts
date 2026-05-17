@@ -45,10 +45,10 @@ export const COPY_M5 = {
       `Comportamiento detallado del ${label}.`,
     greedyTitulo: "Estrategia greedy",
     greedyTexto:
-      "El BESS carga apenas hay energía y descarga apenas no la hay. Sin restricción horaria.",
+      "El BESS carga apenas hay energía y descarga apenas no la hay, sin estrategia de precio. Preserva 5% mínimo de carga para vida útil de la batería.",
     arbitrajeTitulo: "Estrategia arbitraje (recomendada)",
     arbitrajeTexto:
-      "El BESS carga durante el día y descarga SOLO en hora-punta CFE (18-22h).",
+      "El BESS carga durante el día y descarga SOLO en hora-punta CFE (18-22h) donde la energía vale más. Preserva 5% mínimo de carga para vida útil.",
     insight:
       "La estrategia arbitraje concentra la descarga en hora-punta donde la energía vale más.",
     series: {

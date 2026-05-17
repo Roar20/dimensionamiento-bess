@@ -73,6 +73,34 @@ describe("simularDespachoArbitraje", () => {
     }
   });
 
+  it("respeta piso de SoC del 5% y descarga solo en hora-punta", () => {
+    const registros = generarDiaConGeneracion("2025-06-15", 300, [
+      8, 9, 10, 11, 12, 13, 14, 15,
+    ]);
+    const energia_categoria_mwh = registros.map((r) => r.energia_mwh);
+
+    const detalle = simularDespachoArbitraje(
+      registros,
+      energia_categoria_mwh,
+      CONFIG_BESS_TEST
+    );
+
+    const cap_util = CONFIG_BESS_TEST.e_kwh * CONFIG_BESS_TEST.dod;
+    const soc_min = cap_util * 0.05;
+    for (const e of detalle) {
+      expect(e.soc_kwh).toBeGreaterThanOrEqual(soc_min - 0.01);
+    }
+
+    // Toda descarga debe ocurrir SOLO en hora-ending 18..22.
+    for (let h = 0; h < 24; h += 1) {
+      if (detalle[h]!.descargado_kwh > 0) {
+        const horaEnding = h + 1;
+        expect(horaEnding).toBeGreaterThanOrEqual(18);
+        expect(horaEnding).toBeLessThanOrEqual(22);
+      }
+    }
+  });
+
   it("con generación toda fuera de hora-punta: greedy y arbitraje cargan lo mismo", () => {
     const registros = generarDiaConGeneracion("2025-03-15", 100, [
       8, 9, 10, 11, 12, 13, 14, 15,

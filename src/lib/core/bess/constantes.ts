@@ -17,3 +17,10 @@ export const RTE_UTILITY_DEFAULT = 0.93;
 
 /** Tolerancia numérica para validaciones (kWh). */
 export const TOLERANCIA_KWH = 0.01;
+
+/**
+ * Piso de SoC permitido como fracción de la capacidad útil (`e_kwh × dod`).
+ * Estándar industrial LFP: 5% mínimo para preservar vida útil del
+ * electroquímico. Se aplica DENTRO de la capacidad útil, no del nominal.
+ */
+export const SOC_MIN_PCT_DEFAULT = 0.05;

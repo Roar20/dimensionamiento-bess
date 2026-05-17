@@ -7,7 +7,7 @@ import {
 } from "@/test/fixtures/bess-fixtures";
 
 describe("simularDespachoGreedy", () => {
-  it("sin energía en la categoría: no carga ni descarga (SoC inicial 0)", () => {
+  it("sin energía en la categoría: no carga, no puede descargar bajo el piso 5%", () => {
     const registros = generarDiaConGeneracion("2025-03-15", 0, []);
     const energia_categoria_mwh = new Array(24).fill(0);
     const detalle = simularDespachoGreedy(
@@ -16,9 +16,15 @@ describe("simularDespachoGreedy", () => {
       CONFIG_BESS_TEST
     );
 
+    const cap_util = CONFIG_BESS_TEST.e_kwh * CONFIG_BESS_TEST.dod;
+    const soc_min = cap_util * 0.05;
     expect(detalle.every((e) => e.cargado_kwh === 0)).toBe(true);
     expect(detalle.every((e) => e.descargado_kwh === 0)).toBe(true);
-    expect(detalle.every((e) => e.soc_kwh === 0)).toBe(true);
+    // SoC arranca y se mantiene en el piso 5% (no hay energía para cargar y
+    // no se puede descargar bajo el piso).
+    expect(detalle.every((e) => Math.abs(e.soc_kwh - soc_min) < 0.01)).toBe(
+      true
+    );
   });
 
   it("energía abundante: carga acotada por potencia (P=250), excedente va a no_capturada", () => {
@@ -80,13 +86,35 @@ describe("simularDespachoGreedy", () => {
     );
 
     const sqrtRte = Math.sqrt(0.85); // ≈ 0.9220
+    const cap_util = 1000 * 0.95;
+    const soc_min = cap_util * 0.05; // 47.5 kWh
     expect(detalle[10]!.cargado_kwh).toBeCloseTo(100, 4);
-    expect(detalle[10]!.soc_kwh).toBeCloseTo(100 * sqrtRte, 3);
+    // SoC arranca en el piso (47.5) y sube ~92.2 al cargar 100 kWh AC.
+    expect(detalle[10]!.soc_kwh).toBeCloseTo(soc_min + 100 * sqrtRte, 3);
 
-    // Hora 11 sin categoría → descarga inmediata.
+    // Hora 11 sin categoría → descarga inmediata. Solo es entregable lo que
+    // está arriba del piso (los ~92.2 kWh DC ganados), que en AC son ~85.
     const descarga_h11 = detalle[11]!.descargado_kwh;
-    // SoC pre-descarga = 100*√rte ≈ 92.2. Descarga AC = SoC * √rte ≈ 85.
     expect(descarga_h11).toBeCloseTo(100 * 0.85, 2);
+  });
+
+  it("respeta piso de SoC del 5% en todas las horas", () => {
+    const registros = generarDiaConGeneracion("2025-06-15", 300, [
+      8, 9, 10, 11, 12, 13, 14, 15,
+    ]);
+    const energia_categoria_mwh = registros.map((r) => r.energia_mwh);
+
+    const detalle = simularDespachoGreedy(
+      registros,
+      energia_categoria_mwh,
+      CONFIG_BESS_TEST
+    );
+
+    const cap_util = CONFIG_BESS_TEST.e_kwh * CONFIG_BESS_TEST.dod;
+    const soc_min = cap_util * 0.05;
+    for (const e of detalle) {
+      expect(e.soc_kwh).toBeGreaterThanOrEqual(soc_min - 0.01);
+    }
   });
 
   it("greedy descarga en horas sin energía en categoría (no se limita a hora-punta)", () => {

@@ -61,6 +61,11 @@ export type ConfiguracionBESS = {
   rte: number;
   /** SoC inicial en kWh. */
   soc_inicial_kwh: number;
+  /**
+   * Piso de SoC como fracción de la capacidad útil (`e_kwh × dod`).
+   * Default 0.05 (5%) para preservar vida útil LFP.
+   */
+  soc_min_pct?: number;
 };
 
 export type EstrategiaDespacho = "greedy" | "arbitraje";

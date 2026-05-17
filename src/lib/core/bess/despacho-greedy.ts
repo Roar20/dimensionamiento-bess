@@ -1,6 +1,8 @@
 import type { RegistroHorario } from "@/types/sfv";
 import type { ConfiguracionBESS, EstadoHorario } from "@/types/bess";
 
+import { SOC_MIN_PCT_DEFAULT } from "./constantes";
+
 /**
  * Despacho greedy:
  * - Cargar el BESS apenas hay energía en la categoría hasta saturar SoC o
@@ -26,10 +28,11 @@ export function simularDespachoGreedy(
 
   const dt_h = 1.0;
   const soc_max_kwh = config.e_kwh * config.dod;
-  const soc_min_kwh = 0;
+  const soc_min_pct = config.soc_min_pct ?? SOC_MIN_PCT_DEFAULT;
+  const soc_min_kwh = soc_max_kwh * soc_min_pct;
   const sqrt_rte = Math.sqrt(config.rte);
 
-  let soc = config.soc_inicial_kwh;
+  let soc = Math.max(soc_min_kwh, config.soc_inicial_kwh);
   const resultado: EstadoHorario[] = [];
 
   for (let i = 0; i < registros.length; i += 1) {
@@ -55,7 +58,9 @@ export function simularDespachoGreedy(
       no_capturada_kwh = cat_kwh - carga_real;
     } else {
       const max_descarga_potencia = config.p_kw * dt_h;
-      const max_descarga_soc = soc * sqrt_rte;
+      // El piso de SoC limita cuánto se puede descargar: solo lo que está
+      // ARRIBA del piso es entregable, escalado por √rte hacia AC.
+      const max_descarga_soc = (soc - soc_min_kwh) * sqrt_rte;
       const descarga_real = Math.max(
         0,
         Math.min(max_descarga_potencia, max_descarga_soc)
