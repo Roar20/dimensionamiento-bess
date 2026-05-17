@@ -13,6 +13,17 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: [
+          "Inter Variable",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -47,11 +58,48 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+
+        /* Tokens del Módulo 1A (paleta de la captura) */
+        brand: {
+          header: "var(--color-header-bg)",
+          headerFg: "var(--color-header-fg)",
+          page: "var(--color-page-bg)",
+          card: "var(--color-card-bg)",
+          cardBorder: "var(--color-card-border)",
+        },
+        ink: {
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          helper: "var(--color-text-helper)",
+        },
+        field: {
+          border: "var(--color-input-border)",
+          focus: "var(--color-input-focus)",
+        },
+        action: {
+          DEFAULT: "var(--color-primary)",
+          hover: "var(--color-primary-hover)",
+        },
+        info: {
+          bg: "var(--color-info-bg)",
+          border: "var(--color-info-border)",
+        },
+        status: {
+          success: "var(--color-success)",
+          warning: "var(--color-warning)",
+          error: "var(--color-error)",
+          info: "var(--color-info)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        card: "var(--radius-card)",
+        input: "var(--radius-input)",
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
       },
       keyframes: {
         "accordion-down": {
