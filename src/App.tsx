@@ -1,18 +1,23 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
 import { ViewModeProvider } from "@/context/ViewModeContext";
+import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 import { Home } from "@/pages/Home";
+import { SFV } from "@/pages/SFV";
 
 export function App() {
   return (
     <ViewModeProvider>
-      <BrowserRouter>
-        <AppShell>
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>
-        </AppShell>
-      </BrowserRouter>
+      <DatosSFVProvider>
+        <BrowserRouter>
+          <AppShell>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/sfv" element={<SFV />} />
+            </Routes>
+          </AppShell>
+        </BrowserRouter>
+      </DatosSFVProvider>
     </ViewModeProvider>
   );
 }

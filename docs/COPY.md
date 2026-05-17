@@ -56,6 +56,45 @@ Tres pasos numerados, exactos según `COPY_M1A.como.pasos`.
 - **Subtítulo:** "Estos son los datos persistidos en este navegador. Puedes seguir trabajando o cargar otra planta."
 - **KPIs:** Año del reporte, Energía anual generada (MWh), Horas con generación, Pico horario (kW). Cada KPI lleva label + sublabel + unidad cuando aplica.
 
+## Módulo 2 — Tab SFV (análisis de la curva de generación)
+
+Toda la copy del Tab SFV vive en `src/lib/copy/modulo-2.ts` bajo `COPY_M2`.
+
+### Encabezado contextual y modal "Cambiar planta"
+- Botón header: "Cambiar planta".
+- Modal: título "¿Quieres cambiar de planta?", descripción "Los datos actuales se reemplazarán al cargar el nuevo archivo.", botones "Cancelar" y "Continuar".
+
+### Selector temporal
+- Label: "Periodo:" + flechas anterior/siguiente + dropdown del periodo + radios "Anual" / "Mensual" / "Diario".
+
+### Sección 1 — ¿Cuánto genera tu SFV en {periodo}?
+- KPIs: Energía generada (MWh), Horas con generación, Potencia promedio anual del SFV (kW + % del POI), Factor de planta (%).
+- Tooltips con criterio CFE (factor típico SFV México 18-25%).
+- Bloque técnico: HSE, Factor de capacidad PV, Días analizados.
+
+### Sección 2 — ¿Cuándo genera durante el día?
+- Gráfica horaria: kW promedio + kW máximo + banda "Hora-punta CFE" (18-22h) + referencia POI.
+- KPI: "Energía generada durante hora-punta CFE".
+- Bloque técnico: tabla 24 horas + diagnóstico de clipping.
+
+### Sección 3 — ¿Cómo varía día a día?
+- Serie diaria de barras con referencia "Promedio" y "P10".
+- KPIs: Mejor día, Peor día, Promedio diario, Variabilidad, Días anómalos.
+- Bloque técnico: histograma de días por rango de MWh.
+
+### Sección 4 — ¿Cuándo genera más, hora por hora y día por día?
+- Heatmap día×hora (SVG custom, escala YlOrRd).
+- Selector de mes interno (granularidad Anual).
+- Granularidad Diaria: curva del día seleccionado.
+- Bloque técnico: matriz numérica (kW).
+
+### Sección 5 — Resumen mensual (solo granularidad Anual)
+- Tabla 12 filas: Mes, Energía (MWh), Pico horario (kW), Días con generación, Hora pico promedio, Mejor día, Peor día.
+- Bloque técnico: botón "Exportar CSV".
+
+### Periodo sin datos
+- "No hay generación registrada el {fecha}. Selecciona otro día o cambia la granularidad." + botón "Ver día anterior con datos".
+
 ## Glosario de KPIs
 
 _Pendiente: se llenará por tab en módulos siguientes._

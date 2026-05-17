@@ -91,6 +91,47 @@ Estos valores son la referencia para validar el preview del Tab SFV cuando se in
 
 (Caso: POI = 500 kW, cap_pv_instalada = 500 kW, archivo `REPORTE_ANUAL_GENERACIÓN_2025_x_horas_TEQUILA_1.xlsx`).
 
+## 2026-05-17 — Módulo 2: Tab SFV con estructura narrativa secuencial
+
+**Decisión:** El Tab SFV es scroll vertical con 5 secciones numeradas, cada una con párrafo introductorio dinámico + KPIs + gráfica. La granularidad temporal global controla todas las secciones simultáneamente.
+**Razón:** Estructura narrativa contesta preguntas en orden ("¿Cuánto?", "¿Cuándo en el día?", "¿Cómo varía día a día?", "¿Cuándo en detalle?", "Resumen mensual"). Reduce carga cognitiva vs un dashboard con muchos paneles.
+**Alternativa descartada:** Dashboard con KPIs paralelos. Funciona como cockpit pero no como herramienta de exploración.
+
+## 2026-05-17 — Convención hora-ending en UI
+
+**Decisión:** Toda la UI del Tab SFV expone horas en convención hora-ending 1..24 (idéntica al motor 1B y al lenguaje CFE GDMTH). La banda "Hora-punta CFE" muestra [18, 22] inclusive.
+**Razón:** Paridad con motor + lenguaje regulatorio + consistencia entre tabs futuros.
+**Alternativa descartada:** Mostrar 0..23. Habría forzado al usuario a traducir mentalmente.
+
+## 2026-05-17 — Heatmap día×hora con SVG custom (no Recharts)
+
+**Decisión:** El heatmap de la Sección 4 se construye con SVG nativo en React (no librería). Escala de color YlOrRd interpolada linealmente entre 5 paradas.
+**Razón:** Recharts no tiene un heatmap nativo; soluciones de terceros (Nivo, Visx) duplican el bundle. SVG nativo da control total con < 80 LOC.
+**Alternativa descartada:** Nivo Heatmap (~100 KB extra al bundle).
+
+## 2026-05-17 — KPI renombrado "Potencia promedio anual del SFV"
+
+**Decisión:** En la UI, el KPI que internamente se llama `pico_kw` (motor) se presenta como "Potencia promedio anual del SFV" + sublabel "% del POI".
+**Razón:** El equipo comercial pidió un nombre menos técnico para el cliente final. El nombre interno se mantiene en el motor para validación cruzada con el Colab.
+**Alternativa descartada:** Mantener "Pico" en UI. Era confuso para el comercial.
+
+## 2026-05-17 — Persistencia del periodo activo
+
+**Decisión:** `usePeriodoActivo` persiste `{ granularidad, indice }` en `localStorage` bajo `dimensionamiento-bess:periodo-activo`. Al cambiar planta (limpiar datos), también se limpia esta llave.
+**Razón:** El usuario que regresa a la app no pierde su contexto temporal. Pero al cambiar de planta, no tiene sentido conservar un periodo que no aplica.
+
+## 2026-05-17 — Auto-navegación tras procesar archivo
+
+**Decisión:** Procesar archivo en `/` lleva automáticamente a `/sfv`. Si `localStorage` ya tiene datos al cargar la app en `/`, también redirige.
+**Razón:** El usuario no necesita ver el resumen post-carga; la historia continúa naturalmente en el primer tab.
+**Alternativa descartada:** Mostrar resumen intermedio. Era un paso muerto.
+
+## 2026-05-17 — `useDatosSFV` movido a contexto
+
+**Decisión:** El hook `useDatosSFV` ahora se consume vía `DatosSFVProvider` (Context API) en lugar de instancias independientes por componente.
+**Razón:** Múltiples componentes (AppShell, Home, SFV) necesitan ver el mismo estado y reaccionar a `cargar`/`limpiar`. Sin contexto, cada hook tenía su propia copia del estado.
+**Alternativa descartada:** Pasar `datos` por props desde un componente raíz. Funciona pero contamina la API.
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.
