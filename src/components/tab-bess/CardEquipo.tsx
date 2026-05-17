@@ -15,16 +15,23 @@ import { cn } from "@/lib/utils";
 interface Props {
   equipo: EquipoBESS;
   esRecomendado?: boolean;
+  descartado?: boolean;
   onVerFicha: (id: string) => void;
 }
 
-export function CardEquipo({ equipo, esRecomendado, onVerFicha }: Props) {
+export function CardEquipo({
+  equipo,
+  esRecomendado,
+  descartado,
+  onVerFicha,
+}: Props) {
   const copy = COPY_M3.seccion2;
   return (
     <Card
       className={cn(
-        "relative flex flex-col",
-        esRecomendado && "border-2 border-action shadow-md"
+        "relative flex flex-col transition-opacity",
+        esRecomendado && "border-2 border-action shadow-md",
+        descartado && "opacity-50"
       )}
     >
       {esRecomendado ? (
