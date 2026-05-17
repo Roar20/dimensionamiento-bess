@@ -266,6 +266,18 @@ Validación visual con POI 500, II Max (250 kW × 836 kWh), DOD 0.95, RTE 0.85:
 | Ciclos equivalentes anuales | 200-260 | 180-220 |
 | Horas de descarga en hora-punta | <800 (típico) | ~1,825 (5 h × 365 días) |
 
+## 2026-05-17 — Piso de SoC del 5% en ambas estrategias
+
+**Decisión:** El motor BESS aplica un piso de SoC equivalente al 5% de la capacidad útil (`e_kwh × dod`) en ambas estrategias (greedy y arbitraje). `ConfiguracionBESS` acepta `soc_min_pct` opcional, default 0.05. Greedy descarga sin restricción horaria respetando el piso; arbitraje descarga solo en hora-punta CFE respetando el piso.
+**Razón:** Estándar industrial LFP — las baterías Hyperstrong reservan SoC mínimo para preservar vida útil del electroquímico. El YAML del proyecto lo prescribe ("SoC min 5%, never full discharge").
+**Efecto en simulación:** la cap útil efectiva pasa de 100% a 95% del nominal × DoD (de 950 a 902.5 kWh para 1× II Max). Greedy y arbitraje divergen más visiblemente porque alcanzan el piso en momentos distintos del día. La línea de SoC en las gráficas del Tab SFV+BESS nunca debe tocar 0%.
+
+## 2026-05-17 — Inputs numéricos con buffer de texto
+
+**Decisión:** Los inputs del bloque "Parámetros PPA" (Tab BESS) usan un buffer string local que solo notifica al padre cuando el valor parsea válido y queda dentro de `[min, max]`. Al `blur`, si el buffer es inválido, revierte al valor del padre.
+**Razón:** El patrón anterior `value={params.x}` con `onChange = e => Number(e.target.value) || fallback` causaba dos bugs: (1) al borrar el campo durante edición el valor "se atascaba"; (2) los fallbacks `|| HORA_MAX_VALIDA` persistían ventanas inválidas como `[18, 24]` cuando el usuario vaciaba el segundo input.
+**Defensa retroactiva:** `useParametrosPPA.leerPersistido` valida `1 ≤ ini < fin ≤ 24` al rehidratar y reinicia la ventana al default si la persistencia está corrupta.
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.

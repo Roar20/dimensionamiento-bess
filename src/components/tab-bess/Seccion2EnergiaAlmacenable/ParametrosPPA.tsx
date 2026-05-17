@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -63,19 +64,15 @@ export function ParametrosPPA({
               </TooltipProvider>
             </div>
             <div className="flex items-center gap-2">
-              <Input
+              <InputNumeroBuffer
                 id="ppa-compromiso"
-                type="number"
-                step="0.1"
-                min="0"
-                value={params.compromiso_mensual_mwh}
-                onChange={(e) =>
-                  onActualizar({
-                    compromiso_mensual_mwh:
-                      e.target.value === "" ? 0 : Number(e.target.value),
-                  })
+                valor={params.compromiso_mensual_mwh}
+                onValido={(n) =>
+                  onActualizar({ compromiso_mensual_mwh: n })
                 }
-                className="w-32 tabular-nums"
+                min={0}
+                step="0.1"
+                ancho="w-32"
               />
               <span className="text-sm text-ink-helper">
                 {copy.compromiso.unidad}
@@ -90,39 +87,37 @@ export function ParametrosPPA({
           <div className="space-y-1.5">
             <Label htmlFor="ppa-punta-ini">{copy.ventana.label}</Label>
             <div className="flex items-center gap-2">
-              <Input
+              <InputNumeroBuffer
                 id="ppa-punta-ini"
-                type="number"
+                valor={ini}
+                onValido={(n) => {
+                  if (n < fin) {
+                    onActualizar({
+                      ventana_punta_cfe: [n, fin] as const,
+                    });
+                  }
+                }}
                 min={HORA_MIN_VALIDA}
                 max={HORA_MAX_VALIDA}
-                value={ini}
-                onChange={(e) =>
-                  onActualizar({
-                    ventana_punta_cfe: [
-                      Number(e.target.value) || HORA_MIN_VALIDA,
-                      fin,
-                    ] as const,
-                  })
-                }
-                className="w-20 tabular-nums"
+                step="1"
+                ancho="w-20"
               />
               <span className="text-sm text-ink-helper">:00</span>
               <span className="mx-1 text-ink-helper">–</span>
-              <Input
-                aria-label="Hora-punta fin"
-                type="number"
+              <InputNumeroBuffer
+                ariaLabel="Hora-punta fin"
+                valor={fin}
+                onValido={(n) => {
+                  if (n > ini) {
+                    onActualizar({
+                      ventana_punta_cfe: [ini, n] as const,
+                    });
+                  }
+                }}
                 min={HORA_MIN_VALIDA}
                 max={HORA_MAX_VALIDA}
-                value={fin}
-                onChange={(e) =>
-                  onActualizar({
-                    ventana_punta_cfe: [
-                      ini,
-                      Number(e.target.value) || HORA_MAX_VALIDA,
-                    ] as const,
-                  })
-                }
-                className="w-20 tabular-nums"
+                step="1"
+                ancho="w-20"
               />
               <span className="text-sm text-ink-helper">:00</span>
             </div>
@@ -159,5 +154,76 @@ export function ParametrosPPA({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+interface InputNumeroBufferProps {
+  valor: number;
+  onValido: (n: number) => void;
+  min?: number;
+  max?: number;
+  step?: string;
+  ancho?: string;
+  id?: string;
+  ariaLabel?: string;
+}
+
+/**
+ * Input numérico con buffer de texto local: el usuario puede borrar el
+ * contenido, escribir caracter por caracter y solo se notifica al padre
+ * cuando el valor parsea a un número válido en [min, max]. En blur se
+ * revierte al valor del padre si el buffer no parsea o queda fuera de
+ * rango. Evita que el estado del padre se "atasque" entre teclazos.
+ */
+function InputNumeroBuffer({
+  valor,
+  onValido,
+  min,
+  max,
+  step = "any",
+  ancho = "w-32",
+  id,
+  ariaLabel,
+}: InputNumeroBufferProps) {
+  const [buffer, setBuffer] = useState(String(valor));
+
+  useEffect(() => {
+    setBuffer(String(valor));
+  }, [valor]);
+
+  const procesar = (raw: string) => {
+    setBuffer(raw);
+    if (raw === "" || raw === "-" || raw === ".") return;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return;
+    if (min !== undefined && n < min) return;
+    if (max !== undefined && n > max) return;
+    onValido(n);
+  };
+
+  const blur = () => {
+    const n = Number(buffer);
+    if (
+      !Number.isFinite(n) ||
+      (min !== undefined && n < min) ||
+      (max !== undefined && n > max)
+    ) {
+      setBuffer(String(valor));
+    }
+  };
+
+  return (
+    <Input
+      id={id}
+      aria-label={ariaLabel}
+      type="number"
+      step={step}
+      min={min}
+      max={max}
+      value={buffer}
+      onChange={(e) => procesar(e.target.value)}
+      onBlur={blur}
+      className={`${ancho} tabular-nums`}
+    />
   );
 }
