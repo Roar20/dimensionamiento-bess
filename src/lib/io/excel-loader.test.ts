@@ -39,14 +39,53 @@ function diasDelAnio(anio: number): number {
   return (anio % 4 === 0 && anio % 100 !== 0) || anio % 400 === 0 ? 366 : 365;
 }
 
+function isoFecha(anio: number, mes1Indexado: number, dia: number): string {
+  return `${anio}-${String(mes1Indexado).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+}
+
+function diasDelMes(anio: number, mes1Indexado: number): number {
+  return new Date(anio, mes1Indexado, 0).getDate();
+}
+
+/**
+ * Replica la estructura real del reporte de Tequila: columna 0 de padding,
+ * datos en columnas 1..3, y entre cada mes una fila vacía, una fila
+ * "Total general | null | <total mensual>", y otra fila vacía.
+ * Incluye también el total anual al final.
+ */
+function generarFixtureMensualizadoTequila(anio: number, energiaPorHora: number): Fila[] {
+  const filas: Fila[] = [];
+  // Header con padding column 0 vacío (real-world Tequila).
+  filas.push([null, "Día de Operación", "Hora", "Energía Registrada [MWh]"]);
+  let totalAnual = 0;
+  for (let mes = 1; mes <= 12; mes += 1) {
+    let totalMes = 0;
+    const dias = diasDelMes(anio, mes);
+    for (let d = 1; d <= dias; d += 1) {
+      const fecha = isoFecha(anio, mes, d);
+      for (let h = 1; h <= 24; h += 1) {
+        filas.push([null, fecha, h, energiaPorHora]);
+        totalMes += energiaPorHora;
+      }
+    }
+    totalAnual += totalMes;
+    // Separadores y total mensual (padding column).
+    filas.push([null, null, null, null]);
+    filas.push(["Total general", null, null, totalMes]);
+    filas.push([null, null, null, null]);
+  }
+  filas.push(["Total general", null, null, totalAnual]);
+  return filas;
+}
+
 function generarRegistrosAnio(anio: number, energiaPorHora: number): Fila[] {
   const filas: Fila[] = [];
   const dias = diasDelAnio(anio);
   for (let d = 0; d < dias; d += 1) {
     const fecha = new Date(anio, 0, 1 + d);
-    const isoFecha = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}-${String(fecha.getDate()).padStart(2, "0")}`;
+    const fechaStr = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}-${String(fecha.getDate()).padStart(2, "0")}`;
     for (let h = 1; h <= 24; h += 1) {
-      filas.push([isoFecha, h, energiaPorHora]);
+      filas.push([fechaStr, h, energiaPorHora]);
     }
   }
   return filas;
@@ -177,5 +216,56 @@ describe("cargarArchivoSFV", () => {
     expect(
       warnings.find((w) => w.codigo === "ANIO_NO_COMPLETO")
     ).toBeUndefined();
+  });
+
+  it("salta filas vacías y 'Total general' intermedios entre meses", async () => {
+    // Enero (31 días × 24 h = 744) + separadores + total mensual +
+    // febrero (28 días × 24 h = 672). El total mensual = 744 * 0.1 = 74.4.
+    const filas: Fila[] = [
+      [null, "Día de Operación", "Hora", "Energía Registrada [MWh]"],
+    ];
+    let totalEnero = 0;
+    for (let d = 1; d <= 31; d += 1) {
+      const fecha = `2025-01-${String(d).padStart(2, "0")}`;
+      for (let h = 1; h <= 24; h += 1) {
+        filas.push([null, fecha, h, 0.1]);
+        totalEnero += 0.1;
+      }
+    }
+    filas.push([null, null, null, null]);
+    filas.push(["Total general", null, null, totalEnero]);
+    filas.push([null, null, null, null]);
+    for (let d = 1; d <= 28; d += 1) {
+      const fecha = `2025-02-${String(d).padStart(2, "0")}`;
+      for (let h = 1; h <= 24; h += 1) {
+        filas.push([null, fecha, h, 0.1]);
+      }
+    }
+    const file = construirArchivo(filas);
+
+    const { datos } = await cargarArchivoSFV(file, CONFIG_BASE);
+
+    expect(datos.registros).toHaveLength(744 + 672);
+    expect(datos.meta.total_horas).toBe(744 + 672);
+    // El total mensual intermedio NO debe estar en los registros.
+    expect(datos.registros.some((r) => r.energia_mwh === totalEnero)).toBe(false);
+  });
+
+  it("procesa archivo anual completo de 12 meses con totales intermedios (estructura real Tequila)", async () => {
+    const filas = generarFixtureMensualizadoTequila(2025, 0.1042);
+    const file = construirArchivo(filas);
+
+    const { datos, warnings } = await cargarArchivoSFV(file, CONFIG_BASE);
+
+    expect(datos.meta.total_horas).toBe(8760);
+    expect(datos.meta.anio).toBe(2025);
+    expect(
+      warnings.find((w) => w.codigo === "HORAS_INCOMPLETAS")
+    ).toBeUndefined();
+    expect(
+      warnings.find((w) => w.codigo === "ANIO_NO_COMPLETO")
+    ).toBeUndefined();
+    // Energía anual aproximada: 8760 * 0.1042 ≈ 912.79 MWh.
+    expect(datos.meta.total_energia_mwh).toBeCloseTo(8760 * 0.1042, 1);
   });
 });
