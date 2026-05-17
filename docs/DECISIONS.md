@@ -234,6 +234,38 @@ Con `p_kw=250, e_kwh=836, dod=0.95, rte=0.85` y los 8,760 registros de Tequila:
 
 Validación visual viene en el Tab SFV+BESS (Módulo 5).
 
+## 2026-05-17 — Módulo 5: Tab SFV+BESS con simulación en vivo
+
+**Decisión:** El Tab SFV+BESS construye `useConfiguracionBESS` (equipo + multiplicador) y corre `simularCompleto` (2 × 4 = 8 simulaciones) sobre el año completo. Luego filtra el detalle horario al periodo activo y recalcula KPIs sobre el subset.
+**Razón:** Simular siempre el año entero garantiza que las gráficas mensuales/semanales/diarias parten del mismo modelo físico. El cómputo es <100 ms.
+**Alternativa descartada:** Simular sólo el periodo activo. Habría hecho que el SoC inicial fuera dependiente del periodo (gato), y la comparativa entre periodos sería injusta.
+
+## 2026-05-17 — Granularidad Semanal solo en SFV+BESS
+
+**Decisión:** El Tab SFV no expone Semanal; el Tab SFV+BESS sí lo hace. `SelectorTemporal` ahora acepta una prop opcional `granularidadesDisponibles` para que cada tab declare las suyas.
+**Razón:** El comportamiento semanal del BESS importa para el dimensionamiento (ciclos por semana, distribución de descargas en hora-punta por día de la semana), pero el SFV no se beneficia de esa granularidad (la generación solar no tiene patrón semanal).
+
+## 2026-05-17 — `useConfiguracionBESS` calcula recomendación localmente
+
+**Decisión:** El hook calcula los resúmenes de categorías con los parámetros PPA actuales y deriva el equipo recomendado en su propio espacio. No depende del estado de selección del Tab BESS.
+**Razón:** Cada tab vive con su propio estado de selección sin acoplamiento cruzado. Si el usuario cambia los parámetros PPA en cualquier tab, la recomendación se actualiza en ambos al renderizar.
+
+## 2026-05-17 — Estrategia recomendada: arbitraje (heurístico narrativo)
+
+**Decisión:** El Tab SFV+BESS narra arbitraje como la estrategia recomendada cuando entrega ≥1× la energía en hora-punta vs greedy (que es casi siempre). La cuantificación económica viene en Módulos 6-7.
+**Razón:** Greedy mueve más energía total, pero la energía en hora-punta CFE GDMTH se cotiza ~30% por arriba del precio promedio. La estrategia que concentra descarga en esa ventana captura el diferencial.
+
+## 2026-05-17 — Rangos esperados Tequila 2025 + 1× HyperCube II Max (Módulo 5)
+
+Validación visual con POI 500, II Max (250 kW × 836 kWh), DOD 0.95, RTE 0.85:
+
+| KPI | Greedy | Arbitraje |
+|---|---|---|
+| Cargado total anual (MWh) | 180-220 | 150-180 |
+| Descargado total anual (MWh) | 150-190 | 130-160 |
+| Ciclos equivalentes anuales | 200-260 | 180-220 |
+| Horas de descarga en hora-punta | <800 (típico) | ~1,825 (5 h × 365 días) |
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.

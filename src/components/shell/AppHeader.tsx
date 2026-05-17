@@ -12,9 +12,10 @@ import { cn } from "@/lib/utils";
 const TABS_HABILITABLES = [
   { label: "SFV", ruta: "/sfv" },
   { label: "BESS", ruta: "/bess" },
+  { label: "SFV + BESS", ruta: "/sfv-bess" },
 ] as const;
 
-const TABS_DESHABILITADOS = ["SFV + BESS", "Análisis financiero"];
+const TABS_DESHABILITADOS = ["Análisis financiero"];
 
 interface Props {
   hayDatos: boolean;

@@ -5,6 +5,7 @@ export type Granularidad =
   | "semestral"
   | "trimestral"
   | "mensual"
+  | "semanal"
   | "diario";
 
 export type PeriodoActivo = {
@@ -102,6 +103,18 @@ export function calcularPeriodosDisponibles(
     return periodos.filter((p) => tieneRegistros(registros, p));
   }
 
+  if (granularidad === "semanal") {
+    const semanas = new Map<string, Date>();
+    for (const r of registros) {
+      const inicio = inicioSemanaLunes(r.timestamp);
+      const clave = fechaISO(inicio);
+      if (!semanas.has(clave)) semanas.set(clave, inicio);
+    }
+    return [...semanas.values()]
+      .sort((a, b) => a.getTime() - b.getTime())
+      .map((d) => construirPeriodoSemanal(d));
+  }
+
   if (granularidad === "mensual") {
     const claves = new Set<string>();
     for (const r of registros) {
@@ -136,6 +149,46 @@ function tieneRegistros(
     if (t >= ini && t < fin) return true;
   }
   return false;
+}
+
+/** Devuelve el lunes 00:00 de la semana que contiene `fecha`. */
+function inicioSemanaLunes(fecha: Date): Date {
+  const d = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+  const dia = d.getDay(); // 0 = domingo, 1 = lunes, ...
+  const desplazamiento = dia === 0 ? -6 : 1 - dia;
+  d.setDate(d.getDate() + desplazamiento);
+  return d;
+}
+
+export function construirPeriodoSemanal(lunes: Date): PeriodoActivo {
+  const inicio = inicioSemanaLunes(lunes);
+  const fin = new Date(inicio);
+  fin.setDate(fin.getDate() + 7);
+  const finVisible = new Date(fin);
+  finVisible.setDate(finVisible.getDate() - 1);
+  const mesesCortos = [
+    "ene",
+    "feb",
+    "mar",
+    "abr",
+    "may",
+    "jun",
+    "jul",
+    "ago",
+    "sep",
+    "oct",
+    "nov",
+    "dic",
+  ];
+  const ini = `${inicio.getDate()} ${mesesCortos[inicio.getMonth()]}`;
+  const fn = `${finVisible.getDate()} ${mesesCortos[finVisible.getMonth()]}`;
+  return {
+    granularidad: "semanal",
+    fechaInicio: inicio,
+    fechaFin: fin,
+    label: `Semana ${ini} – ${fn} ${inicio.getFullYear()}`,
+    id: `semanal:${fechaISO(inicio)}`,
+  };
 }
 
 export function construirPeriodoSemestral(

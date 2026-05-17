@@ -20,6 +20,7 @@ export const COPY_M2 = {
       semestral: "Semestral",
       trimestral: "Trimestral",
       mensual: "Mensual",
+      semanal: "Semanal",
       diario: "Diario",
     },
   },

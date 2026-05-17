@@ -25,6 +25,7 @@ const GRANULARIDADES_VALIDAS: ReadonlySet<Granularidad> = new Set([
   "semestral",
   "trimestral",
   "mensual",
+  "semanal",
   "diario",
 ]);
 
