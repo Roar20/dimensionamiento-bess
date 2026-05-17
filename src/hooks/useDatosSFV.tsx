@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 import { cargarArchivoSFV } from "@/lib/io/excel-loader";
 import {
@@ -29,7 +36,19 @@ const ESTADO_INICIAL: Estado = {
   error: null,
 };
 
-export function useDatosSFV() {
+type DatosSFVContextValue = {
+  datos: DatosSFV | null;
+  warnings: Warning[];
+  cargando: boolean;
+  error: ErrorFormatoArchivo | null;
+  cargar: (file: File, config: ConfiguracionPlanta) => Promise<void>;
+  rehidratar: () => void;
+  limpiar: () => void;
+};
+
+const DatosSFVContext = createContext<DatosSFVContextValue | null>(null);
+
+function useDatosSFVInterno(): DatosSFVContextValue {
   const [estado, setEstado] = useState<Estado>(ESTADO_INICIAL);
 
   useEffect(() => {
@@ -99,6 +118,21 @@ export function useDatosSFV() {
     rehidratar,
     limpiar,
   };
+}
+
+export function DatosSFVProvider({ children }: { children: ReactNode }) {
+  const valor = useDatosSFVInterno();
+  return (
+    <DatosSFVContext.Provider value={valor}>{children}</DatosSFVContext.Provider>
+  );
+}
+
+export function useDatosSFV(): DatosSFVContextValue {
+  const ctx = useContext(DatosSFVContext);
+  if (!ctx) {
+    throw new Error("useDatosSFV debe usarse dentro de <DatosSFVProvider>.");
+  }
+  return ctx;
 }
 
 function leerLocalStorage(): Persistido | null {

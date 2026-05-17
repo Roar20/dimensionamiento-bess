@@ -1,23 +1,18 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Onboarding } from "@/components/onboarding/Onboarding";
-import { ResumenCarga } from "@/components/onboarding/ResumenCarga";
 import { useDatosSFV } from "@/hooks/useDatosSFV";
+import { limpiarPeriodoActivoPersistido } from "@/hooks/usePeriodoActivo";
 
 export function Home() {
-  const { datos, warnings, cargando, error, cargar, rehidratar, limpiar } =
+  const { datos, cargando, error, cargar, rehidratar, limpiar } =
     useDatosSFV();
-  const [forzarOnboarding, setForzarOnboarding] = useState(false);
+  const navigate = useNavigate();
 
-  if (datos && !forzarOnboarding) {
-    return (
-      <ResumenCarga
-        datos={datos}
-        warnings={warnings}
-        onCambiar={() => setForzarOnboarding(true)}
-      />
-    );
-  }
+  useEffect(() => {
+    if (datos) navigate("/sfv", { replace: true });
+  }, [datos, navigate]);
 
   return (
     <Onboarding
@@ -27,11 +22,11 @@ export function Home() {
       cargar={cargar}
       onRehidratar={() => {
         rehidratar();
-        setForzarOnboarding(false);
+        navigate("/sfv");
       }}
       onBorrar={() => {
         limpiar();
-        setForzarOnboarding(false);
+        limpiarPeriodoActivoPersistido();
       }}
     />
   );
