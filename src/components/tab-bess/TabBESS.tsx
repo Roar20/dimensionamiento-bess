@@ -1,7 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 
 import { COPY_M3 } from "@/lib/copy/modulo-3";
-import { recomendarEquipoOptimo } from "@/lib/bess/recomendacion";
+import {
+  recomendarEquipoOptimo,
+  type RecomendacionEquipo,
+} from "@/lib/bess/recomendacion";
 import type { DatosSFV } from "@/types/sfv";
 import type {
   ResumenCategoria,
@@ -19,13 +22,21 @@ interface Props {
   datos: DatosSFV;
 }
 
-export function TabBESS({ datos }: Props) {
-  const recomendacion = useMemo(
-    () => recomendarEquipoOptimo(datos.config.capacidad_poi_kw),
-    [datos.config.capacidad_poi_kw]
-  );
+function calcularEnergiaSegunSeleccion(
+  seleccion: SeleccionCategoria,
+  resumenes: readonly ResumenCategoria[]
+): number {
+  if (resumenes.length === 0) return 0;
+  if (seleccion === "ninguna") {
+    return (
+      resumenes.find((r) => r.categoria.tipo === "fuera_hora_punta_cfe")
+        ?.total_mwh ?? 0
+    );
+  }
+  return resumenes.find((r) => r.categoria.tipo === seleccion)?.total_mwh ?? 0;
+}
 
-  const equipoRecomendadoId = recomendacion.equipo_recomendado.id;
+export function TabBESS({ datos }: Props) {
   const seccion5Ref = useRef<HTMLDivElement>(null);
   const [abrirEquipoId, setAbrirEquipoId] = useState<string | null>(null);
   const [seleccion, setSeleccion] = useState<SeleccionCategoria>("ninguna");
@@ -34,6 +45,18 @@ export function TabBESS({ datos }: Props) {
   const handleResumenes = useCallback((nuevos: ResumenCategoria[]) => {
     setResumenes(nuevos);
   }, []);
+
+  const recomendacion = useMemo<RecomendacionEquipo | null>(() => {
+    if (resumenes.length === 0) return null;
+    const energia = calcularEnergiaSegunSeleccion(seleccion, resumenes);
+    return recomendarEquipoOptimo(
+      datos.config.capacidad_poi_kw,
+      energia,
+      seleccion
+    );
+  }, [datos.config.capacidad_poi_kw, seleccion, resumenes]);
+
+  const equipoRecomendadoId = recomendacion?.equipo_recomendado?.id ?? null;
 
   const verFicha = (id: string) => {
     setAbrirEquipoId(id);
@@ -65,9 +88,6 @@ export function TabBESS({ datos }: Props) {
 
       <Seccion2Catalogo
         recomendacion={recomendacion}
-        seleccion={seleccion}
-        resumenes={resumenes}
-        poi_kw={datos.config.capacidad_poi_kw}
         onVerFicha={verFicha}
       />
       <Seccion3TablaComparativa equipoRecomendadoId={equipoRecomendadoId} />

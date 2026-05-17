@@ -189,6 +189,18 @@ Estos valores son la referencia para validar el preview del Tab SFV cuando se in
 **Decisión:** Las 4 categorías de energía se presentan como "anatomía" / "supuestos" / "categorías complementarias", nunca como "optimista / probable / conservador". El selector ofrece "Aún no sabemos" como default → la recomendación cita un rango; si el usuario selecciona una categoría, la recomendación cita números puntuales.
 **Razón:** Pintar escenarios "buenos/malos" sesga la lectura. La anatomía descompone con honestidad metodológica; el usuario elige el supuesto que aplica a su contrato.
 
+## 2026-05-17 — Recomendación de equipo BESS dinámica por (POI, energía capturable)
+
+**Decisión:** `recomendarEquipoOptimo(poi_kw, energiaAlmacenable_mwh_anio, categoria)` ahora depende de dos dimensiones simultáneamente: la capacidad CFE y la energía capturable derivada de la categoría seleccionada. Cuando la energía capturable es < 1 MWh/año, devuelve `equipo_recomendado: null` con una alerta honesta.
+**Reglas heurísticas:** POI > 600 → HyperBlock III (utility); POI ≤ 200 → II Plus (C&I chico); 200 < POI ≤ 600 → Plus si energía < 100 MWh anuales, Max en caso contrario.
+**Razón:** Antes del fix, Tequila (POI 500) siempre recomendaba II Max sin importar qué categoría se eligiera. Cuando el usuario seleccionaba "Energía arriba del compromiso PPA" con compromiso default (sólo ~50 MWh libres), recomendar un Max de 836 kWh era sobredimensionar 16×. Ahora la recomendación reacciona.
+**Alternativa descartada:** Mantener la recomendación fija como "rango correcto del POI". Era didácticamente válido pero perdía la dinámica de exploración que da el selector.
+
+## 2026-05-17 — Caso borde `equipo_recomendado: null`
+
+**Decisión:** Cuando ninguna categoría tiene energía capturable (típico de "Exceso capacidad CFE" en SFV no ampliado), no se fuerza una recomendación. La UI muestra una alerta amarilla con copy honesto ("El caso de negocio del BESS no se sostiene bajo esta categoría…") y las 3 cards del catálogo se renderizan con `opacity-50`. Las Secciones 4, 5 y 6 también dejan de destacar cualquier equipo.
+**Razón:** Recomendar un equipo cuando la categoría no tiene energía sería deshonesto y mina la credibilidad del producto. La transparencia metodológica refuerza la confianza en las recomendaciones que sí aplican.
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.
