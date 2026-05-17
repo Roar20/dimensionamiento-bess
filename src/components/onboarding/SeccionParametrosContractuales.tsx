@@ -3,19 +3,30 @@ import { Label } from "@/components/ui/label";
 import { COPY_M1A } from "@/lib/copy/modulo-1a";
 import { SeccionCard } from "@/components/onboarding/SeccionCard";
 
-export type ParametrosContractuales = {
-  poi: string;
-  instalada: string;
-  zonaLmp: string;
-  precioPpa: string;
-};
-
 interface Props {
-  valores: ParametrosContractuales;
-  onChange: (next: ParametrosContractuales) => void;
+  capacidad_poi_kw: number | null;
+  capacidad_instalada_kw: number | null;
+  zona_lmp: string;
+  precio_ppa_mxn_mwh: number | null;
+  errorPrecioPpa: string | null;
+  onChange: (
+    parcial: Partial<{
+      capacidad_poi_kw: number | null;
+      capacidad_instalada_kw: number | null;
+      zona_lmp: string;
+      precio_ppa_mxn_mwh: number | null;
+    }>
+  ) => void;
 }
 
-export function SeccionParametrosContractuales({ valores, onChange }: Props) {
+export function SeccionParametrosContractuales({
+  capacidad_poi_kw,
+  capacidad_instalada_kw,
+  zona_lmp,
+  precio_ppa_mxn_mwh,
+  errorPrecioPpa,
+  onChange,
+}: Props) {
   const copy = COPY_M1A.secciones.contractuales;
   const campos = copy.campos;
 
@@ -32,8 +43,8 @@ export function SeccionParametrosContractuales({ valores, onChange }: Props) {
           helper={campos.poi.helper}
           placeholder={campos.poi.placeholder}
           required
-          value={valores.poi}
-          onChange={(v) => onChange({ ...valores, poi: v })}
+          value={capacidad_poi_kw}
+          onChange={(v) => onChange({ capacidad_poi_kw: v })}
         />
         <CampoNumero
           id="planta-instalada"
@@ -41,31 +52,33 @@ export function SeccionParametrosContractuales({ valores, onChange }: Props) {
           helper={campos.instalada.helper}
           placeholder={campos.instalada.placeholder}
           required
-          value={valores.instalada}
-          onChange={(v) => onChange({ ...valores, instalada: v })}
+          value={capacidad_instalada_kw}
+          onChange={(v) => onChange({ capacidad_instalada_kw: v })}
         />
         <CampoTexto
           id="planta-zona-lmp"
           label={campos.zonaLmp.label}
           helper={campos.zonaLmp.helper}
           placeholder={campos.zonaLmp.placeholder}
-          value={valores.zonaLmp}
-          onChange={(v) => onChange({ ...valores, zonaLmp: v })}
+          value={zona_lmp}
+          onChange={(v) => onChange({ zona_lmp: v })}
         />
         <CampoNumero
           id="planta-precio-ppa"
           label={campos.precioPpa.label}
           helper={campos.precioPpa.helper}
           placeholder={campos.precioPpa.placeholder}
-          value={valores.precioPpa}
-          onChange={(v) => onChange({ ...valores, precioPpa: v })}
+          value={precio_ppa_mxn_mwh}
+          onChange={(v) => onChange({ precio_ppa_mxn_mwh: v })}
+          step="0.01"
+          error={errorPrecioPpa}
         />
       </div>
     </SeccionCard>
   );
 }
 
-interface CampoProps {
+interface CampoTextoProps {
   id: string;
   label: string;
   helper: string;
@@ -83,7 +96,7 @@ function CampoTexto({
   required,
   value,
   onChange,
-}: CampoProps) {
+}: CampoTextoProps) {
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>
@@ -102,27 +115,58 @@ function CampoTexto({
   );
 }
 
-function CampoNumero(props: CampoProps) {
+interface CampoNumeroProps {
+  id: string;
+  label: string;
+  helper: string;
+  placeholder: string;
+  required?: boolean;
+  value: number | null;
+  onChange: (next: number | null) => void;
+  step?: string;
+  error?: string | null;
+}
+
+function CampoNumero({
+  id,
+  label,
+  helper,
+  placeholder,
+  required,
+  value,
+  onChange,
+  step = "any",
+  error,
+}: CampoNumeroProps) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={props.id}>
-        {props.label}
-        {props.required ? (
-          <span className="ml-0.5 text-status-error">*</span>
-        ) : null}
+      <Label htmlFor={id}>
+        {label}
+        {required ? <span className="ml-0.5 text-status-error">*</span> : null}
       </Label>
       <Input
-        id={props.id}
+        id={id}
         type="number"
         inputMode="decimal"
-        min={0}
-        step="any"
-        placeholder={props.placeholder}
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
+        min="0"
+        step={step}
+        placeholder={placeholder}
+        value={value ?? ""}
+        onChange={(e) => {
+          const raw = e.target.value;
+          onChange(raw === "" ? null : Number(raw));
+        }}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
         className="tabular-nums"
       />
-      <p className="text-xs text-ink-helper">{props.helper}</p>
+      {error ? (
+        <p id={`${id}-error`} className="text-xs text-status-error">
+          {error}
+        </p>
+      ) : (
+        <p className="text-xs text-ink-helper">{helper}</p>
+      )}
     </div>
   );
 }

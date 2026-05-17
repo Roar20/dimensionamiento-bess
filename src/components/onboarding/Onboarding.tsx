@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -10,25 +10,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { COPY_M1A } from "@/lib/copy/modulo-1a";
-import type { ConfiguracionPlanta, Warning } from "@/types/sfv";
+import type { ConfiguracionPlanta } from "@/types/sfv";
 import { ErrorFormatoArchivo } from "@/types/sfv";
 import { CajaComoFunciona } from "@/components/onboarding/CajaComoFunciona";
-import {
-  SeccionDatosCliente,
-  type DatosCliente,
-} from "@/components/onboarding/SeccionDatosCliente";
-import {
-  SeccionParametrosContractuales,
-  type ParametrosContractuales,
-} from "@/components/onboarding/SeccionParametrosContractuales";
+import { SeccionDatosCliente } from "@/components/onboarding/SeccionDatosCliente";
+import { SeccionParametrosContractuales } from "@/components/onboarding/SeccionParametrosContractuales";
 import { SeccionArchivoGeneracion } from "@/components/onboarding/SeccionArchivoGeneracion";
 
-const CLIENTE_INICIAL: DatosCliente = { nombre: "", cliente: "", ubicacion: "" };
-const PARAMETROS_INICIAL: ParametrosContractuales = {
-  poi: "",
-  instalada: "",
-  zonaLmp: "",
-  precioPpa: "",
+type EstadoFormulario = {
+  nombre: string;
+  cliente: string;
+  ubicacion: string;
+  capacidad_poi_kw: number | null;
+  capacidad_instalada_kw: number | null;
+  zona_lmp: string;
+  precio_ppa_mxn_mwh: number | null;
+};
+
+const ESTADO_INICIAL: EstadoFormulario = {
+  nombre: "",
+  cliente: "",
+  ubicacion: "",
+  capacidad_poi_kw: null,
+  capacidad_instalada_kw: null,
+  zona_lmp: "",
+  precio_ppa_mxn_mwh: null,
 };
 
 interface Props {
@@ -48,39 +54,49 @@ export function Onboarding({
   onRehidratar,
   onBorrar,
 }: Props) {
-  const [cliente, setCliente] = useState<DatosCliente>(CLIENTE_INICIAL);
-  const [parametros, setParametros] =
-    useState<ParametrosContractuales>(PARAMETROS_INICIAL);
+  const [estado, setEstado] = useState<EstadoFormulario>(ESTADO_INICIAL);
   const [archivo, setArchivo] = useState<File | null>(null);
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
 
-  const config = useMemo<ConfiguracionPlanta | null>(() => {
-    const nombre = cliente.nombre.trim();
-    const poi = Number(parametros.poi);
-    const instalada = Number(parametros.instalada);
-    if (!nombre) return null;
-    if (!Number.isFinite(poi) || poi <= 0) return null;
-    if (!Number.isFinite(instalada) || instalada <= 0) return null;
-    const precio = parametros.precioPpa.trim();
-    const precioParseado = precio === "" ? null : Number(precio);
-    if (precioParseado !== null && (!Number.isFinite(precioParseado) || precioParseado <= 0)) {
-      return null;
-    }
-    return {
-      nombre,
-      cliente: cliente.cliente.trim() || null,
-      ubicacion: cliente.ubicacion.trim() || null,
-      capacidad_poi_kw: poi,
-      capacidad_instalada_kw: instalada,
-      zona_lmp: parametros.zonaLmp.trim() || null,
-      precio_ppa_mxn_mwh: precioParseado,
-    };
-  }, [cliente, parametros]);
+  const actualizar = (parcial: Partial<EstadoFormulario>) => {
+    setEstado((prev) => ({ ...prev, ...parcial }));
+  };
 
-  const puedeProcesar = !!config && !!archivo && !cargando;
+  const errorPrecioPpa =
+    estado.precio_ppa_mxn_mwh !== null &&
+    (!Number.isFinite(estado.precio_ppa_mxn_mwh) ||
+      estado.precio_ppa_mxn_mwh <= 0)
+      ? "El precio debe ser mayor a cero."
+      : null;
+
+  const formularioValido =
+    estado.nombre.trim().length > 0 &&
+    estado.capacidad_poi_kw !== null &&
+    estado.capacidad_poi_kw > 0 &&
+    estado.capacidad_instalada_kw !== null &&
+    estado.capacidad_instalada_kw > 0 &&
+    archivo !== null &&
+    errorPrecioPpa === null;
+
+  const puedeProcesar = formularioValido && !cargando;
 
   const procesar = async () => {
-    if (!config || !archivo) return;
+    if (!archivo) return;
+    if (
+      estado.capacidad_poi_kw === null ||
+      estado.capacidad_instalada_kw === null
+    ) {
+      return;
+    }
+    const config: ConfiguracionPlanta = {
+      nombre: estado.nombre.trim(),
+      cliente: estado.cliente.trim() || null,
+      ubicacion: estado.ubicacion.trim() || null,
+      capacidad_poi_kw: estado.capacidad_poi_kw,
+      capacidad_instalada_kw: estado.capacidad_instalada_kw,
+      zona_lmp: estado.zona_lmp.trim() || null,
+      precio_ppa_mxn_mwh: estado.precio_ppa_mxn_mwh,
+    };
     await cargar(archivo, config);
   };
 
@@ -89,10 +105,19 @@ export function Onboarding({
       <Hero />
 
       <div className="container max-w-4xl space-y-5">
-        <SeccionDatosCliente valores={cliente} onChange={setCliente} />
+        <SeccionDatosCliente
+          nombre={estado.nombre}
+          cliente={estado.cliente}
+          ubicacion={estado.ubicacion}
+          onChange={actualizar}
+        />
         <SeccionParametrosContractuales
-          valores={parametros}
-          onChange={setParametros}
+          capacidad_poi_kw={estado.capacidad_poi_kw}
+          capacidad_instalada_kw={estado.capacidad_instalada_kw}
+          zona_lmp={estado.zona_lmp}
+          precio_ppa_mxn_mwh={estado.precio_ppa_mxn_mwh}
+          errorPrecioPpa={errorPrecioPpa}
+          onChange={actualizar}
         />
         <SeccionArchivoGeneracion
           archivo={archivo}
@@ -106,9 +131,11 @@ export function Onboarding({
             type="button"
             onClick={procesar}
             disabled={!puedeProcesar}
-            className="bg-action text-white hover:bg-action-hover"
+            className="bg-action text-white hover:bg-action-hover disabled:bg-action/40"
           >
-            {cargando ? COPY_M1A.acciones.procesando : COPY_M1A.acciones.procesar}
+            {cargando
+              ? COPY_M1A.acciones.procesando
+              : COPY_M1A.acciones.procesar}
           </Button>
           {hayDatosPersistidos ? (
             <>
@@ -194,5 +221,3 @@ function BloqueError({ error }: { error: ErrorFormatoArchivo }) {
     </div>
   );
 }
-
-export type WarningResumen = Warning;
