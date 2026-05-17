@@ -21,7 +21,7 @@ export function AppHeader() {
                 <TooltipTrigger asChild>
                   <span
                     aria-disabled="true"
-                    className="cursor-not-allowed select-none rounded-md px-3 py-2 text-sm font-medium opacity-60"
+                    className="cursor-not-allowed select-none rounded-md px-3 py-2 text-sm font-medium"
                   >
                     {label}
                   </span>
