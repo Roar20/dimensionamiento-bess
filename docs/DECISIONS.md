@@ -150,6 +150,28 @@ Estos valores son la referencia para validar el preview del Tab SFV cuando se in
 **Razón:** El cliente final abre Vista técnica con curiosidad pero no entiende términos como "clipping" o "P10". El ícono `(i)` evita que el tecnólogo tenga que explicar verbalmente cada término.
 **Alternativa descartada:** Glosario aparte. Más completo pero rompe el flujo de exploración.
 
+## 2026-05-17 — Módulo 3: catálogo Hyperstrong como datos hardcoded en TS
+
+**Decisión:** Los datos de los 3 equipos (HyperCube II Plus, II Max, HyperBlock III) viven como constante TS en `src/lib/bess/catalogo-hyperstrong.ts`. No hay backend ni JSON externo.
+**Razón:** El catálogo cambia pocas veces al año y la app no tiene backend. Tenerlo en TS aprovecha type checking y se versiona con el código.
+**Alternativa descartada:** JSON en `/public/` cargado por fetch. Sin ventaja porque no necesita actualización en runtime.
+
+## 2026-05-17 — `recomendarEquipoOptimo` heurístico por POI
+
+**Decisión:** El equipo "punto de partida" se elige por capacidad CFE: ≤200 kW → Plus, ≤600 kW → Max, >600 kW → Block III. Es un punto de partida, no un dimensionamiento.
+**Razón:** Permite al cliente entender "este es el rango correcto" sin entrar en simulación de despacho (Módulo 4/5). Tequila (500 kW) cae claramente en Max.
+**Alternativa descartada:** Calcular dimensionamiento exacto en Tab BESS. Mezcla niveles (catálogo vs. simulación). El cálculo exacto vive en el Tab SFV + BESS (Módulo 5).
+
+## 2026-05-17 — `BotonDescargarDatasheet` con detección defensiva
+
+**Decisión:** El botón hace `fetch HEAD` al PDF y muestra "Verificando…" / "Datasheet próximamente" / "Descargar datasheet (PDF)" según resultado.
+**Razón:** Los PDFs viven en `/public/datasheets/` y pueden no haberse subido cuando el módulo se despliega. El botón funciona en cuanto aparece el archivo, sin redeploy.
+**Alternativa descartada:** Hardcodear disponibilidad. Frágil.
+
+## 2026-05-17 — `pico_kw` (UI: "Potencia promedio anual del SFV") vs. KPI BESS
+
+**Decisión:** En Tab SFV el KPI se llama "Potencia promedio anual del SFV". En Tab BESS, las cards de equipos exponen `kw_ac` como "kW AC" (potencia nominal del equipo). Son conceptos distintos: uno es lo que generó el SFV, otro es la capacidad de descarga del BESS. La UI mantiene esa separación.
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.

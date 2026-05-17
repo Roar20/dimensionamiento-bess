@@ -103,6 +103,31 @@ Toda la copy del Tab SFV vive en `src/lib/copy/modulo-2.ts` bajo `COPY_M2`.
 ### Periodo sin datos
 - "No hay generación registrada el {fecha}. Selecciona otro día o cambia la granularidad." + botón "Ver día anterior con datos".
 
+## Módulo 3 — Tab BESS (catálogo Hyperstrong)
+
+Toda la copy del Tab BESS vive en `src/lib/copy/modulo-3.ts` bajo `COPY_M3`.
+
+### Página
+- Título: "Catálogo de equipos BESS".
+- Subtítulo: "Sistemas de almacenamiento Hyperstrong disponibles para tu SFV."
+
+### Sección 1 — Intro
+Bloques "¿Qué hace un BESS?", "¿Por qué importa para tu SFV?", lista de las 3 familias. Diagrama SVG: `SFV (genera de día) → BESS (almacena) → Red CFE (hora-punta 18-22 h)`.
+
+### Sección 2 — Catálogo
+- Sin planta: "Carga una planta para recibir una sugerencia de equipo óptimo."
+- Con planta: la razón generada por `recomendarEquipoOptimo` + "El dimensionamiento exacto … se calcula en el Tab SFV + BESS."
+- Card del equipo recomendado tiene badge "Punto de partida sugerido".
+
+### Sección 3 — Comparativa técnica
+Tabla con 19 filas base (potencia, energía, duración, RTE, vida útil, batería, configuración, voltaje, rango voltaje, temperatura, dimensiones, huella, peso, IP, refrigeración, comunicaciones, precio, costo unitario, densidad). Vista técnica añade fila "Certificaciones".
+
+### Sección 4 — Comparativas visuales
+4 BarChart en grid 2×2: Potencia, Energía, Densidad, Costo unitario. Barra del recomendado en `--color-primary`, resto en gris neutro.
+
+### Sección 5 — Fichas detalladas
+Accordion con datos por grupo (potencia/energía, batería, ambiente, físicas, conectividad, comercial). Botón "Descargar datasheet (PDF)" / "Datasheet próximamente" / "Verificando…" según disponibilidad detectada con `fetch HEAD`.
+
 ## Glosario de KPIs
 
 _Pendiente: se llenará por tab en módulos siguientes._
