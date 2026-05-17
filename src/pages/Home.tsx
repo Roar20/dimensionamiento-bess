@@ -1,11 +1,38 @@
+import { useState } from "react";
+
+import { Onboarding } from "@/components/onboarding/Onboarding";
+import { ResumenCarga } from "@/components/onboarding/ResumenCarga";
+import { useDatosSFV } from "@/hooks/useDatosSFV";
+
 export function Home() {
+  const { datos, warnings, cargando, error, cargar, rehidratar, limpiar } =
+    useDatosSFV();
+  const [forzarOnboarding, setForzarOnboarding] = useState(false);
+
+  if (datos && !forzarOnboarding) {
+    return (
+      <ResumenCarga
+        datos={datos}
+        warnings={warnings}
+        onCambiar={() => setForzarOnboarding(true)}
+      />
+    );
+  }
+
   return (
-    <section className="space-y-3">
-      <h1 className="text-3xl font-semibold tracking-tight">Módulo 0 OK</h1>
-      <p className="text-muted-foreground">
-        Bootstrap completado. Los módulos de dominio se agregarán en PRs
-        siguientes.
-      </p>
-    </section>
+    <Onboarding
+      hayDatosPersistidos={!!datos}
+      cargando={cargando}
+      error={error}
+      cargar={cargar}
+      onRehidratar={() => {
+        rehidratar();
+        setForzarOnboarding(false);
+      }}
+      onBorrar={() => {
+        limpiar();
+        setForzarOnboarding(false);
+      }}
+    />
   );
 }

@@ -4,6 +4,43 @@
 
 @layer base {
   :root {
+    /* Branding */
+    --color-header-bg: #1b3a52;
+    --color-header-fg: #ffffff;
+    --color-page-bg: #f5f7fa;
+    --color-card-bg: #ffffff;
+    --color-card-border: #e2e8f0;
+
+    /* Texto */
+    --color-text-primary: #1b3a52;
+    --color-text-secondary: #475569;
+    --color-text-helper: #64748b;
+
+    /* Inputs */
+    --color-input-border: #cbd5e1;
+    --color-input-focus: #3b82f6;
+
+    /* Primario (botones de acción) */
+    --color-primary: #4a7c59;
+    --color-primary-hover: #3d6649;
+
+    /* Cajas informativas */
+    --color-info-bg: #eff6ff;
+    --color-info-border: #3b82f6;
+
+    /* Semánticos (regla 9 del copy) */
+    --color-success: #4a7c59;
+    --color-warning: #d97706;
+    --color-error: #dc2626;
+    --color-info: #3b82f6;
+
+    /* Radii y sombras */
+    --radius-card: 12px;
+    --radius-input: 8px;
+    --shadow-card:
+      0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
+
+    /* Tokens de shadcn (siguen disponibles para primitives) */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -53,9 +90,12 @@
   * {
     @apply border-border;
   }
+  html,
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--color-page-bg);
+    color: var(--color-text-secondary);
     font-family:
+      "Inter Variable",
       ui-sans-serif,
       system-ui,
       -apple-system,
@@ -63,5 +103,8 @@
       "Segoe UI",
       Roboto,
       sans-serif;
+  }
+  .tabular-nums {
+    font-feature-settings: "tnum" 1, "cv11" 1;
   }
 }

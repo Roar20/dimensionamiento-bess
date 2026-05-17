@@ -3,11 +3,11 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { App } from "@/App";
 
-describe("Módulo 0 — smoke", () => {
-  it("renderiza la página Home con el placeholder de bootstrap", () => {
+describe("App shell — smoke", () => {
+  it("renderiza el hero del onboarding del Módulo 1A", () => {
     render(<App />);
     expect(
-      screen.getByRole("heading", { name: /módulo 0 ok/i })
+      screen.getByRole("heading", { name: /onboarding del proyecto/i })
     ).toBeInTheDocument();
   });
 
