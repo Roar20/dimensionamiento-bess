@@ -22,6 +22,21 @@ function leerPersistido(): ParametrosPPA | null {
     ) {
       return null;
     }
+    const [ini, fin] = parsed.ventana_punta_cfe;
+    // Sanidad: 1 ≤ ini < fin ≤ 24. Si está corrupto, reinicia ventana al
+    // default. Defiende contra estados persistidos previos a este fix.
+    if (
+      typeof ini !== "number" ||
+      typeof fin !== "number" ||
+      ini < 1 ||
+      fin > 24 ||
+      ini >= fin
+    ) {
+      return {
+        ...parsed,
+        ventana_punta_cfe: VENTANA_HORA_PUNTA_CFE_DEFAULT,
+      };
+    }
     return parsed;
   } catch {
     return null;
