@@ -146,6 +146,46 @@ Tabla con 19 filas base (potencia, energía, duración, RTE, vida útil, baterí
 ### Sección 5 — Fichas detalladas
 Accordion con datos por grupo (potencia/energía, batería, ambiente, físicas, conectividad, comercial). Botón "Descargar datasheet (PDF)" / "Datasheet próximamente" / "Verificando…" según disponibilidad detectada con `fetch HEAD`.
 
+## Módulo 5 — Tab SFV + BESS
+
+Toda la copy del Tab SFV+BESS vive en `src/lib/copy/modulo-5.ts` bajo `COPY_M5`.
+
+### Hero narrativo (siempre visible)
+- Título: "El valor del BESS sin tocar tu permiso CFE".
+- Cuerpo: explica que el BESS no modifica la capacidad CFE; solo mueve la energía en el tiempo.
+
+### Selector temporal global con 6 granularidades
+- Anual, Semestral, Trimestral, Mensual, **Semanal** (nueva en este tab), Diario.
+
+### Selector de categoría compacto (arriba de la Sección 2)
+- "Categoría de energía a analizar:" + dropdown con "Energía fuera de hora-punta CFE (referencia)" como valor para "ninguna" + las 4 categorías nombradas.
+
+### Sección 1 — Tu configuración del BESS
+- 3 cards de equipo (II Plus / II Max / Block III), badge "Recomendado" en la sugerida.
+- Multiplicador 1-20 unidades en paralelo.
+- KPIs derivados: Potencia total, Capacidad total, Duración nominal, Inversión estimada.
+
+### Sección 2 — Anatomía de captura
+- 4 cards (una por categoría). Cada card: nombre + descripción + MWh disponibles + columna greedy + columna arbitraje (con horas en punta).
+- Alerta amarilla cuando la categoría tiene <1 MWh capturable.
+
+### Sección 3 — Despacho diario promedio
+- Dos cards lado a lado (Greedy / Arbitraje). Gráfica composada con SFV, carga, descarga (áreas) y SoC (línea dasheada, eje secundario).
+- Banda hora-punta CFE marcada.
+- Insight final: "La estrategia arbitraje concentra la descarga en hora-punta…".
+
+### Sección 4 — Captura por periodo
+- BarChart (cargado + descargado) + línea de energía categoría disponible.
+- Eje X cambia según granularidad: meses en anual/semestral/trimestral, días en mensual, días de la semana en semanal, horas en diario.
+
+### Sección 5 — Comparativa de estrategias
+- Tabla 5 filas: cargado total, descargado total, ciclos, horas de descarga en punta, energía descargada en punta.
+- Banner verde con recomendación dinámica ("Arbitraje entrega X× más energía en hora-punta…").
+
+### Sección 6 — Resumen ejecutivo
+- 5 bullets generados dinámicamente con los números del periodo activo.
+- CTA hacia análisis financiero (botón deshabilitado hasta Módulo 6).
+
 ## Glosario de KPIs
 
 _Pendiente: se llenará por tab en módulos siguientes._

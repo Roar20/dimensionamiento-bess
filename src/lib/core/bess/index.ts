@@ -17,6 +17,7 @@ export { simularDespachoGreedy } from "./despacho-greedy";
 export { simularDespachoArbitraje } from "./despacho-arbitraje";
 export { calcularKPIs } from "./agregaciones";
 export { simularCompleto, simularUna } from "./simulacion";
+export { escalarEquipo, inversionTotal } from "./configuracion-equipo";
 
 export type {
   CategoriaEnergia,

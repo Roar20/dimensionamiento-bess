@@ -5,6 +5,7 @@ import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 import { BESS } from "@/pages/BESS";
 import { Home } from "@/pages/Home";
 import { SFV } from "@/pages/SFV";
+import { SFVBess } from "@/pages/SFVBess";
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
               <Route path="/" element={<Home />} />
               <Route path="/sfv" element={<SFV />} />
               <Route path="/bess" element={<BESS />} />
+              <Route path="/sfv-bess" element={<SFVBess />} />
             </Routes>
           </AppShell>
         </BrowserRouter>

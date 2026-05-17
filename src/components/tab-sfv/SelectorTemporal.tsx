@@ -15,6 +15,14 @@ import {
 import { COPY_M2 } from "@/lib/copy/modulo-2";
 import type { Granularidad, PeriodoActivo } from "@/lib/tab-sfv/filtrar-por-periodo";
 
+const GRANULARIDADES_DEFAULT: readonly Granularidad[] = [
+  "anual",
+  "semestral",
+  "trimestral",
+  "mensual",
+  "diario",
+];
+
 interface Props {
   granularidad: Granularidad;
   setGranularidad: (g: Granularidad) => void;
@@ -25,6 +33,7 @@ interface Props {
   hayAnterior: boolean;
   haySiguiente: boolean;
   seleccionarPorId: (id: string) => void;
+  granularidadesDisponibles?: readonly Granularidad[];
 }
 
 export function SelectorTemporal({
@@ -37,6 +46,7 @@ export function SelectorTemporal({
   hayAnterior,
   haySiguiente,
   seleccionarPorId,
+  granularidadesDisponibles = GRANULARIDADES_DEFAULT,
 }: Props) {
   const copy = COPY_M2.selectorTemporal;
   return (
@@ -87,15 +97,7 @@ export function SelectorTemporal({
             onValueChange={(v) => setGranularidad(v as Granularidad)}
             className="flex flex-row flex-wrap items-center gap-4"
           >
-            {(
-              [
-                "anual",
-                "semestral",
-                "trimestral",
-                "mensual",
-                "diario",
-              ] as const
-            ).map((g) => (
+            {granularidadesDisponibles.map((g) => (
               <label
                 key={g}
                 htmlFor={`gran-${g}`}

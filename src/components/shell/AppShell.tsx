@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDatosSFV } from "@/hooks/useDatosSFV";
 import { limpiarPeriodoActivoPersistido } from "@/hooks/usePeriodoActivo";
 import { limpiarParametrosPPAPersistidos } from "@/hooks/useParametrosPPA";
+import { limpiarConfiguracionBESSPersistida } from "@/hooks/useConfiguracionBESS";
 import { AppHeader } from "@/components/shell/AppHeader";
 import { EncabezadoContextual } from "@/components/shell/EncabezadoContextual";
 
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     limpiar();
     limpiarPeriodoActivoPersistido();
     limpiarParametrosPPAPersistidos();
+    limpiarConfiguracionBESSPersistida();
     navigate("/");
   };
 
