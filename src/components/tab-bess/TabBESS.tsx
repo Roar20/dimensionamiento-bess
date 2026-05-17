@@ -1,28 +1,39 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import { COPY_M3 } from "@/lib/copy/modulo-3";
 import { recomendarEquipoOptimo } from "@/lib/bess/recomendacion";
-import type { ConfiguracionPlanta } from "@/types/sfv";
+import type { DatosSFV } from "@/types/sfv";
+import type {
+  ResumenCategoria,
+  SeleccionCategoria,
+} from "@/types/bess";
 
 import { Seccion1IntroBESS } from "./Seccion1IntroBESS";
 import { Seccion2Catalogo } from "./Seccion2Catalogo";
+import { Seccion2EnergiaAlmacenable } from "./Seccion2EnergiaAlmacenable/Seccion2";
 import { Seccion3TablaComparativa } from "./Seccion3TablaComparativa";
 import { Seccion4GraficasComparativas } from "./Seccion4GraficasComparativas";
 import { Seccion5FichasDetalladas } from "./Seccion5FichasDetalladas";
 
 interface Props {
-  config: ConfiguracionPlanta | null;
+  datos: DatosSFV;
 }
 
-export function TabBESS({ config }: Props) {
-  const recomendacion = useMemo(() => {
-    if (!config) return null;
-    return recomendarEquipoOptimo(config.capacidad_poi_kw);
-  }, [config]);
+export function TabBESS({ datos }: Props) {
+  const recomendacion = useMemo(
+    () => recomendarEquipoOptimo(datos.config.capacidad_poi_kw),
+    [datos.config.capacidad_poi_kw]
+  );
 
-  const equipoRecomendadoId = recomendacion?.equipo_recomendado.id ?? null;
+  const equipoRecomendadoId = recomendacion.equipo_recomendado.id;
   const seccion5Ref = useRef<HTMLDivElement>(null);
   const [abrirEquipoId, setAbrirEquipoId] = useState<string | null>(null);
+  const [seleccion, setSeleccion] = useState<SeleccionCategoria>("ninguna");
+  const [resumenes, setResumenes] = useState<ResumenCategoria[]>([]);
+
+  const handleResumenes = useCallback((nuevos: ResumenCategoria[]) => {
+    setResumenes(nuevos);
+  }, []);
 
   const verFicha = (id: string) => {
     setAbrirEquipoId(id);
@@ -44,8 +55,19 @@ export function TabBESS({ config }: Props) {
       </header>
 
       <Seccion1IntroBESS />
+
+      <Seccion2EnergiaAlmacenable
+        datos={datos}
+        seleccion={seleccion}
+        onSeleccionar={setSeleccion}
+        onResumenesChange={handleResumenes}
+      />
+
       <Seccion2Catalogo
         recomendacion={recomendacion}
+        seleccion={seleccion}
+        resumenes={resumenes}
+        poi_kw={datos.config.capacidad_poi_kw}
         onVerFicha={verFicha}
       />
       <Seccion3TablaComparativa equipoRecomendadoId={equipoRecomendadoId} />

@@ -172,6 +172,23 @@ Estos valores son la referencia para validar el preview del Tab SFV cuando se in
 
 **Decisión:** En Tab SFV el KPI se llama "Potencia promedio anual del SFV". En Tab BESS, las cards de equipos exponen `kw_ac` como "kW AC" (potencia nominal del equipo). Son conceptos distintos: uno es lo que generó el SFV, otro es la capacidad de descarga del BESS. La UI mantiene esa separación.
 
+## 2026-05-17 — Tab BESS reordenado con anatomía de energía como puente narrativo
+
+**Decisión:** Se introduce una sección 2 nueva al inicio del Tab BESS ("¿Cuánta energía podríamos almacenar de tu SFV?") que descompone la energía del SFV en 4 categorías complementarias (toda, fuera de hora-punta, arriba de compromiso PPA, exceso CFE). El catálogo de equipos pasa a Sección 3 y su narrativa se vuelve dinámica según la categoría seleccionada.
+**Razón:** El catálogo solo sin contexto descomponía mal la propuesta de valor (el cliente no entiende por qué creer en la recomendación). Mostrar primero la energía disponible bajo distintos supuestos de PPA convierte la recomendación en una consecuencia con números, no en una declaración.
+**Alternativa descartada:** Esperar al Módulo 5 (Tab SFV+BESS) para mostrar números. Habría dejado el Tab BESS como brochure plano.
+
+## 2026-05-17 — Parámetros PPA son inputs del usuario con sugerencias derivadas del SFV
+
+**Decisión:** El compromiso mensual del PPA se sugiere como el promedio mensual generado por el SFV (calculable desde los datos cargados); la ventana hora-punta CFE se sugiere como 18-22h (GDMTH); la capacidad POI viene del onboarding (read-only). El usuario puede editar los dos primeros; el cambio persiste en `dimensionamiento-bess:parametros-ppa`.
+**Razón:** El comercial pidió valores sugeridos que sean razonables sin obligar al usuario a teclear desde cero; al mismo tiempo, el cliente que conoce su PPA real puede ajustar. Cambiar de planta limpia esta llave para no contaminar con valores de la planta anterior.
+**Alternativa descartada:** Hardcodear los parámetros. Habría sido inútil en cuanto apareciera un PPA con compromiso distinto.
+
+## 2026-05-17 — Categorías complementarias, no escenarios
+
+**Decisión:** Las 4 categorías de energía se presentan como "anatomía" / "supuestos" / "categorías complementarias", nunca como "optimista / probable / conservador". El selector ofrece "Aún no sabemos" como default → la recomendación cita un rango; si el usuario selecciona una categoría, la recomendación cita números puntuales.
+**Razón:** Pintar escenarios "buenos/malos" sesga la lectura. La anatomía descompone con honestidad metodológica; el usuario elige el supuesto que aplica a su contrato.
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.
