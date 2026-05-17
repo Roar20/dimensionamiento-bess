@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -169,46 +169,59 @@ interface InputNumeroBufferProps {
 }
 
 /**
- * Input numérico con buffer de texto local: el usuario puede borrar el
- * contenido, escribir caracter por caracter y solo se notifica al padre
- * cuando el valor parsea a un número válido en [min, max]. En blur se
- * revierte al valor del padre si el buffer no parsea o queda fuera de
- * rango. Evita que el estado del padre se "atasque" entre teclazos.
+ * Input numérico con buffer de texto local. Conserva la representación
+ * literal que escribe el usuario (incluyendo "0.", "087", "1.5") sin
+ * sobreescribirla cuando el padre re-emite el valor numérico.
+ *
+ * Distinción clave: `valor` solo re-sincroniza el buffer cuando viene de
+ * una fuente EXTERNA (botón reset, cambio de planta, etc.), no cuando es
+ * eco del propio `onValido` que acaba de notificar el componente.
+ *
+ * Usa `type="text"` con `inputMode="decimal"` para evitar quirks del
+ * `type="number"` que normaliza el value y pierde caracteres durante la
+ * edición.
  */
 function InputNumeroBuffer({
   valor,
   onValido,
   min,
   max,
-  step = "any",
+  step,
   ancho = "w-32",
   id,
   ariaLabel,
 }: InputNumeroBufferProps) {
   const [buffer, setBuffer] = useState(String(valor));
+  const ultimoEmitido = useRef<number>(valor);
 
   useEffect(() => {
-    setBuffer(String(valor));
+    if (valor !== ultimoEmitido.current) {
+      setBuffer(String(valor));
+      ultimoEmitido.current = valor;
+    }
   }, [valor]);
 
   const procesar = (raw: string) => {
     setBuffer(raw);
-    if (raw === "" || raw === "-" || raw === ".") return;
+    if (raw === "" || raw === "-" || raw === "." || raw === "-.") return;
     const n = Number(raw);
     if (!Number.isFinite(n)) return;
     if (min !== undefined && n < min) return;
     if (max !== undefined && n > max) return;
+    ultimoEmitido.current = n;
     onValido(n);
   };
 
   const blur = () => {
     const n = Number(buffer);
     if (
+      buffer === "" ||
       !Number.isFinite(n) ||
       (min !== undefined && n < min) ||
       (max !== undefined && n > max)
     ) {
       setBuffer(String(valor));
+      ultimoEmitido.current = valor;
     }
   };
 
@@ -216,10 +229,9 @@ function InputNumeroBuffer({
     <Input
       id={id}
       aria-label={ariaLabel}
-      type="number"
-      step={step}
-      min={min}
-      max={max}
+      type="text"
+      inputMode="decimal"
+      pattern={step === "1" ? "[0-9]*" : "[0-9.]*"}
       value={buffer}
       onChange={(e) => procesar(e.target.value)}
       onBlur={blur}
