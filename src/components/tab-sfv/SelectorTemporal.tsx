@@ -85,9 +85,17 @@ export function SelectorTemporal({
           <RadioGroup
             value={granularidad}
             onValueChange={(v) => setGranularidad(v as Granularidad)}
-            className="flex flex-row items-center gap-4"
+            className="flex flex-row flex-wrap items-center gap-4"
           >
-            {(["anual", "mensual", "diario"] as const).map((g) => (
+            {(
+              [
+                "anual",
+                "semestral",
+                "trimestral",
+                "mensual",
+                "diario",
+              ] as const
+            ).map((g) => (
               <label
                 key={g}
                 htmlFor={`gran-${g}`}

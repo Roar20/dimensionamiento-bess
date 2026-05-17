@@ -79,7 +79,9 @@ export function TabSFV({ datos }: Props) {
               registros={registrosFiltrados}
               periodo={periodo}
             />
-            {granularidad === "anual" ? (
+            {granularidad === "anual" ||
+            granularidad === "semestral" ||
+            granularidad === "trimestral" ? (
               <Seccion5ResumenMensual
                 registros={registrosFiltrados}
                 config={datos.config}

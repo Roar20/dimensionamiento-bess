@@ -25,6 +25,7 @@ import type { ConfiguracionPlanta, RegistroHorario } from "@/types/sfv";
 import { BloqueTecnico } from "./BloqueTecnico";
 import { KPICard } from "./KPICard";
 import { NarrativaIntro } from "./NarrativaIntro";
+import { TooltipRecharts } from "./TooltipRecharts";
 
 interface Props {
   registros: readonly RegistroHorario[];
@@ -100,15 +101,18 @@ export function Seccion2PerfilDiario({ registros, config, periodo }: Props) {
                 }}
               />
               <Tooltip
-                formatter={(v: number) => `${Math.round(v)} kW`}
-                labelFormatter={(l) => `Hora ${l}h`}
-                contentStyle={{
-                  backgroundColor: "#1B3A52",
-                  border: "none",
-                  borderRadius: 8,
-                  color: "white",
-                  fontSize: 12,
-                }}
+                content={
+                  <TooltipRecharts
+                    titulo={(h) => `Hora ${h}h`}
+                    formatear={(payload) =>
+                      payload.map((p) => ({
+                        label: String(p.name ?? ""),
+                        valor: `${Math.round(Number(p.value ?? 0))} kW`,
+                        color: typeof p.color === "string" ? p.color : "#4A7C59",
+                      }))
+                    }
+                  />
+                }
               />
               <ReferenceArea
                 x1={puntaInicio}
@@ -164,7 +168,7 @@ export function Seccion2PerfilDiario({ registros, config, periodo }: Props) {
         destacado
       />
 
-      <BloqueTecnico titulo={copy.tecnico.titulo}>
+      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
         <div className="space-y-4">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs">

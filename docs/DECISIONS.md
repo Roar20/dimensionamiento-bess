@@ -132,6 +132,24 @@ Estos valores son la referencia para validar el preview del Tab SFV cuando se in
 **Razón:** Múltiples componentes (AppShell, Home, SFV) necesitan ver el mismo estado y reaccionar a `cargar`/`limpiar`. Sin contexto, cada hook tenía su propia copia del estado.
 **Alternativa descartada:** Pasar `datos` por props desde un componente raíz. Funciona pero contamina la API.
 
+## 2026-05-17 — Selector temporal con 5 granularidades
+
+**Decisión:** Extender el selector temporal con `semestral` y `trimestral`. Queda fuera `semanal` por ahora (Módulo 2.2 si surge demanda real). El orden de izquierda a derecha en la UI es de menor resolución a mayor: Anual / Semestral / Trimestral / Mensual / Diario.
+**Razón:** Reportes corporativos típicos del cliente pivotean por trimestre/semestre fiscal; sin estas granularidades el comercial tenía que agregar a mano.
+**Alternativa descartada:** Incluir Semanal desde ya. Sin un caso de uso concreto, agrega complejidad al selector (sería el item con más opciones, ~52 por año) sin valor demostrado.
+
+## 2026-05-17 — Tooltip de Recharts unificado con fondo navy
+
+**Decisión:** Componente `TooltipRecharts` reutilizable con fondo `--color-header-bg` y texto blanco. Reemplaza el tooltip default de Recharts en las 3 gráficas del Tab SFV (perfil horario, serie diaria, histograma) y la curva del día (granularidad diaria).
+**Razón:** El default mostraba texto del color de la serie sobre fondo blanco; con la paleta verde sobrio del producto el texto se perdía. Centralizar el componente garantiza coherencia visual cuando lleguen más tabs con gráficas.
+**Alternativa descartada:** Solo modificar `contentStyle` de cada Tooltip. Cada gráfica seguiría teniendo su propio formato; el wrapper unificado es más mantenible.
+
+## 2026-05-17 — Tooltip explicativo en `BloqueTecnico`
+
+**Decisión:** `BloqueTecnico` ahora acepta prop opcional `tooltip` que renderiza un ícono `(i)` junto al título con explicación en hover. Aplicado a los 4 bloques técnicos del Tab SFV (HSE/FC, clipping, histograma, matriz heatmap).
+**Razón:** El cliente final abre Vista técnica con curiosidad pero no entiende términos como "clipping" o "P10". El ícono `(i)` evita que el tecnólogo tenga que explicar verbalmente cada término.
+**Alternativa descartada:** Glosario aparte. Más completo pero rompe el flujo de exploración.
+
 ## 2026-05-16 — Stack Vite + React 19 + TS strict
 
 **Decisión:** Mismo stack que curvas-bess, subiendo a React 19 y forzando TS strict.
