@@ -17,6 +17,8 @@ export const COPY_M2 = {
     siguiente: "Periodo siguiente",
     granularidad: {
       anual: "Anual",
+      semestral: "Semestral",
+      trimestral: "Trimestral",
       mensual: "Mensual",
       diario: "Diario",
     },
@@ -53,7 +55,9 @@ export const COPY_M2 = {
         "Qué tan aprovechada está la capacidad de interconexión autorizada por CFE. Un factor de planta típico para SFV en México es 18-25%.",
     },
     tecnico: {
-      titulo: "Detalle técnico",
+      titulo: "Detalle técnico — HSE y factor de capacidad",
+      tooltip:
+        "HSE (Horas Sol Equivalentes): cuántas horas equivalentes de sol pleno produjo tu SFV al día. Un valor de 5 h/día es típico para México central. Factor de capacidad: cuán aprovechada está la capacidad instalada del SFV (independiente del POI).",
       hse: "Horas sol equivalentes diarias (HSE)",
       factorCap: "Factor de capacidad PV",
       diasAnalizados: "Días analizados",
@@ -76,6 +80,8 @@ export const COPY_M2 = {
     },
     tecnico: {
       titulo: "Detalle técnico — tabla horaria y clipping",
+      tooltip:
+        "Clipping físico: cuando el inversor del SFV recorta la generación porque excedería la capacidad autorizada por CFE. En tu caso (capacidad PV = capacidad CFE), no debería ocurrir nunca; si aparece, indica una anomalía en el inversor.",
       tabla: {
         hora: "Hora",
         promedio: "kW promedio",
@@ -120,7 +126,9 @@ export const COPY_M2 = {
       },
     },
     tecnico: {
-      titulo: "Histograma de días por rango de MWh",
+      titulo: "Detalle técnico — distribución de días por rango de energía",
+      tooltip:
+        "Histograma: agrupa los días del periodo en rangos de energía generada. Una distribución concentrada en pocos rangos indica un recurso solar estable; una distribución dispersa indica alta variabilidad día a día.",
       explicacion:
         "Esta distribución te muestra qué tan repetible es la generación diaria. Una distribución concentrada en pocos rangos indica un recurso estable; una distribución dispersa indica alta variabilidad.",
     },
@@ -132,7 +140,9 @@ export const COPY_M2 = {
     leyendaMax: (kw: number) => `${Math.round(kw)} kW`,
     detalleDia: "Curva del día seleccionado",
     tecnico: {
-      titulo: "Detalle técnico — matriz numérica (kW)",
+      titulo: "Detalle técnico — matriz numérica del heatmap",
+      tooltip:
+        "Cada celda muestra la potencia promedio (kW) que el SFV produjo en esa hora de ese día. Útil para identificar patrones de generación día por día.",
     },
   },
   seccion5: {

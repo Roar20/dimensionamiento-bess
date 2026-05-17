@@ -23,6 +23,7 @@ import type { RegistroHorario } from "@/types/sfv";
 import { BloqueTecnico } from "./BloqueTecnico";
 import { KPICard } from "./KPICard";
 import { NarrativaIntro } from "./NarrativaIntro";
+import { TooltipRecharts } from "./TooltipRecharts";
 
 interface Props {
   registros: readonly RegistroHorario[];
@@ -85,15 +86,18 @@ export function Seccion3Variabilidad({ registros, periodo }: Props) {
                 }}
               />
               <Tooltip
-                formatter={(v: number) => `${v.toFixed(2)} MWh`}
-                labelFormatter={(l) => formatFechaLarga(l as string)}
-                contentStyle={{
-                  backgroundColor: "#1B3A52",
-                  border: "none",
-                  borderRadius: 8,
-                  color: "white",
-                  fontSize: 12,
-                }}
+                content={
+                  <TooltipRecharts
+                    titulo={(fecha) => formatFechaLarga(fecha ?? "")}
+                    formatear={(payload) =>
+                      payload.map((p) => ({
+                        label: "Energía",
+                        valor: `${Number(p.value ?? 0).toFixed(2)} MWh`,
+                        color: "#4A7C59",
+                      }))
+                    }
+                  />
+                }
               />
               <ReferenceLine
                 y={variab.promedio_mwh}
@@ -157,7 +161,7 @@ export function Seccion3Variabilidad({ registros, periodo }: Props) {
         />
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo}>
+      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
         <p className="mb-3 text-ink-secondary">{copy.tecnico.explicacion}</p>
         <div className="h-[260px] w-full">
           <ResponsiveContainer>
@@ -169,13 +173,18 @@ export function Seccion3Variabilidad({ registros, periodo }: Props) {
               />
               <YAxis tick={{ fontSize: 11, fill: "#64748b" }} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1B3A52",
-                  border: "none",
-                  borderRadius: 8,
-                  color: "white",
-                  fontSize: 12,
-                }}
+                content={
+                  <TooltipRecharts
+                    titulo={(rango) => `Rango ${rango} MWh`}
+                    formatear={(payload) =>
+                      payload.map((p) => ({
+                        label: "Días en el rango",
+                        valor: `${Number(p.value ?? 0)}`,
+                        color: "#4A7C59",
+                      }))
+                    }
+                  />
+                }
               />
               <Bar dataKey="dias" fill="#4A7C59" />
             </BarChart>

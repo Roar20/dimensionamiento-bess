@@ -27,6 +27,7 @@ import type { RegistroHorario } from "@/types/sfv";
 
 import { BloqueTecnico } from "./BloqueTecnico";
 import { NarrativaIntro } from "./NarrativaIntro";
+import { TooltipRecharts } from "./TooltipRecharts";
 
 interface Props {
   registros: readonly RegistroHorario[];
@@ -110,7 +111,7 @@ function HeatmapMensual({ registros, periodo }: Props) {
         texto={generarNarrativaSeccion4(mesLabel)}
       />
 
-      {periodo.granularidad === "anual" ? (
+      {mesesDisponibles.length > 1 ? (
         <div className="flex items-center gap-3">
           <span className="text-sm text-ink-helper">{copy.selectorMes}</span>
           <Select value={mesActivo} onValueChange={setMesActivo}>
@@ -176,7 +177,7 @@ function HeatmapMensual({ registros, periodo }: Props) {
         </div>
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo}>
+      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
         <div className="max-h-[300px] overflow-auto">
           <table className="w-full border-collapse text-[10px]">
             <thead className="sticky top-0 bg-slate-50">
@@ -259,14 +260,18 @@ function CurvaDelDia({ registros, periodo }: Props) {
               />
               <YAxis tick={{ fontSize: 11, fill: "#64748b" }} />
               <Tooltip
-                formatter={(v: number) => `${v.toFixed(1)} kW`}
-                contentStyle={{
-                  backgroundColor: "#1B3A52",
-                  border: "none",
-                  borderRadius: 8,
-                  color: "white",
-                  fontSize: 12,
-                }}
+                content={
+                  <TooltipRecharts
+                    titulo={(h) => `Hora ${h}h`}
+                    formatear={(payload) =>
+                      payload.map((p) => ({
+                        label: "Potencia",
+                        valor: `${Number(p.value ?? 0).toFixed(1)} kW`,
+                        color: "#4A7C59",
+                      }))
+                    }
+                  />
+                }
               />
               <Area
                 type="monotone"

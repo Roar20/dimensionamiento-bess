@@ -94,7 +94,7 @@ export function Seccion1Generacion({ registros, config, periodo }: Props) {
         />
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo}>
+      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
         <dl className="grid gap-3 sm:grid-cols-3">
           <DatoTecnico
             label={copy.tecnico.hse}

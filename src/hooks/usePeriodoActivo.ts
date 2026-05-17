@@ -3,8 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DatosSFV, RegistroHorario } from "@/types/sfv";
 import {
   calcularPeriodosDisponibles,
+  construirPeriodoAnual,
   construirPeriodoDiario,
   construirPeriodoMensual,
+  construirPeriodoSemestral,
+  construirPeriodoTrimestral,
   filtrarRegistros,
   type Granularidad,
   type PeriodoActivo,
@@ -17,16 +20,20 @@ type EstadoPersistido = {
   indice: number;
 };
 
+const GRANULARIDADES_VALIDAS: ReadonlySet<Granularidad> = new Set([
+  "anual",
+  "semestral",
+  "trimestral",
+  "mensual",
+  "diario",
+]);
+
 function leerEstadoPersistido(): EstadoPersistido | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as EstadoPersistido;
-    if (
-      parsed.granularidad === "anual" ||
-      parsed.granularidad === "mensual" ||
-      parsed.granularidad === "diario"
-    ) {
+    if (GRANULARIDADES_VALIDAS.has(parsed.granularidad)) {
       return parsed;
     }
     return null;
@@ -154,8 +161,11 @@ export function usePeriodoActivo(
 }
 
 export {
+  construirPeriodoAnual,
   construirPeriodoDiario,
   construirPeriodoMensual,
+  construirPeriodoSemestral,
+  construirPeriodoTrimestral,
   type Granularidad,
   type PeriodoActivo,
 };

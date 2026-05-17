@@ -1,6 +1,11 @@
 import type { RegistroHorario } from "@/types/sfv";
 
-export type Granularidad = "anual" | "mensual" | "diario";
+export type Granularidad =
+  | "anual"
+  | "semestral"
+  | "trimestral"
+  | "mensual"
+  | "diario";
 
 export type PeriodoActivo = {
   granularidad: Granularidad;
@@ -74,6 +79,29 @@ export function calcularPeriodosDisponibles(
     return [...anios].sort().map((anio) => construirPeriodoAnual(anio));
   }
 
+  if (granularidad === "semestral") {
+    const anios = new Set<number>();
+    for (const r of registros) anios.add(r.timestamp.getFullYear());
+    const periodos: PeriodoActivo[] = [];
+    for (const anio of [...anios].sort()) {
+      periodos.push(construirPeriodoSemestral(anio, 1));
+      periodos.push(construirPeriodoSemestral(anio, 2));
+    }
+    return periodos.filter((p) => tieneRegistros(registros, p));
+  }
+
+  if (granularidad === "trimestral") {
+    const anios = new Set<number>();
+    for (const r of registros) anios.add(r.timestamp.getFullYear());
+    const periodos: PeriodoActivo[] = [];
+    for (const anio of [...anios].sort()) {
+      for (const q of [1, 2, 3, 4] as const) {
+        periodos.push(construirPeriodoTrimestral(anio, q));
+      }
+    }
+    return periodos.filter((p) => tieneRegistros(registros, p));
+  }
+
   if (granularidad === "mensual") {
     const claves = new Set<string>();
     for (const r of registros) {
@@ -95,6 +123,72 @@ export function calcularPeriodosDisponibles(
     const [y, m, d] = iso.split("-").map(Number);
     return construirPeriodoDiario(new Date(y!, m! - 1, d!));
   });
+}
+
+function tieneRegistros(
+  registros: readonly RegistroHorario[],
+  periodo: PeriodoActivo
+): boolean {
+  const ini = periodo.fechaInicio.getTime();
+  const fin = periodo.fechaFin.getTime();
+  for (const r of registros) {
+    const t = r.timestamp.getTime();
+    if (t >= ini && t < fin) return true;
+  }
+  return false;
+}
+
+export function construirPeriodoSemestral(
+  anio: number,
+  semestre: 1 | 2
+): PeriodoActivo {
+  if (semestre === 1) {
+    return {
+      granularidad: "semestral",
+      fechaInicio: new Date(anio, 0, 1, 0, 0, 0, 0),
+      fechaFin: new Date(anio, 6, 1, 0, 0, 0, 0),
+      label: `S1 ${anio} (ene–jun)`,
+      id: `semestral:${anio}-S1`,
+    };
+  }
+  return {
+    granularidad: "semestral",
+    fechaInicio: new Date(anio, 6, 1, 0, 0, 0, 0),
+    fechaFin: new Date(anio + 1, 0, 1, 0, 0, 0, 0),
+    label: `S2 ${anio} (jul–dic)`,
+    id: `semestral:${anio}-S2`,
+  };
+}
+
+const TRIMESTRES: Array<{
+  num: 1 | 2 | 3 | 4;
+  mesIni: number;
+  mesFin: number;
+  label: string;
+}> = [
+  { num: 1, mesIni: 0, mesFin: 3, label: "ene–mar" },
+  { num: 2, mesIni: 3, mesFin: 6, label: "abr–jun" },
+  { num: 3, mesIni: 6, mesFin: 9, label: "jul–sep" },
+  { num: 4, mesIni: 9, mesFin: 12, label: "oct–dic" },
+];
+
+export function construirPeriodoTrimestral(
+  anio: number,
+  trimestre: 1 | 2 | 3 | 4
+): PeriodoActivo {
+  const t = TRIMESTRES[trimestre - 1]!;
+  const fechaInicio = new Date(anio, t.mesIni, 1, 0, 0, 0, 0);
+  const fechaFin =
+    t.mesFin === 12
+      ? new Date(anio + 1, 0, 1, 0, 0, 0, 0)
+      : new Date(anio, t.mesFin, 1, 0, 0, 0, 0);
+  return {
+    granularidad: "trimestral",
+    fechaInicio,
+    fechaFin,
+    label: `Q${t.num} ${anio} (${t.label})`,
+    id: `trimestral:${anio}-Q${t.num}`,
+  };
 }
 
 export function construirPeriodoAnual(anio: number): PeriodoActivo {

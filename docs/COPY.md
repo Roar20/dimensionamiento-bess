@@ -65,7 +65,15 @@ Toda la copy del Tab SFV vive en `src/lib/copy/modulo-2.ts` bajo `COPY_M2`.
 - Modal: título "¿Quieres cambiar de planta?", descripción "Los datos actuales se reemplazarán al cargar el nuevo archivo.", botones "Cancelar" y "Continuar".
 
 ### Selector temporal
-- Label: "Periodo:" + flechas anterior/siguiente + dropdown del periodo + radios "Anual" / "Mensual" / "Diario".
+- Label: "Periodo:" + flechas anterior/siguiente + dropdown del periodo + radios "Anual" / "Semestral" / "Trimestral" / "Mensual" / "Diario".
+- Etiquetas semestrales: `S1 2025 (ene–jun)`, `S2 2025 (jul–dic)`.
+- Etiquetas trimestrales: `Q1 2025 (ene–mar)`, `Q2 2025 (abr–jun)`, `Q3 2025 (jul–sep)`, `Q4 2025 (oct–dic)`.
+
+### Tooltips de bloques técnicos
+- Sección 1: HSE + factor de capacidad.
+- Sección 2: clipping físico (definición y cuándo aparece).
+- Sección 3: histograma de variabilidad.
+- Sección 4: matriz numérica del heatmap.
 
 ### Sección 1 — ¿Cuánto genera tu SFV en {periodo}?
 - KPIs: Energía generada (MWh), Horas con generación, Potencia promedio anual del SFV (kW + % del POI), Factor de planta (%).
