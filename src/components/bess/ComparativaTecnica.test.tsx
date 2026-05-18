@@ -41,4 +41,36 @@ describe("ComparativaTecnica", () => {
     expect(screen.getByText(/^177$/)).toBeInTheDocument();
     expect(screen.getByText(/^113$/)).toBeInTheDocument();
   });
+
+  it("NUNCA renderiza métricas colapsadas tipo 'vs estándar' o 'capacidad equivalente'", () => {
+    const { container } = render(<ComparativaTecnica />);
+    const PROHIBIDAS =
+      /capacidad equivalente|potencia firme típica|energía firme|vs estándar/i;
+    expect(container.textContent ?? "").not.toMatch(PROHIBIDAS);
+  });
+
+  it("Block III muestra 'n/d' en Eficiencia máxima sin sufijo '%' espurio", () => {
+    render(<ComparativaTecnica />);
+    // La celda de Block III en la fila Eficiencia máxima debe ser exactamente "n/d".
+    const filaEficiencia = Array.from(
+      document.querySelectorAll("tbody tr")
+    ).find((tr) => tr.querySelector("td")?.textContent === "Eficiencia máxima");
+    expect(filaEficiencia).not.toBeUndefined();
+    const celdas = filaEficiencia!.querySelectorAll("td");
+    const blockIii = celdas[celdas.length - 1]?.textContent ?? "";
+    expect(blockIii).toBe("n/d");
+    expect(blockIii).not.toMatch(/%/);
+  });
+
+  it("Block III muestra 'n/d en datasheet' en Vida útil sin sufijo 'años' espurio", () => {
+    render(<ComparativaTecnica />);
+    const filaVida = Array.from(
+      document.querySelectorAll("tbody tr")
+    ).find((tr) => tr.querySelector("td")?.textContent === "Vida útil declarada");
+    expect(filaVida).not.toBeUndefined();
+    const celdas = filaVida!.querySelectorAll("td");
+    const blockIii = celdas[celdas.length - 1]?.textContent ?? "";
+    expect(blockIii).toBe("n/d en datasheet");
+    expect(blockIii).not.toMatch(/años/);
+  });
 });

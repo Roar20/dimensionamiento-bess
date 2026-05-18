@@ -1,4 +1,8 @@
 import { CATALOGO_HYPERSTRONG, type EquipoBess } from "@/data/catalogo-hyperstrong";
+import {
+  formatearEficienciaMax,
+  formatearVidaUtil,
+} from "@/data/formatear-equipo";
 
 const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 0,
@@ -29,12 +33,12 @@ const FILAS: readonly Fila[] = [
   },
   { label: "Configuración celdas", valor: (e) => e.configuracionCeldas },
   { label: "Voltaje DC nominal", valor: (e) => `${e.voltajeDcV} V` },
-  { label: "Eficiencia máxima", valor: (e) => `${e.eficienciaMax}%` },
+  { label: "Eficiencia máxima", valor: (e) => formatearEficienciaMax(e.eficienciaMax) },
   {
     label: "Temperatura operación",
     valor: (e) => `${e.temperaturaOpC[0]} °C a ${e.temperaturaOpC[1]} °C`,
   },
-  { label: "Vida útil declarada", valor: (e) => `${e.vidaUtilAnos} años` },
+  { label: "Vida útil declarada", valor: (e) => formatearVidaUtil(e.vidaUtilAnos) },
   { label: "Refrigeración", valor: (e) => e.refrigeracion },
   {
     label: "Capacidad paralelo",

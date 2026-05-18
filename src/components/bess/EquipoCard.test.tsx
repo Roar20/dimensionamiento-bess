@@ -108,7 +108,7 @@ describe("EquipoCard", () => {
       <EquipoCard equipo={cubePlus} tipoCambio={20} onAbrirFicha={() => {}} />
     );
     const PROHIBIDAS =
-      /capacidad equivalente|potencia firme típica|energía firme/i;
+      /capacidad equivalente|potencia firme típica|energía firme|vs estándar/i;
     expect(container.textContent ?? "").not.toMatch(PROHIBIDAS);
 
     // Defensa para los 3 equipos.

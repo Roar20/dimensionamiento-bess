@@ -5,6 +5,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { EquipoBess } from "@/data/catalogo-hyperstrong";
+import {
+  formatearEficienciaMax,
+  formatearVidaUtil,
+} from "@/data/formatear-equipo";
 
 const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 0,
@@ -71,7 +75,10 @@ function FichaContenido({ equipo }: { equipo: EquipoBess }) {
         ) : (
           <Fila label="Potencia nominal" valor="DC version" />
         )}
-        <Fila label="Eficiencia máxima" valor={`${equipo.eficienciaMax}%`} />
+        <Fila
+          label="Eficiencia máxima"
+          valor={formatearEficienciaMax(equipo.eficienciaMax)}
+        />
       </Seccion>
 
       <Seccion titulo="General">
@@ -80,7 +87,10 @@ function FichaContenido({ equipo }: { equipo: EquipoBess }) {
           valor={`${tMin} °C a ${tMax} °C`}
         />
         <Fila label="Refrigeración" valor={equipo.refrigeracion} />
-        <Fila label="Vida útil declarada" valor={`${equipo.vidaUtilAnos} años`} />
+        <Fila
+          label="Vida útil declarada"
+          valor={formatearVidaUtil(equipo.vidaUtilAnos)}
+        />
         <Fila
           label="Dimensiones (W × D × H)"
           valor={`${FORMATO_ENTERO.format(w)} × ${FORMATO_ENTERO.format(d)} × ${FORMATO_ENTERO.format(h)} mm`}

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { DOD_PCT, RTE_PCT } from "@/data/parametros-operacion";
 import type { EquipoBess } from "@/data/catalogo-hyperstrong";
+import { formatearVidaUtil } from "@/data/formatear-equipo";
 import { TOOLTIPS_BESS } from "@/data/tooltips-bess";
 
 const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
@@ -53,7 +54,7 @@ export function EquipoCard({ equipo, tipoCambio, onAbrirFicha }: Props) {
           <h3 className="text-base font-medium text-[var(--color-text-primary)]">
             {equipo.nombre}
           </h3>
-          <p className="mt-0.5 truncate text-[12px] text-[var(--color-text-tertiary)]">
+          <p className="mt-0.5 break-words text-[12px] text-[var(--color-text-tertiary)]">
             {equipo.modelo}
           </p>
         </div>
@@ -80,7 +81,7 @@ export function EquipoCard({ equipo, tipoCambio, onAbrirFicha }: Props) {
         />
         <Fila
           label="Vida útil"
-          valor={`${equipo.vidaUtilAnos} años`}
+          valor={formatearVidaUtil(equipo.vidaUtilAnos)}
           tooltip={TOOLTIPS_BESS.vida_util}
           etiquetaTooltip={`Trazabilidad: vida útil de ${equipo.nombre}`}
         />

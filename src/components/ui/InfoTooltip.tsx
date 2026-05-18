@@ -34,8 +34,10 @@ export function InfoTooltip({ texto, etiqueta }: Props) {
           </button>
         </TooltipTrigger>
         <TooltipContent
-          side="top"
-          sideOffset={4}
+          side="bottom"
+          sideOffset={6}
+          collisionPadding={12}
+          avoidCollisions
           className="max-w-[280px] bg-[var(--color-text-primary)] px-3 py-2 text-[12px] leading-snug text-white"
         >
           {texto}

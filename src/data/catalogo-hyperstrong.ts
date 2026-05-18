@@ -86,7 +86,7 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     energiaKwh: 5015.96,
     potenciaKvaAc: null,
     potenciaKwDc: 2500,
-    eficienciaMax: "+2 vs estándar",
+    eficienciaMax: "n/d",
     vidaUtilAnos: "n/d en datasheet",
     configuracionCeldas: "12P416S",
     voltajeDcV: 1331,
