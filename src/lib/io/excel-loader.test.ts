@@ -268,4 +268,39 @@ describe("cargarArchivoSFV", () => {
     // Energía anual aproximada: 8760 * 0.1042 ≈ 912.79 MWh.
     expect(datos.meta.total_energia_mwh).toBeCloseTo(8760 * 0.1042, 1);
   });
+
+  it("parsea fechas en formato es-MX DD/MM/YYYY sin perder registros", async () => {
+    // Días 13..31 de cualquier mes son inválidos al pasar por `new Date()`
+    // (V8 los interpreta como M/D/Y → mes 13 → NaN). El loader debe
+    // detectar el formato DD/MM/YYYY explícitamente y mantener todos los
+    // registros.
+    const filas: Fila[] = [HEADERS];
+    // Marzo 13-15, 3 días, 24 horas cada uno = 72 registros.
+    for (const d of [13, 14, 15]) {
+      const fecha = `${String(d).padStart(2, "0")}/03/2025`;
+      for (let h = 1; h <= 24; h += 1) {
+        filas.push([fecha, h, 0.1]);
+      }
+    }
+    const { datos } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.registros).toHaveLength(72);
+    // Los timestamps deben ser marzo, no enero ni febrero.
+    expect(datos.registros[0]!.timestamp.getMonth()).toBe(2); // marzo = idx 2
+    expect(datos.registros[0]!.timestamp.getDate()).toBe(13);
+    expect(datos.registros[71]!.timestamp.getDate()).toBe(15);
+  });
+
+  it("también acepta fechas YYYY-MM-DD (formato ISO)", async () => {
+    const filas: Fila[] = [HEADERS, ["2025-03-15", 12, 0.42]];
+    const { datos } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.registros).toHaveLength(1);
+    expect(datos.registros[0]!.timestamp.getMonth()).toBe(2);
+    expect(datos.registros[0]!.timestamp.getDate()).toBe(15);
+  });
 });

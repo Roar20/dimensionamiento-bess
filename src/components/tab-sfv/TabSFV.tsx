@@ -205,7 +205,7 @@ export function TabSFV({ datos }: Props) {
       />
 
       <FooterEstandar
-        fuente={`Fuente: cincominutales SFV ${
+        fuente={`Fuente: registros horarios SFV ${
           config.nombre || "—"
         } · año base ${meta.anio}`}
         fecha={fechaFooter}

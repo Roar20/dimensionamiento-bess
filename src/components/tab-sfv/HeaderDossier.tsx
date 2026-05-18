@@ -6,6 +6,11 @@ interface Props {
   totalRegistros: number;
   poiKw: number;
   zonaLmp: string | null;
+  /**
+   * Prefijo del título. Default: "Análisis de la curva de generación del
+   * SFV". Tab SFV+BESS lo sobrescribe a "Análisis del SFV + BESS".
+   */
+  tituloBase?: string;
 }
 
 const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
@@ -18,11 +23,10 @@ export function HeaderDossier({
   totalRegistros,
   poiKw,
   zonaLmp,
+  tituloBase = "Análisis de la curva de generación del SFV",
 }: Props) {
   const cambiarPlanta = useCambiarPlanta();
-  const titulo = nombrePlanta
-    ? `Análisis de la curva de generación del SFV — ${nombrePlanta}`
-    : "Análisis de la curva de generación del SFV";
+  const titulo = nombrePlanta ? `${tituloBase} — ${nombrePlanta}` : tituloBase;
 
   return (
     <header className="mb-8 flex flex-wrap items-start justify-between gap-4">

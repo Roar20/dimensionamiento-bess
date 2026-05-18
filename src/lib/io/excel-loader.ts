@@ -188,6 +188,21 @@ function parsearFecha(valor: unknown): Date | null {
   if (typeof valor === "string") {
     const trimmed = valor.trim();
     if (trimmed === "") return null;
+
+    // DD/MM/YYYY o DD-MM-YYYY (formato es-MX, como exporta Excel del cliente).
+    // Se intenta ANTES de `new Date()` porque `new Date("13/01/2025")` falla:
+    // V8 lo interpreta como M/D/Y (mes 13 → inválido).
+    const mEsMx = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (mEsMx) {
+      const d = Number(mEsMx[1]);
+      const m = Number(mEsMx[2]);
+      const y = Number(mEsMx[3]);
+      if (d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 1900 && y <= 2100) {
+        return new Date(y, m - 1, d, 0, 0, 0, 0);
+      }
+    }
+
+    // YYYY-MM-DD (ISO) y otros formatos parseables por V8.
     const date = new Date(trimmed);
     if (!Number.isNaN(date.getTime())) {
       return new Date(
