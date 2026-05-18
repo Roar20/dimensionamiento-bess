@@ -51,6 +51,62 @@ reescriban:
   Cuando ya no haya consumidores de `lucide-react`, removerlo del
   `package.json`.
 
+## Iteración Tab BESS · catálogo plano Hyperstrong (P3)
+
+Reescribió Tab BESS al formato catálogo del mockup `tab_02_bess.html`:
+header dossier minimal + LecturaEjecutiva + grid de 3 EquipoCard +
+ComparativaTecnica (10 filas) + accordion "Parámetros de operación y
+supuestos" + footer. Tab independiente del estado de planta —
+accesible incluso sin onboarding completo.
+
+### Sweep cerrado
+
+Eliminados los siguientes archivos sin consumidores externos
+(verificado por grep antes de borrar):
+
+- `src/components/tab-bess/TabBESS.tsx`
+- `src/components/tab-bess/Seccion1IntroBESS.tsx`
+- `src/components/tab-bess/Seccion2Catalogo.tsx` (+ `.test.tsx`, −5 tests)
+- `src/components/tab-bess/Seccion2EnergiaAlmacenable/*` (3 archivos)
+- `src/components/tab-bess/Seccion3TablaComparativa.tsx`
+- `src/components/tab-bess/Seccion4GraficasComparativas.tsx`
+- `src/components/tab-bess/Seccion5FichasDetalladas.tsx`
+- `src/components/tab-bess/CardEquipo.tsx`
+- `src/components/tab-bess/GraficaComparativa.tsx`
+- `src/components/tab-bess/BotonDescargarDatasheet.tsx`
+
+El directorio `src/components/tab-bess/` quedó eliminado. La tab nueva
+vive en `src/components/bess/` (sin el prefijo `tab-`).
+
+### DEUDA P4 — Catálogos duplicados
+
+Dos archivos de catálogo Hyperstrong coexisten temporalmente:
+
+- `src/data/catalogo-hyperstrong.ts` (nuevo, shape `EquipoBess`
+  camelCase, consumido por Tab BESS).
+- `src/lib/bess/catalogo-hyperstrong.ts` (viejo, shape `EquipoBESS`
+  snake_case, consumido por `src/lib/bess/recomendacion.ts`).
+
+Al construir Tab SFV+BESS en P4:
+1. Migrar `recomendacion.ts` a consumir `src/data/catalogo-hyperstrong`.
+2. Borrar `src/lib/bess/catalogo-hyperstrong.ts`.
+3. Verificar que los 7 tests de `catalogo-hyperstrong.test.ts` + 8 de
+   `recomendacion.test.ts` (en `src/lib/bess/`) sigan verdes.
+
+Costo de consolidar ahora: tocar Tab SFV+BESS prematuramente. Por eso
+se difiere a P4.
+
+### Routing
+
+- BESS pasa a estar **siempre habilitada** en `PageHeader` (catálogo
+  independiente de planta). SFV / SFV+BESS siguen condicionales a
+  `hayDatos`.
+- `BESS.tsx` ya no redirige a `/` cuando `!datos`; el catálogo se ve
+  igual con o sin onboarding cargado.
+- `EncabezadoContextual` se mantiene como chrome global en `/bess`
+  cuando hay datos (FIX G del PR #16): es la única ruta sin
+  HeaderDossier propio.
+
 ## Iteración Tab SFV · estructura ejecutiva (P2)
 
 Reescribió el Tab SFV completo al formato consultor del mockup
