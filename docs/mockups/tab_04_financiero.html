@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis financiero — Tequila | dimensionamiento-bess</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #1E40AF;
+    --color-primary-light: #DBEAFE;
+    --color-primary-dark: #1E3A8A;
+    --color-capture: #0F766E;
+    --color-capture-light: #CCFBF1;
+    --color-capture-dark: #115E59;
+    --color-generation: #B45309;
+    --color-baseline: #525252;
+    --color-loss: #991B1B;
+    --color-loss-light: #FEE2E2;
+    --color-text-primary: #171717;
+    --color-text-secondary: #525252;
+    --color-text-tertiary: #737373;
+    --color-bg-page: #FAFAF9;
+    --color-bg-card: #FFFFFF;
+    --color-bg-secondary: #F5F5F4;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-border-medium: rgba(0, 0, 0, 0.15);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-bg-page); color: var(--color-text-primary);
+    font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 32px 40px 64px; }
+  .tab-nav {
+    display: flex; gap: 4px; padding-bottom: 16px; margin-bottom: 24px;
+    border-bottom: 0.5px solid var(--color-border-light);
+  }
+  .tab-nav-item {
+    padding: 8px 14px; font-size: 13px; color: var(--color-text-tertiary);
+    border-radius: var(--radius-md); cursor: pointer; font-weight: 400;
+  }
+  .tab-nav-item.active { background: var(--color-primary); color: white; font-weight: 500; }
+  .header { margin-bottom: 32px; }
+  .header h1 { font-size: 24px; font-weight: 500; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .header .meta { font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap; }
+  .header .meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .header .meta i { color: var(--color-text-tertiary); }
+
+  .section-label {
+    font-size: 11px; color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 500; margin-bottom: 12px;
+  }
+
+  .takeaway {
+    background: var(--color-primary-light); border-left: 3px solid var(--color-primary);
+    padding: 14px 18px; border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin-bottom: 32px;
+  }
+  .takeaway-label {
+    font-size: 10px; color: var(--color-primary-dark); text-transform: uppercase;
+    letter-spacing: 0.6px; font-weight: 600; margin-bottom: 4px;
+  }
+  .takeaway-text { font-size: 14px; line-height: 1.55; }
+
+  .config-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 24px;
+  }
+  .config-items { display: flex; gap: 28px; }
+  .config-item { display: flex; flex-direction: column; }
+  .config-item .label { color: var(--color-text-tertiary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .config-item .value { font-weight: 500; font-size: 14px; }
+  .btn-edit {
+    padding: 6px 12px; font-size: 12px; border: 0.5px solid var(--color-border-medium);
+    background: white; border-radius: var(--radius-md); cursor: pointer;
+    color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-md); padding: 16px 18px; cursor: help;
+  }
+  .kpi-card.primary { border-left: 3px solid var(--color-primary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .kpi-card.capture { border-left: 3px solid var(--color-capture); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .kpi-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .kpi-value { font-size: 26px; font-weight: 500; line-height: 1.1; letter-spacing: -0.02em; }
+  .kpi-value .unit { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); margin-left: 4px; }
+  .kpi-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 6px; }
+  .kpi-tag {
+    display: inline-block; padding: 2px 8px; font-size: 10px;
+    border-radius: 4px; font-weight: 500; margin-top: 8px;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .kpi-tag.good { background: var(--color-capture-light); color: var(--color-capture-dark); }
+  .kpi-tag.neutral { background: var(--color-primary-light); color: var(--color-primary-dark); }
+
+  .capex-section { margin-bottom: 32px; }
+  .capex-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px;
+  }
+  .chart-container {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 20px;
+  }
+  .capex-breakdown { display: flex; flex-direction: column; gap: 0; }
+  .capex-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-light); font-size: 13px; }
+  .capex-row:last-child { border-bottom: none; }
+  .capex-row .label { color: var(--color-text-secondary); }
+  .capex-row .value { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .capex-row .pct { color: var(--color-text-tertiary); font-size: 11px; margin-left: 8px; }
+  .capex-row.total { border-top: 1px solid var(--color-text-primary); border-bottom: none; padding-top: 12px; margin-top: 6px; font-size: 14px; }
+  .capex-row.total .value { font-size: 18px; font-weight: 500; }
+
+  .chart-section { margin-bottom: 32px; }
+  .chart-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .chart-title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .chart-subtitle { font-size: 12px; color: var(--color-text-secondary); }
+  .chart-unit { font-size: 11px; color: var(--color-text-tertiary); }
+  .chart-canvas-wrap { position: relative; width: 100%; height: 280px; }
+  .chart-legend {
+    display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 12px;
+    font-size: 12px; color: var(--color-text-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+
+  .table-wrap {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--color-bg-secondary); }
+  th { padding: 12px 14px; text-align: right; font-weight: 500; color: var(--color-text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+  th:first-child { text-align: left; }
+  tbody td { padding: 10px 14px; text-align: right; font-variant-numeric: tabular-nums; border-top: 0.5px solid var(--color-border-light); }
+  tbody td:first-child { text-align: left; font-weight: 500; }
+  tbody td.muted { color: var(--color-text-secondary); }
+  tbody td.neg { color: var(--color-loss); }
+  tbody tr.year-payback { background: rgba(15, 118, 110, 0.08); }
+  tbody tr.year-payback td:first-child { color: var(--color-capture-dark); }
+
+  details {
+    margin-bottom: 16px; font-size: 13px;
+    border-top: 0.5px solid var(--color-border-light); padding-top: 4px;
+  }
+  details summary {
+    cursor: pointer; padding: 12px 0; font-weight: 500;
+    color: var(--color-text-secondary); list-style: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  details summary::before {
+    content: ''; width: 0; height: 0; border-style: solid;
+    border-width: 5px 0 5px 7px; border-color: transparent transparent transparent var(--color-text-tertiary);
+    transition: transform 0.2s;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary::-webkit-details-marker { display: none; }
+  details .content { padding: 4px 0 12px 15px; color: var(--color-text-secondary); line-height: 1.7; }
+  details .content p { margin-bottom: 8px; }
+  details .content strong { color: var(--color-text-primary); font-weight: 500; }
+
+  .footer {
+    padding-top: 16px; border-top: 0.5px solid var(--color-border-light);
+    font-size: 11px; color: var(--color-text-tertiary);
+    display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="tab-nav">
+    <div class="tab-nav-item">SFV</div>
+    <div class="tab-nav-item">BESS</div>
+    <div class="tab-nav-item">SFV + BESS</div>
+    <div class="tab-nav-item active">Análisis financiero</div>
+  </nav>
+
+  <div class="header">
+    <h1>Análisis financiero — Tequila</h1>
+    <div class="meta">
+      <span><i class="ti ti-clock-hour-4"></i>Horizonte 20 años</span>
+      <span><i class="ti ti-percentage"></i>WACC 10%</span>
+      <span><i class="ti ti-trending-up"></i>Inflación 4%/año</span>
+      <span><i class="ti ti-currency-dollar"></i>Tipo de cambio 20 MXN/USD</span>
+    </div>
+  </div>
+
+  <div class="config-bar">
+    <div class="config-items">
+      <div class="config-item"><div class="label">Equipo</div><div class="value">2× HyperCube C&I II Plus</div></div>
+      <div class="config-item"><div class="label">Configuración</div><div class="value">250 kW × 522 kWh</div></div>
+      <div class="config-item"><div class="label">Estrategia</div><div class="value">Arbitraje horario</div></div>
+      <div class="config-item"><div class="label">SOH 20 años</div><div class="value">67.1%</div></div>
+    </div>
+    <button class="btn-edit"><i class="ti ti-adjustments"></i>Ajustar parámetros</button>
+  </div>
+
+  <div class="section-label">Indicadores financieros · proyección 20 años</div>
+  <div class="kpi-grid">
+    <div class="kpi-card primary" title="Valor presente neto del flujo de caja libre descontado al WACC durante el horizonte de 20 años.">
+      <div class="kpi-label">VAN</div>
+      <div class="kpi-value">$8.4<span class="unit">M MXN</span></div>
+      <div class="kpi-sub">descontado al 10%</div>
+      <div class="kpi-tag good">Crea valor</div>
+    </div>
+    <div class="kpi-card primary" title="Tasa interna de retorno calculada por bisección numérica sobre el flujo de caja libre del proyecto.">
+      <div class="kpi-label">TIR</div>
+      <div class="kpi-value">18.3<span class="unit">%</span></div>
+      <div class="kpi-sub">vs WACC 10%</div>
+      <div class="kpi-tag good">+8.3 pp</div>
+    </div>
+    <div class="kpi-card capture" title="Payback simple: año en que la suma de flujos de caja iguala la inversión inicial (sin descontar).">
+      <div class="kpi-label">Payback simple</div>
+      <div class="kpi-value">5.8<span class="unit">años</span></div>
+      <div class="kpi-sub">recuperación de capital</div>
+      <div class="kpi-tag neutral">Razonable</div>
+    </div>
+    <div class="kpi-card capture" title="Levelized Cost of Storage: costo nivelado por unidad de energía descargada durante la vida útil del proyecto.">
+      <div class="kpi-label">LCOS</div>
+      <div class="kpi-value">$1,420<span class="unit">MXN/MWh</span></div>
+      <div class="kpi-sub">vs PPA $1,010</div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-label">Lectura ejecutiva</div>
+    <div class="takeaway-text">
+      El proyecto BESS bajo la configuración 250 kW × 522 kWh genera valor positivo con VAN $8.4M MXN y TIR de 18.3% (8.3 puntos por encima del WACC). La recuperación de capital se completa en 5.8 años y el LCOS de $1,420 MXN/MWh refleja el costo unitario de almacenamiento durante la vida útil. El driver principal del retorno es la potencia firme contratable, no el arbitraje de energía.
+    </div>
+  </div>
+
+  <div class="section-label">Inversión inicial (CAPEX)</div>
+  <div class="capex-grid">
+    <div class="chart-container">
+      <div class="chart-title">Composición del CAPEX</div>
+      <div class="chart-subtitle" style="margin-bottom: 16px;">Distribución de la inversión inicial total</div>
+      <div class="chart-canvas-wrap">
+        <canvas id="capexDonut" role="img" aria-label="Composición del CAPEX por categoría">CAPEX: equipo BESS 65%, instalación 15%, ingeniería 5%, permisos 3%, contingencia 5%, otros 7%.</canvas>
+      </div>
+    </div>
+    <div class="chart-container">
+      <div class="capex-breakdown">
+        <div class="capex-row">
+          <div class="label">Equipo BESS (2× Cube Plus)</div>
+          <div><span class="value">$2,239,880</span><span class="pct">65%</span></div>
+        </div>
+        <div class="capex-row">
+          <div class="label">Instalación · 15%</div>
+          <div><span class="value">$335,982</span><span class="pct">10%</span></div>
+        </div>
+        <div class="capex-row">
+          <div class="label">Ingeniería · 5%</div>
+          <div><span class="value">$111,994</span><span class="pct">3%</span></div>
+        </div>
+        <div class="capex-row">
+          <div class="label">Permisos · 3%</div>
+          <div><span class="value">$67,196</span><span class="pct">2%</span></div>
+        </div>
+        <div class="capex-row">
+          <div class="label">Contingencia · 5%</div>
+          <div><span class="value">$111,994</span><span class="pct">3%</span></div>
+        </div>
+        <div class="capex-row">
+          <div class="label">OPEX anual (BESS 1.5%)</div>
+          <div><span class="value">$50,397</span><span class="pct">recurrente</span></div>
+        </div>
+        <div class="capex-row total">
+          <div class="label">CAPEX total</div>
+          <div><span class="value">$2,867,046 USD</span></div>
+        </div>
+        <div class="capex-row" style="border: none;">
+          <div class="label" style="color: var(--color-text-tertiary);">Equivalente MXN</div>
+          <div style="color: var(--color-text-secondary);"><span class="value">$57.3M MXN</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Flujo de caja proyectado · 20 años</div>
+        <div class="chart-subtitle">Ingreso anual ajustado por SOH, escalación de precios y degradación SFV</div>
+      </div>
+      <div class="chart-unit">MXN/año</div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-swatch" style="background: #B45309;"></div>Energía</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: #1E40AF;"></div>Potencia firme</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: #0F766E;"></div>CELs</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: #991B1B;"></div>OPEX</div>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="flujo" role="img" aria-label="Flujo de caja anual proyectado a 20 años">Flujo anual ascendente con peak en años 10-12, descenso por degradación SOH.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Análisis de sensibilidad</div>
+        <div class="chart-subtitle">Impacto sobre el VAN ante variaciones de ±20% en parámetros clave</div>
+      </div>
+      <div class="chart-unit">Δ VAN · MXN</div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-canvas-wrap" style="height: 220px;">
+        <canvas id="tornado" role="img" aria-label="Diagrama tornado de sensibilidad del VAN">Sensibilidad: la potencia firme y el CAPEX son los drivers principales del VAN.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Tabla de flujos anuales</div>
+        <div class="chart-subtitle">Detalle año por año con SOH aplicado</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Año</th>
+            <th>SOH</th>
+            <th>Ingreso</th>
+            <th>OPEX</th>
+            <th>FCL</th>
+            <th>Acumulado</th>
+            <th>FCL descontado</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-flujos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <details>
+    <summary>Metodología y supuestos financieros</summary>
+    <div class="content">
+      <p><strong>Horizonte:</strong> 20 años desde puesta en operación. Sin valor residual al cierre.</p>
+      <p><strong>WACC:</strong> 10% — supuesto preliminar pendiente de validar con MHG.</p>
+      <p><strong>Escalación de precios:</strong> energía PPA +2.5%/año, potencia firme +2.5%/año, CELs +2%/año, inflación general 4%/año.</p>
+      <p><strong>Degradación SFV:</strong> 0.5%/año aplicada sobre la generación bruta.</p>
+      <p><strong>Curva SOH del BESS:</strong> según datasheet Hyperstrong — degradación no lineal con punto inicial 99.4% año 0 y 67.1% año 20.</p>
+      <p><strong>OPEX recurrente:</strong> 1.5% del CAPEX BESS anual, sin reemplazo de equipo durante el horizonte. Seguros 0.5%.</p>
+      <p><strong>Impuestos:</strong> no incluidos en esta versión. Análisis pre-fiscal.</p>
+      <p><strong>TIR:</strong> calculada por bisección numérica con tolerancia 0.001 sobre el FCL anual descontado.</p>
+      <p><strong>LCOS:</strong> sumatoria de costos descontados (CAPEX + OPEX) ÷ sumatoria de energía descargada descontada durante 20 años.</p>
+    </div>
+  </details>
+
+  <div class="footer">
+    <span>Proyección financiera · supuestos preliminares · pendiente validación cliente</span>
+    <span>dimensionamiento-bess v0.1 · 17 may 2026</span>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Tabla flujos 20 años
+const sohCurve = [0.9939,0.9497,0.9223,0.8998,0.8799,0.8619,0.8452,0.8295,0.8146,0.8004,0.7868,0.7736,0.7610,0.7487,0.7367,0.7251,0.7138,0.7027,0.6918,0.6808,0.6708];
+const wacc = 0.10;
+const opexBase = 1008; // miles MXN
+
+const flujos = sohCurve.slice(1).map((soh, i) => {
+  const anio = i + 1;
+  const escEnergia = Math.pow(1.025, i);
+  const escPot = Math.pow(1.025, i);
+  const escCel = Math.pow(1.02, i);
+  const escOpex = Math.pow(1.04, i);
+  const ingreso = (1572 * escEnergia + 708 * escPot + 296 * escCel) * soh;
+  const opex = opexBase * escOpex;
+  const fcl = ingreso - opex;
+  const fclDesc = fcl / Math.pow(1 + wacc, anio);
+  return { anio, soh, ingreso, opex, fcl, fclDesc };
+});
+
+let acumulado = -57340; // CAPEX miles MXN (negativo)
+const flujosConAcum = flujos.map(f => {
+  acumulado += f.fcl;
+  return { ...f, acumulado };
+});
+
+// Año de payback (cuando acumulado cruza cero)
+const paybackYear = flujosConAcum.findIndex(f => f.acumulado >= 0) + 1;
+
+const tbody = document.getElementById('tabla-flujos');
+// Agregar año 0 (inversión)
+const tr0 = document.createElement('tr');
+tr0.innerHTML = `
+  <td>0</td>
+  <td class="muted">—</td>
+  <td class="muted">—</td>
+  <td class="muted">—</td>
+  <td class="neg">−57,340</td>
+  <td class="neg">−57,340</td>
+  <td class="neg">−57,340</td>
+`;
+tbody.appendChild(tr0);
+
+flujosConAcum.forEach((f) => {
+  const tr = document.createElement('tr');
+  if (f.anio === paybackYear) tr.classList.add('year-payback');
+  tr.innerHTML = `
+    <td>${f.anio}</td>
+    <td class="muted">${(f.soh * 100).toFixed(1)}%</td>
+    <td>${Math.round(f.ingreso).toLocaleString()}</td>
+    <td class="muted">${Math.round(f.opex).toLocaleString()}</td>
+    <td>${Math.round(f.fcl).toLocaleString()}</td>
+    <td class="${f.acumulado < 0 ? 'neg' : ''}">${Math.round(f.acumulado).toLocaleString()}</td>
+    <td class="muted">${Math.round(f.fclDesc).toLocaleString()}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// Donut CAPEX
+new Chart(document.getElementById('capexDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Equipo BESS', 'Instalación', 'Ingeniería', 'Permisos', 'Contingencia'],
+    datasets: [{
+      data: [2239.88, 335.98, 111.99, 67.20, 111.99],
+      backgroundColor: ['#1E40AF', '#0F766E', '#B45309', '#737373', '#A8A29E'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, color: '#525252', boxWidth: 10, padding: 10 } },
+      tooltip: {
+        callbacks: { label: (ctx) => `${ctx.label}: $${ctx.parsed.toFixed(0)}k USD` }
+      }
+    }
+  }
+});
+
+// Flujo 20 años
+const energiaSerie = flujos.map(f => 1572 * Math.pow(1.025, f.anio - 1) * f.soh);
+const potSerie = flujos.map(f => 708 * Math.pow(1.025, f.anio - 1) * f.soh);
+const celSerie = flujos.map(f => 296 * Math.pow(1.02, f.anio - 1) * f.soh);
+const opexSerie = flujos.map(f => -opexBase * Math.pow(1.04, f.anio - 1));
+
+new Chart(document.getElementById('flujo'), {
+  type: 'bar',
+  data: {
+    labels: flujos.map(f => 'Año ' + f.anio),
+    datasets: [
+      { label: 'Energía', data: energiaSerie, backgroundColor: '#B45309', stack: 'a', borderRadius: 0 },
+      { label: 'Potencia firme', data: potSerie, backgroundColor: '#1E40AF', stack: 'a', borderRadius: 0 },
+      { label: 'CELs', data: celSerie, backgroundColor: '#0F766E', stack: 'a', borderRadius: 0 },
+      { label: 'OPEX', data: opexSerie, backgroundColor: '#991B1B', stack: 'a', borderRadius: 0 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: { label: (ctx) => `${ctx.dataset.label}: ${Math.round(ctx.parsed.y).toLocaleString()} k MXN` }
+      }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { color: '#737373', font: { size: 10 }, autoSkip: true, maxTicksLimit: 10 } },
+      y: { stacked: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#737373', font: { size: 11 }, callback: (v) => Math.round(v / 1000) + 'k' } }
+    }
+  }
+});
+
+// Tornado de sensibilidad
+const sensibilidad = [
+  { label: 'Potencia firme ±30%', high: 2350, low: -2350 },
+  { label: 'Precio energía ±20%', high: 1850, low: -1850 },
+  { label: 'CAPEX ±15%', high: 1420, low: -1420 },
+  { label: 'WACC 8%–12%', high: 1180, low: -1180 },
+  { label: 'OPEX ±25%', high: 420, low: -420 }
+];
+
+new Chart(document.getElementById('tornado'), {
+  type: 'bar',
+  data: {
+    labels: sensibilidad.map(s => s.label),
+    datasets: [
+      { label: 'Variación negativa', data: sensibilidad.map(s => s.low), backgroundColor: '#991B1B', borderRadius: 2 },
+      { label: 'Variación positiva', data: sensibilidad.map(s => s.high), backgroundColor: '#0F766E', borderRadius: 2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${(ctx.parsed.x > 0 ? '+' : '')}${Math.round(ctx.parsed.x).toLocaleString()} k MXN` } }
+    },
+    scales: {
+      x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#737373', font: { size: 11 }, callback: (v) => (v > 0 ? '+' : '') + Math.round(v / 1000) + 'k' } },
+      y: { grid: { display: false }, ticks: { color: '#525252', font: { size: 11 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>
