@@ -39,4 +39,15 @@ describe("agregarPorMes", () => {
     expect(lineas[0]).toContain("Mes");
     expect(lineas).toHaveLength(2); // header + 1 mes
   });
+
+  it("acumula excedente_mwh contra POI cuando se pasa poi_kw", () => {
+    // 1 día con 600 kW × 10 h en marzo: excedente diario = (600-500) × 10/1000 = 1.0 MWh.
+    const registros = generarDiaPlano("2025-03-10", 600, 8, 17);
+    const conPoi = agregarPorMes(registros, 500);
+    expect(conPoi).toHaveLength(1);
+    expect(conPoi[0]!.excedente_mwh).toBeCloseTo(1.0, 4);
+
+    const sinPoi = agregarPorMes(registros);
+    expect(sinPoi[0]!.excedente_mwh).toBe(0);
+  });
 });

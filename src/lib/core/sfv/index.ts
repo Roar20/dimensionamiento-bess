@@ -3,6 +3,14 @@ export { detectarClipping } from "./deteccion-clipping";
 export { calcularPerfilHorario } from "./perfil-horario";
 export { caracterizarVariabilidad } from "./variabilidad";
 export {
+  agregarExcedentesPorMes,
+  type ExcedenteMensual,
+} from "./excedentes-mensuales";
+export {
+  estadisticasExcedenteDiario,
+  type EstadisticasExcedenteDiario,
+} from "./excedentes-diarios";
+export {
   VENTANA_PUNTA_CFE,
   TOLERANCIA_CLIPPING_PCT_DEFAULT,
   UMBRAL_GENERACION_PCT,

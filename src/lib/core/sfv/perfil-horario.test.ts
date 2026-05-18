@@ -48,6 +48,39 @@ describe("calcularPerfilHorario", () => {
       expect(r.perfil_por_hora[h]).toBeDefined();
       expect(r.perfil_por_hora[h]!.kW_promedio).toBeGreaterThanOrEqual(0);
       expect(r.perfil_por_hora[h]!.kW_maximo).toBeGreaterThanOrEqual(0);
+      expect(r.perfil_por_hora[h]!.kW_p25).toBeGreaterThanOrEqual(0);
+      expect(r.perfil_por_hora[h]!.kW_p75).toBeGreaterThanOrEqual(0);
     }
+  });
+
+  it("respeta el orden P25 ≤ promedio ≤ P75 ≤ máximo en cada hora con datos", () => {
+    // 10 días con generación variable a la misma hora del día.
+    const registros = [];
+    for (let d = 0; d < 10; d += 1) {
+      const dia = `2025-06-${String(10 + d).padStart(2, "0")}`;
+      // Pico distinto cada día → distribución no degenerada en la hora 13.
+      registros.push(...generarDiaSintetico(dia, 200 + d * 30, 2, 12));
+    }
+    const r = calcularPerfilHorario(registros);
+    const entrada = r.perfil_por_hora[13]!;
+    expect(entrada.kW_p25).toBeLessThanOrEqual(entrada.kW_promedio);
+    expect(entrada.kW_promedio).toBeLessThanOrEqual(entrada.kW_p75);
+    expect(entrada.kW_p75).toBeLessThanOrEqual(entrada.kW_maximo);
+  });
+
+  it("colapsa P25=promedio=P75=máximo cuando todas las muestras de la hora son iguales", () => {
+    // 5 días con el mismo perfil plano: misma potencia en cada hora-ending.
+    const registros = [];
+    for (let d = 0; d < 5; d += 1) {
+      const dia = `2025-07-${String(10 + d).padStart(2, "0")}`;
+      registros.push(...generarDiaPlano(dia, 250, 8, 17));
+    }
+    const r = calcularPerfilHorario(registros);
+    // Hora-ending 9 (getHours()=8) está dentro de la ventana plana 8..17.
+    const e = r.perfil_por_hora[9]!;
+    expect(e.kW_p25).toBeCloseTo(250, 2);
+    expect(e.kW_promedio).toBeCloseTo(250, 2);
+    expect(e.kW_p75).toBeCloseTo(250, 2);
+    expect(e.kW_maximo).toBeCloseTo(250, 2);
   });
 });

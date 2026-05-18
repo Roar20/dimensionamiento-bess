@@ -35,6 +35,10 @@ export type DiagnosticoClipping = {
 export type PerfilPorHoraEntrada = {
   kW_promedio: number;
   kW_maximo: number;
+  /** Percentil 25 de potencia para esta hora-ending sobre el periodo. */
+  kW_p25: number;
+  /** Percentil 75 de potencia para esta hora-ending sobre el periodo. */
+  kW_p75: number;
 };
 
 /** Salida de la sección 7 del Colab (`calcular_perfil_horario`). */
