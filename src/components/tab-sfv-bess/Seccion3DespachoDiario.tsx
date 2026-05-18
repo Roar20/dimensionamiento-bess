@@ -53,7 +53,7 @@ export function Seccion3DespachoDiario({
           <CardHeader className="space-y-1 pb-2">
             <div className="flex items-center gap-2">
               <span className="inline-block h-3 w-3 rounded-full bg-amber-500" />
-              <h4 className="text-base font-semibold text-ink-primary">
+              <h4 className="text-base font-medium text-ink-primary">
                 {copy.greedyTitulo}
               </h4>
             </div>
@@ -71,7 +71,7 @@ export function Seccion3DespachoDiario({
           <CardHeader className="space-y-1 pb-2">
             <div className="flex items-center gap-2">
               <span className="inline-block h-3 w-3 rounded-full bg-action" />
-              <h4 className="text-base font-semibold text-ink-primary">
+              <h4 className="text-base font-medium text-ink-primary">
                 {copy.arbitrajeTitulo}
               </h4>
             </div>

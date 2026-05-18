@@ -40,14 +40,14 @@ export function CardEquipo({
         </span>
       ) : null}
       <CardHeader className="space-y-1 pb-3">
-        <h3 className="text-lg font-semibold text-ink-primary">
+        <h3 className="text-lg font-medium text-ink-primary">
           {equipo.nombre_corto}
         </h3>
         <p className="text-xs text-ink-helper">{equipo.nombre_completo}</p>
       </CardHeader>
       <CardContent className="flex-1 space-y-3 pb-3">
         <div>
-          <span className="text-3xl font-bold tabular-nums text-ink-primary">
+          <span className="text-3xl font-medium tabular-nums text-ink-primary">
             {equipo.kw_ac.toLocaleString("es-MX")}
           </span>
           <span className="ml-1 text-sm text-ink-helper">
@@ -55,7 +55,7 @@ export function CardEquipo({
           </span>
         </div>
         <div>
-          <span className="text-3xl font-bold tabular-nums text-ink-primary">
+          <span className="text-3xl font-medium tabular-nums text-ink-primary">
             {Math.round(equipo.kwh).toLocaleString("es-MX")}
           </span>
           <span className="ml-1 text-sm text-ink-helper">

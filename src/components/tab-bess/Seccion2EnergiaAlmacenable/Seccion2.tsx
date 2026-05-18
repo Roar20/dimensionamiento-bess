@@ -51,7 +51,7 @@ export function Seccion2EnergiaAlmacenable({
   return (
     <section className="space-y-5">
       <header className="space-y-2">
-        <h2 className="text-xl font-semibold text-ink-primary md:text-2xl">
+        <h2 className="text-xl font-medium text-ink-primary md:text-2xl">
           {copy.titulo}
         </h2>
         <p className="max-w-3xl text-sm text-ink-secondary md:text-base">

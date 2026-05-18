@@ -47,13 +47,13 @@ export function Seccion2AnatomiaCaptura({ resultado }: Props) {
               <CardContent className="p-6">
                 <div className="grid gap-6 md:grid-cols-3">
                   <div>
-                    <h4 className="text-sm font-semibold text-ink-primary">
+                    <h4 className="text-sm font-medium text-ink-primary">
                       {cat.etiqueta}
                     </h4>
                     <p className="mt-2 text-xs text-ink-helper">
                       {cat.descripcion}
                     </p>
-                    <div className="mt-3 text-2xl font-bold tabular-nums text-ink-primary">
+                    <div className="mt-3 text-2xl font-medium tabular-nums text-ink-primary">
                       {FMT_ENTERO.format(energiaTotal)} MWh
                     </div>
                     <div className="text-xs text-ink-helper">
@@ -122,7 +122,7 @@ function ColumnaEstrategia({
         <span className={`inline-block h-2 w-2 rounded-full ${color}`} />
         <h5 className="text-sm font-medium text-ink-primary">{titulo}</h5>
       </div>
-      <div className={`text-xl font-bold tabular-nums ${acentoTexto}`}>
+      <div className={`text-xl font-medium tabular-nums ${acentoTexto}`}>
         {FMT_ENTERO.format(capturado_mwh)} MWh
       </div>
       <div className="text-xs text-ink-secondary">{descripcion}</div>

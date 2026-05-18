@@ -34,7 +34,7 @@ export function ParametrosPPA({
     <Card>
       <CardContent className="space-y-5 p-6">
         <header className="space-y-1">
-          <h3 className="text-base font-semibold text-ink-primary">
+          <h3 className="text-base font-medium text-ink-primary">
             {copy.titulo}
           </h3>
           <p className="text-sm text-ink-helper">{copy.subtitulo}</p>

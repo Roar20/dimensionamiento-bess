@@ -22,7 +22,7 @@ import { generarNarrativaSeccion2 } from "@/lib/tab-sfv/narrativa";
 import type { PeriodoActivo } from "@/lib/tab-sfv/filtrar-por-periodo";
 import type { ConfiguracionPlanta, RegistroHorario } from "@/types/sfv";
 
-import { BloqueTecnico } from "./BloqueTecnico";
+import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
 import { KPICard } from "./KPICard";
 import { NarrativaIntro } from "./NarrativaIntro";
 import { TooltipRecharts } from "./TooltipRecharts";
@@ -168,7 +168,7 @@ export function Seccion2PerfilDiario({ registros, config, periodo }: Props) {
         destacado
       />
 
-      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
+      <MetodologiaDetalles titulo={copy.tecnico.titulo}>
         <div className="space-y-4">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs">
@@ -209,7 +209,7 @@ export function Seccion2PerfilDiario({ registros, config, periodo }: Props) {
               : copy.tecnico.clipping.sinClipping}
           </p>
         </div>
-      </BloqueTecnico>
+      </MetodologiaDetalles>
     </section>
   );
 }

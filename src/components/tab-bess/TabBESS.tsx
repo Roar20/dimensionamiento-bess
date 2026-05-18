@@ -67,9 +67,9 @@ export function TabBESS({ datos }: Props) {
   };
 
   return (
-    <div className="container mx-auto max-w-7xl space-y-12 px-4 py-8">
+    <div className="container mx-auto max-w-[1080px] space-y-12 px-4 py-8">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-ink-primary md:text-3xl">
+        <h1 className="text-2xl font-medium text-ink-primary md:text-3xl">
           {COPY_M3.pagina.titulo}
         </h1>
         <p className="max-w-3xl text-sm text-ink-secondary md:text-base">

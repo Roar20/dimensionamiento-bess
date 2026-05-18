@@ -52,7 +52,7 @@ export function KPICard({
             </TooltipProvider>
           ) : null}
         </div>
-        <p className="text-2xl font-semibold text-ink-primary tabular-nums">
+        <p className="text-2xl font-medium text-ink-primary tabular-nums">
           {valor}
           {unidad ? (
             <span className="ml-1 text-sm font-medium text-ink-helper">

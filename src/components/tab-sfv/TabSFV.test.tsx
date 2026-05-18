@@ -2,23 +2,10 @@ import { describe, expect, it } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import type { ReactNode } from "react";
 
 import { TabSFV } from "@/components/tab-sfv/TabSFV";
-import { ViewModeProvider, useViewMode } from "@/context/ViewModeContext";
 import { generarDiaPlano, sumarDias } from "@/test/fixtures/sfv-fixtures";
 import type { DatosSFV } from "@/types/sfv";
-
-function TestToggleTecnico() {
-  const { setMode } = useViewMode();
-  return (
-    <button
-      type="button"
-      data-testid="test-toggle-tecnico"
-      onClick={() => setMode("tecnico")}
-    />
-  );
-}
 
 function construirDatos(): DatosSFV {
   const registros = [];
@@ -50,16 +37,12 @@ function construirDatos(): DatosSFV {
   };
 }
 
-function renderTab({ withToggle }: { withToggle?: boolean } = {}) {
-  const tree: ReactNode = (
-    <ViewModeProvider>
-      <MemoryRouter initialEntries={["/sfv"]}>
-        {withToggle ? <TestToggleTecnico /> : null}
-        <TabSFV datos={construirDatos()} />
-      </MemoryRouter>
-    </ViewModeProvider>
+function renderTab() {
+  return render(
+    <MemoryRouter initialEntries={["/sfv"]}>
+      <TabSFV datos={construirDatos()} />
+    </MemoryRouter>
   );
-  return render(tree);
 }
 
 describe("TabSFV", () => {
@@ -101,14 +84,9 @@ describe("TabSFV", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("Vista técnica muestra bloques colapsables adicionales", async () => {
-    const user = userEvent.setup();
-    renderTab({ withToggle: true });
-
-    expect(screen.queryByText(/detalle técnico/i)).not.toBeInTheDocument();
-
-    await user.click(screen.getByTestId("test-toggle-tecnico"));
-
+  it("Metodología siempre visible (sin toggle vista técnica)", () => {
+    renderTab();
+    // Cada sección con metodología expone su <details> aunque colapsado.
     expect(screen.getAllByText(/detalle técnico/i).length).toBeGreaterThan(0);
   });
 

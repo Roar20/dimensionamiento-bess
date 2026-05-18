@@ -26,7 +26,7 @@ export function ResumenCarga({ datos, warnings, onCambiar }: Props) {
     <div className="space-y-6 pb-12">
       <section className="bg-brand-header text-brand-headerFg">
         <div className="container max-w-4xl space-y-2 py-10">
-          <h1 className="text-2xl font-semibold leading-tight md:text-3xl">
+          <h1 className="text-2xl font-medium leading-tight md:text-3xl">
             {copy.titulo}
           </h1>
           <p className="max-w-2xl text-sm text-white/80 md:text-base">
@@ -39,7 +39,7 @@ export function ResumenCarga({ datos, warnings, onCambiar }: Props) {
         <Card>
           <CardContent className="space-y-4 p-6">
             <header>
-              <h2 className="text-lg font-semibold text-ink-primary">
+              <h2 className="text-lg font-medium text-ink-primary">
                 {config.nombre}
               </h2>
               <p className="text-sm text-ink-helper">
@@ -111,7 +111,7 @@ export function ResumenCarga({ datos, warnings, onCambiar }: Props) {
 
         <Card>
           <CardContent className="space-y-2 p-6">
-            <h3 className="text-sm font-semibold text-ink-primary">
+            <h3 className="text-sm font-medium text-ink-primary">
               Archivo cargado
             </h3>
             <p className="text-sm text-ink-secondary">{meta.nombre_archivo}</p>
@@ -166,7 +166,7 @@ function Kpi({
         <p className="text-xs uppercase tracking-wide text-ink-helper">
           {label}
         </p>
-        <p className="text-2xl font-semibold text-ink-primary tabular-nums">
+        <p className="text-2xl font-medium text-ink-primary tabular-nums">
           {valor}
           {unidad ? (
             <span className="ml-1 text-sm font-medium text-ink-helper">

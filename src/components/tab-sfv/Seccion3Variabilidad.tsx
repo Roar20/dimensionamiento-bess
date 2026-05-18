@@ -20,7 +20,7 @@ import {
 import type { PeriodoActivo } from "@/lib/tab-sfv/filtrar-por-periodo";
 import type { RegistroHorario } from "@/types/sfv";
 
-import { BloqueTecnico } from "./BloqueTecnico";
+import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
 import { KPICard } from "./KPICard";
 import { NarrativaIntro } from "./NarrativaIntro";
 import { TooltipRecharts } from "./TooltipRecharts";
@@ -161,7 +161,7 @@ export function Seccion3Variabilidad({ registros, periodo }: Props) {
         />
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
+      <MetodologiaDetalles titulo={copy.tecnico.titulo}>
         <p className="mb-3 text-ink-secondary">{copy.tecnico.explicacion}</p>
         <div className="h-[260px] w-full">
           <ResponsiveContainer>
@@ -190,7 +190,7 @@ export function Seccion3Variabilidad({ registros, periodo }: Props) {
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </BloqueTecnico>
+      </MetodologiaDetalles>
     </section>
   );
 }

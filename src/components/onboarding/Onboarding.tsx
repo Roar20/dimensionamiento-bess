@@ -196,7 +196,7 @@ function Hero() {
   return (
     <section className="bg-brand-header text-brand-headerFg">
       <div className="container max-w-4xl space-y-2 py-10">
-        <h1 className="text-2xl font-semibold leading-tight md:text-3xl">
+        <h1 className="text-2xl font-medium leading-tight md:text-3xl">
           {copy.titulo}
         </h1>
         <p className="max-w-2xl text-sm text-white/80 md:text-base">
@@ -213,7 +213,7 @@ function BloqueError({ error }: { error: ErrorFormatoArchivo }) {
       role="alert"
       className="rounded-card border border-status-error/30 bg-red-50 p-4 text-sm text-status-error"
     >
-      <p className="font-semibold">{COPY_M1A.errores.titulo}</p>
+      <p className="font-medium">{COPY_M1A.errores.titulo}</p>
       <p className="mt-1">{error.razon}</p>
       {error.detalle ? (
         <p className="mt-1 text-xs text-ink-secondary">{error.detalle}</p>

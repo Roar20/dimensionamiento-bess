@@ -16,7 +16,7 @@ export function KPICardSFVBess({ etiqueta, valor, acento = "default" }: Props) {
       <p className="text-[10px] uppercase tracking-wide text-ink-helper">
         {etiqueta}
       </p>
-      <p className={`text-base font-semibold tabular-nums ${color}`}>{valor}</p>
+      <p className={`text-base font-medium tabular-nums ${color}`}>{valor}</p>
     </div>
   );
 }

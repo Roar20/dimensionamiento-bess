@@ -126,7 +126,7 @@ export function TabSFVBess({ datos }: Props) {
         granularidadesDisponibles={GRANULARIDADES_SFV_BESS}
       />
 
-      <div className="container mx-auto max-w-7xl space-y-12 px-4 py-8">
+      <div className="container mx-auto max-w-[1080px] space-y-12 px-4 py-8">
         <Seccion1ConfiguracionEquipo
           equipoSeleccionado={config.equipoSeleccionado}
           multiplicador={config.multiplicador}
