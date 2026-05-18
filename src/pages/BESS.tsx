@@ -1,24 +1,22 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
 import { PageHeader } from "@/components/shell/PageHeader";
-import { TabBESS } from "@/components/tab-bess/TabBESS";
+import { TabBessCatalogo } from "@/components/bess/TabBessCatalogo";
 import { useDatosSFV } from "@/hooks/useDatosSFV";
 
+/**
+ * Página `/bess` — catálogo plano Hyperstrong, independiente del estado
+ * de planta. No redirige al onboarding si `!datos` (caso de uso: un
+ * comercial muestra equipos a un prospecto antes de capturar el SFV).
+ *
+ * Cuando hay datos, `AppShell` monta `EncabezadoContextual` arriba
+ * (única ruta sin HeaderDossier propio, FIX G del PR #16).
+ */
 export function BESS() {
   const { datos } = useDatosSFV();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!datos) navigate("/", { replace: true });
-  }, [datos, navigate]);
-
-  if (!datos) return null;
 
   return (
     <div className="mx-auto max-w-[1080px] px-10 pb-16 pt-8">
-      <PageHeader hayDatos />
-      <TabBESS datos={datos} />
+      <PageHeader hayDatos={!!datos} />
+      <TabBessCatalogo />
     </div>
   );
 }

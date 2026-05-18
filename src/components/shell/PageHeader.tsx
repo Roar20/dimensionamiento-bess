@@ -3,7 +3,8 @@ import { TabNav } from "@/components/ui/TabNav";
 
 const NAV_ITEMS_FACTORY = (hayDatos: boolean): TabNavItem[] => [
   { label: "SFV", ruta: "/sfv", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
-  { label: "BESS", ruta: "/bess", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
+  // Catálogo Hyperstrong independiente del estado de planta: siempre habilitada.
+  { label: "BESS", ruta: "/bess", habilitado: true },
   { label: "SFV + BESS", ruta: "/sfv-bess", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
   { label: "Análisis financiero", ruta: "/financiero", habilitado: false, tooltip: "Disponible en próxima versión" },
 ];
