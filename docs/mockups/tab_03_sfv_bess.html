@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis SFV + BESS — Tequila | dimensionamiento-bess</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #1E40AF;
+    --color-primary-light: #DBEAFE;
+    --color-primary-dark: #1E3A8A;
+    --color-capture: #0F766E;
+    --color-capture-light: #CCFBF1;
+    --color-capture-dark: #115E59;
+    --color-generation: #B45309;
+    --color-generation-light: #FEF3C7;
+    --color-discharge: #6366F1;
+    --color-discharge-light: #E0E7FF;
+    --color-baseline: #525252;
+    --color-text-primary: #171717;
+    --color-text-secondary: #525252;
+    --color-text-tertiary: #737373;
+    --color-bg-page: #FAFAF9;
+    --color-bg-card: #FFFFFF;
+    --color-bg-secondary: #F5F5F4;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-border-medium: rgba(0, 0, 0, 0.15);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-bg-page); color: var(--color-text-primary);
+    font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 32px 40px 64px; }
+  .tab-nav {
+    display: flex; gap: 4px; padding-bottom: 16px; margin-bottom: 24px;
+    border-bottom: 0.5px solid var(--color-border-light);
+  }
+  .tab-nav-item {
+    padding: 8px 14px; font-size: 13px; color: var(--color-text-tertiary);
+    border-radius: var(--radius-md); cursor: pointer; font-weight: 400;
+  }
+  .tab-nav-item.active { background: var(--color-primary); color: white; font-weight: 500; }
+  .header { margin-bottom: 32px; }
+  .header h1 { font-size: 24px; font-weight: 500; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .header .meta { font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap; }
+  .header .meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .header .meta i { color: var(--color-text-tertiary); }
+
+  .section-label {
+    font-size: 11px; color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 500; margin-bottom: 12px;
+  }
+
+  .takeaway {
+    background: var(--color-primary-light); border-left: 3px solid var(--color-primary);
+    padding: 14px 18px; border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin-bottom: 32px;
+  }
+  .takeaway-label {
+    font-size: 10px; color: var(--color-primary-dark); text-transform: uppercase;
+    letter-spacing: 0.6px; font-weight: 600; margin-bottom: 4px;
+  }
+  .takeaway-text { font-size: 14px; line-height: 1.55; }
+
+  .config-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 14px 18px; margin-bottom: 24px;
+    font-size: 13px;
+  }
+  .config-bar .label { color: var(--color-text-tertiary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .config-bar .value { font-weight: 500; font-size: 14px; }
+  .config-items { display: flex; gap: 32px; }
+  .config-item { display: flex; flex-direction: column; }
+  .btn-edit {
+    padding: 6px 12px; font-size: 12px; border: 0.5px solid var(--color-border-medium);
+    background: white; border-radius: var(--radius-md); cursor: pointer;
+    color: var(--color-text-secondary); display: inline-flex; align-items: center; gap: 4px;
+  }
+  .btn-edit:hover { background: var(--color-bg-secondary); }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-md); padding: 16px 18px; cursor: help;
+  }
+  .kpi-card.capture { border-left: 3px solid var(--color-capture); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .kpi-card.primary { border-left: 3px solid var(--color-primary); border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .kpi-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .kpi-value { font-size: 24px; font-weight: 500; line-height: 1.1; letter-spacing: -0.02em; }
+  .kpi-value .unit { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); margin-left: 4px; }
+  .kpi-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 6px; }
+  .kpi-delta { font-size: 11px; margin-top: 6px; font-weight: 500; }
+  .kpi-delta.positive { color: var(--color-capture-dark); }
+
+  .chart-section { margin-bottom: 32px; }
+  .chart-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .chart-title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .chart-subtitle { font-size: 12px; color: var(--color-text-secondary); }
+  .chart-unit { font-size: 11px; color: var(--color-text-tertiary); }
+  .chart-container {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 20px; position: relative;
+  }
+  .chart-canvas-wrap { position: relative; width: 100%; height: 280px; }
+  .chart-legend {
+    display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 12px;
+    font-size: 12px; color: var(--color-text-secondary);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 12px; height: 12px; border-radius: 2px; }
+
+  .strategy-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px;
+  }
+  .strategy-card {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 20px;
+  }
+  .strategy-card.winner { border: 2px solid var(--color-capture); position: relative; }
+  .winner-badge {
+    position: absolute; top: -10px; left: 16px;
+    background: var(--color-capture); color: white;
+    font-size: 10px; font-weight: 500; padding: 4px 10px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .strategy-card .stitle { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .strategy-card .sdesc { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 14px; }
+  .strategy-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .smetric .label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+  .smetric .value { font-size: 18px; font-weight: 500; }
+  .smetric .value .unit { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; margin-left: 3px; }
+  .smetric.highlight .value { color: var(--color-capture-dark); }
+
+  .pareto-section { margin-bottom: 32px; }
+  .pareto-container { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+
+  .table-wrap {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--color-bg-secondary); }
+  th { padding: 12px 14px; text-align: right; font-weight: 500; color: var(--color-text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+  th:first-child { text-align: left; }
+  tbody td { padding: 11px 14px; text-align: right; font-variant-numeric: tabular-nums; border-top: 0.5px solid var(--color-border-light); }
+  tbody td:first-child { text-align: left; font-weight: 500; }
+  tbody tr.recommended { background: rgba(15, 118, 110, 0.06); }
+  tbody tr.recommended td:first-child { color: var(--color-capture-dark); }
+  tbody td .unit-small { color: var(--color-text-tertiary); font-size: 11px; }
+  tbody td.muted { color: var(--color-text-secondary); }
+
+  details {
+    margin-bottom: 16px; font-size: 13px;
+    border-top: 0.5px solid var(--color-border-light); padding-top: 4px;
+  }
+  details summary {
+    cursor: pointer; padding: 12px 0; font-weight: 500;
+    color: var(--color-text-secondary); list-style: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  details summary::before {
+    content: ''; width: 0; height: 0; border-style: solid;
+    border-width: 5px 0 5px 7px; border-color: transparent transparent transparent var(--color-text-tertiary);
+    transition: transform 0.2s;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary::-webkit-details-marker { display: none; }
+  details .content { padding: 4px 0 12px 15px; color: var(--color-text-secondary); line-height: 1.7; }
+  details .content p { margin-bottom: 8px; }
+  details .content strong { color: var(--color-text-primary); font-weight: 500; }
+
+  .footer {
+    padding-top: 16px; border-top: 0.5px solid var(--color-border-light);
+    font-size: 11px; color: var(--color-text-tertiary);
+    display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="tab-nav">
+    <div class="tab-nav-item">SFV</div>
+    <div class="tab-nav-item">BESS</div>
+    <div class="tab-nav-item active">SFV + BESS</div>
+    <div class="tab-nav-item">Análisis financiero</div>
+  </nav>
+
+  <div class="header">
+    <h1>Operación conjunta SFV + BESS — Tequila</h1>
+    <div class="meta">
+      <span><i class="ti ti-bolt"></i>POI 500 kW · sin modificación</span>
+      <span><i class="ti ti-battery-3"></i>BESS configurado 400 kW × 1,600 kWh</span>
+      <span><i class="ti ti-clock"></i>Hora punta CFE 18–22 h</span>
+      <span><i class="ti ti-calendar"></i>Año base 2025</span>
+    </div>
+  </div>
+
+  <div class="config-bar">
+    <div class="config-items">
+      <div class="config-item">
+        <div class="label">Potencia BESS</div>
+        <div class="value">400 kW</div>
+      </div>
+      <div class="config-item">
+        <div class="label">Energía BESS</div>
+        <div class="value">1,600 kWh</div>
+      </div>
+      <div class="config-item">
+        <div class="label">Duración</div>
+        <div class="value">4.0 h</div>
+      </div>
+      <div class="config-item">
+        <div class="label">Estrategia</div>
+        <div class="value">Arbitraje horario</div>
+      </div>
+      <div class="config-item">
+        <div class="label">RTE</div>
+        <div class="value">85%</div>
+      </div>
+    </div>
+    <button class="btn-edit"><i class="ti ti-adjustments"></i>Ajustar parámetros</button>
+  </div>
+
+  <div class="section-label">Resultados anuales · configuración actual</div>
+  <div class="kpi-grid">
+    <div class="kpi-card capture" title="Energía capturada en BESS desde excedentes solares durante el año. Operación bajo POI sin modificar capacidad CFE.">
+      <div class="kpi-label">Energía cargada</div>
+      <div class="kpi-value">589.9<span class="unit">MWh</span></div>
+      <div class="kpi-sub">Excedentes capturados</div>
+    </div>
+    <div class="kpi-card capture" title="Energía descargada al cliente en hora punta CFE. Cargado × RTE = 589.9 × 0.85.">
+      <div class="kpi-label">Energía descargada</div>
+      <div class="kpi-value">501.4<span class="unit">MWh</span></div>
+      <div class="kpi-sub">a hora punta 18–22 h</div>
+    </div>
+    <div class="kpi-card primary" title="Potencia firme contratable. Percentil 80 de la potencia descargada durante hora punta CFE.">
+      <div class="kpi-label">Potencia firme</div>
+      <div class="kpi-value">177<span class="unit">kW</span></div>
+      <div class="kpi-sub">P80 ventana 18–22 h</div>
+    </div>
+    <div class="kpi-card primary" title="Ingreso anual total bajo arbitraje horario. Energía + potencia firme + CELs.">
+      <div class="kpi-label">Ingreso anual</div>
+      <div class="kpi-value">$2.58<span class="unit">M MXN</span></div>
+      <div class="kpi-delta positive">+33% vs operación sin BESS</div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-label">Lectura ejecutiva</div>
+    <div class="takeaway-text">
+      El BESS captura 589.9 MWh/año de excedentes solares y los entrega en hora punta CFE. La capacidad instalada del SFV se mantiene sin modificar (CRE A/113/2024). La estrategia de arbitraje horario supera al despacho greedy en $634 mil MXN/año, impulsada principalmente por la potencia firme (+$705 mil) que compensa una pérdida neta menor en energía y CELs.
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Despacho diario promedio</div>
+        <div class="chart-subtitle">Operación hora a hora del SFV y el BESS — promedio anual</div>
+      </div>
+      <div class="chart-unit">kW</div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-swatch" style="background: #B45309;"></div>Generación SFV</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: #0F766E;"></div>BESS cargando</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: #6366F1;"></div>BESS descargando</div>
+        <div class="legend-item"><div class="legend-swatch" style="background: rgba(99, 102, 241, 0.12); border: 1px solid #6366F1;"></div>Hora punta CFE</div>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="despacho" role="img" aria-label="Despacho diario promedio mostrando generación SFV, carga y descarga del BESS">Despacho: SFV genera 6–18h, BESS carga 10–15h, descarga 18–22h.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Comparativa de estrategias de despacho</div>
+  <div class="strategy-grid">
+    <div class="strategy-card">
+      <div class="stitle">Greedy</div>
+      <div class="sdesc">Carga ante cualquier excedente, descarga ante cualquier déficit. Maximiza captura de energía sin priorizar hora punta.</div>
+      <div class="strategy-metrics">
+        <div class="smetric">
+          <div class="label">Cargado</div>
+          <div class="value">194.8<span class="unit">MWh</span></div>
+        </div>
+        <div class="smetric">
+          <div class="label">Potencia firme</div>
+          <div class="value">0.5<span class="unit">kW</span></div>
+        </div>
+        <div class="smetric">
+          <div class="label">Ingreso energía</div>
+          <div class="value">$1.63<span class="unit">M MXN</span></div>
+        </div>
+        <div class="smetric">
+          <div class="label">Ingreso total</div>
+          <div class="value">$1.94<span class="unit">M MXN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="strategy-card winner">
+      <div class="winner-badge">Recomendada</div>
+      <div class="stitle">Arbitraje horario (Estrategia Lalo)</div>
+      <div class="sdesc">Carga durante ventana solar, descarga concentrada en hora punta CFE (18–22 h). Prioriza potencia firme + arbitraje.</div>
+      <div class="strategy-metrics">
+        <div class="smetric highlight">
+          <div class="label">Cargado</div>
+          <div class="value">589.9<span class="unit">MWh</span></div>
+        </div>
+        <div class="smetric highlight">
+          <div class="label">Potencia firme</div>
+          <div class="value">177<span class="unit">kW</span></div>
+        </div>
+        <div class="smetric highlight">
+          <div class="label">Ingreso energía</div>
+          <div class="value">$1.57<span class="unit">M MXN</span></div>
+        </div>
+        <div class="smetric highlight">
+          <div class="label">Ingreso total</div>
+          <div class="value">$2.58<span class="unit">M MXN</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Descomposición del ingreso anual</div>
+        <div class="chart-subtitle">Componentes que explican la ventaja del arbitraje sobre greedy</div>
+      </div>
+      <div class="chart-unit">MXN/año</div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-canvas-wrap">
+        <canvas id="ingresos" role="img" aria-label="Comparativa de componentes de ingreso entre estrategias greedy y arbitraje">Greedy 1.94M, arbitraje 2.58M; ventaja explicada por +705k en potencia firme.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Barrido de configuraciones BESS · estrategia arbitraje</div>
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Frente Pareto · captura vs costo</div>
+        <div class="chart-subtitle">Configuraciones dominantes en el plano captura de excedente vs inversión</div>
+      </div>
+      <div class="chart-unit">MWh capturados · USD/kWh</div>
+    </div>
+    <div class="chart-container">
+      <div class="chart-canvas-wrap">
+        <canvas id="pareto" role="img" aria-label="Frente Pareto del barrido de configuraciones BESS">Frente Pareto: configuraciones dominantes en el rango 200-500 kW × 2-6 h.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Matriz de barrido</div>
+        <div class="chart-subtitle">12 combinaciones potencia × duración bajo estrategia arbitraje</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Configuración</th>
+            <th>Cargado</th>
+            <th>Captura</th>
+            <th>Pot. firme</th>
+            <th>Ciclos/año</th>
+            <th>Ingreso</th>
+            <th>USD/kWh</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>250 kW × 2 h · 500 kWh</td>
+            <td>312.4 <span class="unit-small">MWh</span></td>
+            <td class="muted">52.9%</td>
+            <td>108 <span class="unit-small">kW</span></td>
+            <td>624</td>
+            <td>$1.85 <span class="unit-small">M</span></td>
+            <td>214</td>
+          </tr>
+          <tr>
+            <td>300 kW × 4 h · 1,200 kWh</td>
+            <td>515.6 <span class="unit-small">MWh</span></td>
+            <td class="muted">87.4%</td>
+            <td>148 <span class="unit-small">kW</span></td>
+            <td>430</td>
+            <td>$2.34 <span class="unit-small">M</span></td>
+            <td>207</td>
+          </tr>
+          <tr class="recommended">
+            <td>400 kW × 4 h · 1,600 kWh</td>
+            <td>589.9 <span class="unit-small">MWh</span></td>
+            <td class="muted">100%</td>
+            <td>177 <span class="unit-small">kW</span></td>
+            <td>369</td>
+            <td>$2.58 <span class="unit-small">M</span></td>
+            <td>199</td>
+          </tr>
+          <tr>
+            <td>400 kW × 6 h · 2,400 kWh</td>
+            <td>612.3 <span class="unit-small">MWh</span></td>
+            <td class="muted">104%</td>
+            <td>182 <span class="unit-small">kW</span></td>
+            <td>255</td>
+            <td>$2.64 <span class="unit-small">M</span></td>
+            <td>192</td>
+          </tr>
+          <tr>
+            <td>500 kW × 4 h · 2,000 kWh</td>
+            <td>635.4 <span class="unit-small">MWh</span></td>
+            <td class="muted">108%</td>
+            <td>198 <span class="unit-small">kW</span></td>
+            <td>318</td>
+            <td>$2.74 <span class="unit-small">M</span></td>
+            <td>188</td>
+          </tr>
+          <tr>
+            <td>500 kW × 6 h · 3,000 kWh</td>
+            <td>651.8 <span class="unit-small">MWh</span></td>
+            <td class="muted">110%</td>
+            <td>205 <span class="unit-small">kW</span></td>
+            <td>217</td>
+            <td>$2.79 <span class="unit-small">M</span></td>
+            <td>184</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <details>
+    <summary>Metodología y supuestos</summary>
+    <div class="content">
+      <p><strong>Estrategias modeladas:</strong> greedy (carga ante cualquier excedente, descarga ante cualquier déficit) y arbitraje horario (carga en ventana 07–18 h, descarga concentrada en hora punta CFE 18–22 h).</p>
+      <p><strong>Potencia firme:</strong> percentil 80 de la potencia entregada por el BESS durante la ventana 18–22 h del año. Sujeto a validación contra regla CFE vigente.</p>
+      <p><strong>RTE / DoD:</strong> 85% / 95%. Operación entre SoC 5% y 100%. SoC inicial 5%.</p>
+      <p><strong>Precios aplicados:</strong> PPA $1,010.80 MXN/MWh, potencia firme $333,334 MXN/MW-mes, CEL $190 MXN/CEL. Proxy heredado de Estanzuela 2 — pendiente confirmar con cliente para Tequila.</p>
+      <p><strong>Alcance regulatorio:</strong> sin modificación de capacidad instalada CFE. Operación bajo CRE A/113/2024. El BESS opera dentro del techo POI existente.</p>
+    </div>
+  </details>
+
+  <div class="footer">
+    <span>Fuente: cincominutales SFV Tequila 2025 · simulación dispatch dual</span>
+    <span>dimensionamiento-bess v0.1 · 17 may 2026</span>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const horas = Array.from({length: 24}, (_, i) => String(i).padStart(2,'0') + ':00');
+const genSolar = [0,0,0,0,0,0,2,28,95,195,320,420,447,425,360,260,150,55,8,0,0,0,0,0];
+const bessCarga = [0,0,0,0,0,0,0,0,0,40,140,180,180,160,120,60,10,0,0,0,0,0,0,0];
+const bessDescarga = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,180,180,140,80,30,0];
+
+new Chart(document.getElementById('despacho'), {
+  type: 'line',
+  data: {
+    labels: horas,
+    datasets: [
+      {
+        label: 'Hora punta CFE',
+        data: horas.map((_, i) => (i >= 18 && i <= 22) ? 600 : null),
+        backgroundColor: 'rgba(99, 102, 241, 0.08)',
+        borderColor: 'transparent',
+        pointRadius: 0,
+        fill: { target: 'origin', above: 'rgba(99, 102, 241, 0.08)' },
+        stepped: true,
+        order: 10
+      },
+      {
+        label: 'Generación SFV',
+        data: genSolar,
+        borderColor: '#B45309',
+        backgroundColor: 'rgba(180, 83, 9, 0.18)',
+        borderWidth: 2.5, pointRadius: 0, tension: 0.4, fill: 'origin'
+      },
+      {
+        label: 'BESS cargando',
+        data: bessCarga,
+        borderColor: '#0F766E',
+        backgroundColor: 'rgba(15, 118, 110, 0.25)',
+        borderWidth: 2, pointRadius: 0, tension: 0.4, fill: 'origin'
+      },
+      {
+        label: 'BESS descargando',
+        data: bessDescarga,
+        borderColor: '#6366F1',
+        backgroundColor: 'rgba(99, 102, 241, 0.25)',
+        borderWidth: 2, pointRadius: 0, tension: 0.4, fill: 'origin'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        filter: (item) => item.dataset.label !== 'Hora punta CFE',
+        callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} kW` }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#737373', font: { size: 11 }, autoSkip: true, maxTicksLimit: 8 } },
+      y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#737373', font: { size: 11 } }, beginAtZero: true, max: 600 }
+    }
+  }
+});
+
+new Chart(document.getElementById('ingresos'), {
+  type: 'bar',
+  data: {
+    labels: ['Greedy', 'Arbitraje horario'],
+    datasets: [
+      {
+        label: 'Energía',
+        data: [1632, 1572],
+        backgroundColor: '#B45309',
+        borderRadius: 2,
+        stack: 'a'
+      },
+      {
+        label: 'Potencia firme',
+        data: [2, 708],
+        backgroundColor: '#1E40AF',
+        borderRadius: 2,
+        stack: 'a'
+      },
+      {
+        label: 'CELs',
+        data: [307, 296],
+        backgroundColor: '#0F766E',
+        borderRadius: 2,
+        stack: 'a'
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { font: { size: 11 }, color: '#525252', boxWidth: 10, padding: 12 }
+      },
+      tooltip: {
+        callbacks: { label: (ctx) => `${ctx.dataset.label}: $${ctx.parsed.x.toLocaleString()} k MXN` }
+      }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#737373', font: { size: 11 }, callback: (v) => '$' + v + ' k' },
+        beginAtZero: true
+      },
+      y: { stacked: true, grid: { display: false }, ticks: { color: '#525252', font: { size: 12, weight: '500' } } }
+    }
+  }
+});
+
+const paretoData = [
+  { x: 312, y: 214, label: '250×2h', front: false },
+  { x: 442, y: 210, label: '300×3h', front: false },
+  { x: 516, y: 207, label: '300×4h', front: true },
+  { x: 552, y: 203, label: '400×3h', front: false },
+  { x: 590, y: 199, label: '400×4h · recomendada', front: true },
+  { x: 612, y: 192, label: '400×6h', front: true },
+  { x: 605, y: 195, label: '500×3h', front: false },
+  { x: 635, y: 188, label: '500×4h', front: true },
+  { x: 651, y: 184, label: '500×6h', front: true },
+  { x: 480, y: 218, label: '200×4h', front: false },
+  { x: 528, y: 215, label: '200×6h', front: false },
+  { x: 562, y: 209, label: '300×6h', front: false }
+];
+
+new Chart(document.getElementById('pareto'), {
+  type: 'scatter',
+  data: {
+    datasets: [
+      {
+        label: 'Frente Pareto',
+        data: paretoData.filter(d => d.front),
+        backgroundColor: '#0F766E',
+        pointRadius: 7,
+        pointHoverRadius: 9
+      },
+      {
+        label: 'Dominadas',
+        data: paretoData.filter(d => !d.front),
+        backgroundColor: '#A8A29E',
+        pointRadius: 5,
+        pointHoverRadius: 7
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, color: '#525252', boxWidth: 10, padding: 12 } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const p = paretoData.find(d => d.x === ctx.parsed.x && d.y === ctx.parsed.y);
+            return p ? `${p.label}: ${p.x} MWh · $${p.y}/kWh` : '';
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Energía capturada (MWh/año)', color: '#737373', font: { size: 11 } },
+        grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#737373', font: { size: 11 } }
+      },
+      y: {
+        title: { display: true, text: 'Costo unitario (USD/kWh)', color: '#737373', font: { size: 11 } },
+        grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#737373', font: { size: 11 } },
+        reverse: true
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

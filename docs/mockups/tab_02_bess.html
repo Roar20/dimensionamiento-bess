@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo BESS — Hyperstrong | dimensionamiento-bess</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css" rel="stylesheet">
+<style>
+  :root {
+    --color-primary: #1E40AF;
+    --color-primary-light: #DBEAFE;
+    --color-primary-dark: #1E3A8A;
+    --color-capture: #0F766E;
+    --color-capture-light: #CCFBF1;
+    --color-generation: #B45309;
+    --color-baseline: #525252;
+    --color-text-primary: #171717;
+    --color-text-secondary: #525252;
+    --color-text-tertiary: #737373;
+    --color-bg-page: #FAFAF9;
+    --color-bg-card: #FFFFFF;
+    --color-bg-secondary: #F5F5F4;
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-border-medium: rgba(0, 0, 0, 0.15);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-bg-page);
+    color: var(--color-text-primary);
+    font-size: 14px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 32px 40px 64px; }
+  .tab-nav {
+    display: flex; gap: 4px; padding-bottom: 16px; margin-bottom: 24px;
+    border-bottom: 0.5px solid var(--color-border-light);
+  }
+  .tab-nav-item {
+    padding: 8px 14px; font-size: 13px; color: var(--color-text-tertiary);
+    border-radius: var(--radius-md); cursor: pointer; font-weight: 400;
+  }
+  .tab-nav-item.active { background: var(--color-primary); color: white; font-weight: 500; }
+  .header { margin-bottom: 32px; }
+  .header h1 { font-size: 24px; font-weight: 500; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .header .meta { font-size: 13px; color: var(--color-text-secondary); display: flex; gap: 16px; flex-wrap: wrap; }
+  .header .meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .header .meta i { color: var(--color-text-tertiary); }
+
+  .section-label {
+    font-size: 11px; color: var(--color-text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    font-weight: 500; margin-bottom: 16px;
+  }
+
+  .takeaway {
+    background: var(--color-primary-light); border-left: 3px solid var(--color-primary);
+    padding: 14px 18px; border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin-bottom: 32px;
+  }
+  .takeaway-label {
+    font-size: 10px; color: var(--color-primary-dark); text-transform: uppercase;
+    letter-spacing: 0.6px; font-weight: 600; margin-bottom: 4px;
+  }
+  .takeaway-text { font-size: 14px; line-height: 1.55; }
+
+  .equipo-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin-bottom: 32px;
+  }
+  .equipo-card {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); padding: 20px; display: flex; flex-direction: column;
+    transition: border-color 0.15s;
+  }
+  .equipo-card:hover { border-color: var(--color-border-medium); }
+  .equipo-card.featured {
+    border: 2px solid var(--color-primary);
+    position: relative;
+  }
+  .featured-badge {
+    position: absolute; top: -10px; left: 16px;
+    background: var(--color-primary); color: white;
+    font-size: 10px; font-weight: 500; padding: 4px 10px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .equipo-titulo { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .equipo-modelo { font-size: 11px; color: var(--color-text-tertiary); font-family: monospace; margin-bottom: 16px; }
+  .equipo-specs {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
+    margin-bottom: 16px; padding: 14px; background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+  }
+  .spec-item .label { font-size: 10px; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+  .spec-item .value { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .spec-item .value .unit { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; margin-left: 3px; }
+  .equipo-meta {
+    display: flex; flex-direction: column; gap: 6px;
+    font-size: 12px; color: var(--color-text-secondary);
+    margin-bottom: 16px;
+  }
+  .equipo-meta .row { display: flex; justify-content: space-between; }
+  .equipo-meta .row .label { color: var(--color-text-tertiary); }
+  .equipo-meta .row .val { font-weight: 500; color: var(--color-text-primary); }
+  .equipo-actions { display: flex; gap: 8px; margin-top: auto; }
+  .btn {
+    flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 500;
+    border: 0.5px solid var(--color-border-medium); background: white;
+    color: var(--color-text-primary); border-radius: var(--radius-md);
+    cursor: pointer; text-align: center; text-decoration: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  }
+  .btn:hover { background: var(--color-bg-secondary); }
+  .btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+  .btn.primary:hover { background: var(--color-primary-dark); }
+
+  .comparativa-section { margin-bottom: 32px; }
+  .chart-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .chart-title { font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+  .chart-subtitle { font-size: 12px; color: var(--color-text-secondary); }
+  .comparativa-table-wrap {
+    background: var(--color-bg-card); border: 0.5px solid var(--color-border-light);
+    border-radius: var(--radius-lg); overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--color-bg-secondary); }
+  th { padding: 12px 14px; text-align: right; font-weight: 500; color: var(--color-text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
+  th:first-child { text-align: left; }
+  tbody td { padding: 11px 14px; text-align: right; font-variant-numeric: tabular-nums; border-top: 0.5px solid var(--color-border-light); }
+  tbody td:first-child { text-align: left; font-weight: 500; color: var(--color-text-secondary); }
+  tbody td .unit-small { color: var(--color-text-tertiary); font-size: 11px; }
+  tbody td .cell-strong { font-weight: 500; color: var(--color-text-primary); }
+
+  details {
+    margin-bottom: 16px; font-size: 13px;
+    border-top: 0.5px solid var(--color-border-light); padding-top: 4px;
+  }
+  details summary {
+    cursor: pointer; padding: 12px 0; font-weight: 500;
+    color: var(--color-text-secondary); list-style: none;
+    display: flex; align-items: center; gap: 8px;
+  }
+  details summary::before {
+    content: ''; width: 0; height: 0; border-style: solid;
+    border-width: 5px 0 5px 7px; border-color: transparent transparent transparent var(--color-text-tertiary);
+    transition: transform 0.2s;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details summary::-webkit-details-marker { display: none; }
+  details .content { padding: 4px 0 12px 15px; color: var(--color-text-secondary); line-height: 1.7; }
+  details .content p { margin-bottom: 8px; }
+  details .content strong { color: var(--color-text-primary); font-weight: 500; }
+
+  .footer {
+    padding-top: 16px; border-top: 0.5px solid var(--color-border-light);
+    font-size: 11px; color: var(--color-text-tertiary);
+    display: flex; justify-content: space-between;
+  }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; font-size: 10px;
+    border-radius: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .badge.capture { background: var(--color-capture-light); color: #115E59; }
+  .badge.warning { background: #FEF3C7; color: #92400E; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="tab-nav">
+    <div class="tab-nav-item">SFV</div>
+    <div class="tab-nav-item active">BESS</div>
+    <div class="tab-nav-item">SFV + BESS</div>
+    <div class="tab-nav-item">Análisis financiero</div>
+  </nav>
+
+  <div class="header">
+    <h1>Catálogo de almacenamiento — Hyperstrong</h1>
+    <div class="meta">
+      <span><i class="ti ti-package"></i>Tecnología LFP-314Ah</span>
+      <span><i class="ti ti-temperature"></i>Refrigeración líquida</span>
+      <span><i class="ti ti-shield-check"></i>UL9540A · IEC 62619</span>
+      <span><i class="ti ti-currency-dollar"></i>Tipo de cambio 20 MXN/USD</span>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-label">Lectura ejecutiva</div>
+    <div class="takeaway-text">
+      Tres plataformas disponibles cubriendo el rango de 125 kW a 2,500 kW por unidad. Para el portafolio de Soluciones MHG (POI ≤ 500 kW por planta), Cube Plus y Cube Max son las opciones aplicables; Block III queda fuera de escala para este caso de uso.
+    </div>
+  </div>
+
+  <div class="section-label">Equipos disponibles</div>
+  <div class="equipo-grid">
+
+    <div class="equipo-card featured">
+      <div class="featured-badge">Aplicable a Tequila</div>
+      <div class="equipo-titulo">HyperCube C&I II Plus</div>
+      <div class="equipo-modelo">HSL2E6922-0261-EU</div>
+      <div class="equipo-specs">
+        <div class="spec-item">
+          <div class="label">Energía</div>
+          <div class="value">261.2<span class="unit">kWh</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Potencia AC</div>
+          <div class="value">125<span class="unit">kVA</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Eficiencia máx.</div>
+          <div class="value">91<span class="unit">%</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Vida útil</div>
+          <div class="value">&gt;15<span class="unit">años</span></div>
+        </div>
+      </div>
+      <div class="equipo-meta">
+        <div class="row"><span class="label">Configuración</span><span class="val">1P260S</span></div>
+        <div class="row"><span class="label">Voltaje DC</span><span class="val">832 V</span></div>
+        <div class="row"><span class="label">Dimensiones</span><span class="val">1.03 × 1.35 × 2.40 m</span></div>
+        <div class="row"><span class="label">Peso</span><span class="val">2,600 kg</span></div>
+        <div class="row"><span class="label">USD por unidad</span><span class="val">$55,997</span></div>
+        <div class="row"><span class="label">USD por kWh</span><span class="val">$214</span></div>
+      </div>
+      <div class="equipo-actions">
+        <a href="#" class="btn primary"><i class="ti ti-file-text"></i>Ficha técnica</a>
+        <a href="#" class="btn"><i class="ti ti-download"></i>PDF</a>
+      </div>
+    </div>
+
+    <div class="equipo-card featured">
+      <div class="featured-badge">Aplicable a Tequila</div>
+      <div class="equipo-titulo">HyperCube C&I II Max</div>
+      <div class="equipo-modelo">250/430 kVA · AC/DC version</div>
+      <div class="equipo-specs">
+        <div class="spec-item">
+          <div class="label">Energía</div>
+          <div class="value">835.9<span class="unit">kWh</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Potencia AC</div>
+          <div class="value">250<span class="unit">kVA</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Eficiencia máx.</div>
+          <div class="value">&gt;91<span class="unit">%</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Vida útil</div>
+          <div class="value">&gt;12<span class="unit">años</span></div>
+        </div>
+      </div>
+      <div class="equipo-meta">
+        <div class="row"><span class="label">Configuración</span><span class="val">1P416S</span></div>
+        <div class="row"><span class="label">Voltaje DC</span><span class="val">1,331 V</span></div>
+        <div class="row"><span class="label">Dimensiones</span><span class="val">1.50 × 2.32 × 2.40 m</span></div>
+        <div class="row"><span class="label">Peso</span><span class="val">5,000 kg</span></div>
+        <div class="row"><span class="label">USD por unidad</span><span class="val">$147,726</span></div>
+        <div class="row"><span class="label">USD por kWh</span><span class="val">$177</span></div>
+      </div>
+      <div class="equipo-actions">
+        <a href="#" class="btn primary"><i class="ti ti-file-text"></i>Ficha técnica</a>
+        <a href="#" class="btn"><i class="ti ti-download"></i>PDF</a>
+      </div>
+    </div>
+
+    <div class="equipo-card">
+      <div class="equipo-titulo">HyperBlock III</div>
+      <div class="equipo-modelo">HSL3C7001-05015 · DC version</div>
+      <div class="equipo-specs">
+        <div class="spec-item">
+          <div class="label">Energía</div>
+          <div class="value">5,016<span class="unit">kWh</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Potencia DC</div>
+          <div class="value">2,500<span class="unit">kW</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">RTE ganancia</div>
+          <div class="value">+2<span class="unit">%</span></div>
+        </div>
+        <div class="spec-item">
+          <div class="label">Densidad</div>
+          <div class="value">+34.5<span class="unit">%</span></div>
+        </div>
+      </div>
+      <div class="equipo-meta">
+        <div class="row"><span class="label">Configuración</span><span class="val">12P416S</span></div>
+        <div class="row"><span class="label">Voltaje DC</span><span class="val">1,331 V</span></div>
+        <div class="row"><span class="label">Dimensiones</span><span class="val">6.06 × 2.44 × 2.90 m</span></div>
+        <div class="row"><span class="label">Peso</span><span class="val">42,000 kg</span></div>
+        <div class="row"><span class="label">USD por unidad</span><span class="val">$565,008</span></div>
+        <div class="row"><span class="label">USD por kWh</span><span class="val">$113</span></div>
+      </div>
+      <div class="equipo-actions">
+        <a href="#" class="btn primary"><i class="ti ti-file-text"></i>Ficha técnica</a>
+        <a href="#" class="btn"><i class="ti ti-download"></i>PDF</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="comparativa-section">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Comparativa técnica</div>
+        <div class="chart-subtitle">Especificaciones lado a lado de la familia Hyperstrong</div>
+      </div>
+    </div>
+    <div class="comparativa-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Parámetro</th>
+            <th>Cube Plus</th>
+            <th>Cube Max</th>
+            <th>Block III</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Energía nominal</td>
+            <td><span class="cell-strong">261.2</span> <span class="unit-small">kWh</span></td>
+            <td><span class="cell-strong">835.9</span> <span class="unit-small">kWh</span></td>
+            <td><span class="cell-strong">5,016</span> <span class="unit-small">kWh</span></td>
+          </tr>
+          <tr>
+            <td>Potencia nominal</td>
+            <td><span class="cell-strong">125</span> <span class="unit-small">kVA AC</span></td>
+            <td><span class="cell-strong">250 / 430</span> <span class="unit-small">kVA AC</span></td>
+            <td><span class="cell-strong">2,500</span> <span class="unit-small">kW DC</span></td>
+          </tr>
+          <tr>
+            <td>Configuración celdas</td>
+            <td>1P260S</td>
+            <td>1P416S</td>
+            <td>12P416S</td>
+          </tr>
+          <tr>
+            <td>Voltaje DC nominal</td>
+            <td>832 <span class="unit-small">V</span></td>
+            <td>1,331 <span class="unit-small">V</span></td>
+            <td>1,331 <span class="unit-small">V</span></td>
+          </tr>
+          <tr>
+            <td>Eficiencia máxima</td>
+            <td>91%</td>
+            <td>&gt;91%</td>
+            <td>+2% vs estándar</td>
+          </tr>
+          <tr>
+            <td>Temperatura operación</td>
+            <td>−25 a 55 °C</td>
+            <td>−25 a 55 °C</td>
+            <td>−30 a 55 °C</td>
+          </tr>
+          <tr>
+            <td>Vida útil declarada</td>
+            <td>&gt;15 años</td>
+            <td>&gt;12 años</td>
+            <td>n/d en datasheet</td>
+          </tr>
+          <tr>
+            <td>Refrigeración</td>
+            <td>Líquida (batería) · aire (PCS)</td>
+            <td>Líquida</td>
+            <td>Líquida</td>
+          </tr>
+          <tr>
+            <td>Capacidad paralelo</td>
+            <td>Hasta 20 unidades</td>
+            <td>Hasta 20 unidades</td>
+            <td>n/d</td>
+          </tr>
+          <tr>
+            <td>Costo USD/kWh</td>
+            <td><span class="cell-strong">$214</span></td>
+            <td><span class="cell-strong">$177</span></td>
+            <td><span class="cell-strong">$113</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <details>
+    <summary>Parámetros de operación y supuestos</summary>
+    <div class="content">
+      <p><strong>RTE (Round Trip Efficiency):</strong> 85% utilizado en simulaciones para esta versión. La eficiencia de conversión declarada del datasheet (91%) corresponde al PCS aislado; el RTE de sistema completo incluye pérdidas térmicas, auxiliares y degradación.</p>
+      <p><strong>DoD (Depth of Discharge):</strong> 95%. SoC mínimo de operación 5%, SoC inicial 5%.</p>
+      <p><strong>Curva SOH 20 años:</strong> degradación según datasheet Hyperstrong — año 0: 99.4%, año 5: 86.2%, año 10: 80.0%, año 20: 67.1%.</p>
+      <p><strong>Versión Cube Max:</strong> el datasheet declara 250 kVA y 430 kVA como variantes. Por defecto se utiliza la versión 250 kVA en todas las simulaciones (conservador). Por validar versión final con proveedor.</p>
+      <p><strong>Tipo de cambio:</strong> 20 MXN/USD como referencia. Configurable por planta en panel de parámetros.</p>
+    </div>
+  </details>
+
+  <div class="footer">
+    <span>Catálogo independiente de planta · datos de datasheets oficiales Hyperstrong</span>
+    <span>dimensionamiento-bess v0.1 · 17 may 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
