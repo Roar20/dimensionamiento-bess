@@ -2,11 +2,18 @@ import { useMemo } from "react";
 import type { ChartOptions } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
+import { HallazgoEjecutivo } from "@/components/ui/HallazgoEjecutivo";
 import type { EstadoHorario } from "@/types/bess";
 import { COPY_SFV_BESS } from "@/lib/copy/sfv-bess";
 
 interface Props {
   detalle: readonly EstadoHorario[];
+  /** Etiqueta de la categoría activa, para narrar el hallazgo si captura = 0. */
+  categoriaEtiqueta: string;
+  /** Nombre de la planta, para narrar el hallazgo. */
+  nombrePlanta: string;
+  /** POI en kW, para narrar el hallazgo. */
+  poiKw: number;
 }
 
 const COLOR_CAPTURE = "#0F766E";
@@ -26,7 +33,16 @@ const MES_CORTO = [
   "Dic",
 ];
 
-export function SeccionCapturaPorPeriodo({ detalle }: Props) {
+const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
+  maximumFractionDigits: 0,
+});
+
+export function SeccionCapturaPorPeriodo({
+  detalle,
+  categoriaEtiqueta,
+  nombrePlanta,
+  poiKw,
+}: Props) {
   const series = useMemo(() => {
     const acum = new Array<number>(12).fill(0);
     for (const e of detalle) {
@@ -35,6 +51,8 @@ export function SeccionCapturaPorPeriodo({ detalle }: Props) {
     }
     return acum;
   }, [detalle]);
+
+  const sinCaptura = series.every((v) => v < 0.05);
 
   const data = {
     labels: MES_CORTO,
@@ -89,11 +107,21 @@ export function SeccionCapturaPorPeriodo({ detalle }: Props) {
           {COPY_SFV_BESS.charts.capturaUnidad}
         </span>
       </header>
-      <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
-        <div className="relative h-[240px] w-full">
-          <Bar data={data} options={options} />
+      {sinCaptura ? (
+        <HallazgoEjecutivo
+          titulo={`Sin captura mensual bajo "${categoriaEtiqueta}"`}
+          parrafos={[
+            `El SFV de ${nombrePlanta} no produce energía capturable por el BESS bajo esta categoría: opera por debajo del techo POI de ${FORMATO_ENTERO.format(poiKw)} kW durante todo el año.`,
+            "Selecciona otra categoría en el bloque inferior para evaluar otros casos de uso.",
+          ]}
+        />
+      ) : (
+        <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
+          <div className="relative h-[240px] w-full">
+            <Bar data={data} options={options} />
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }

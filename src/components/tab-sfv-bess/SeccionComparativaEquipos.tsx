@@ -8,6 +8,7 @@ import {
 } from "@/lib/core/bess";
 import {
   esFueraDeEscala,
+  idViejoDeEquipoNuevo,
   razonFueraDeEscala,
 } from "@/lib/tab-sfv-bess/comparativa-equipos";
 import {
@@ -68,9 +69,8 @@ export function SeccionComparativaEquipos({
 
       let simulacion: SimulacionEquipo | null = null;
       if (!fuera && categoriaActiva) {
-        const equipoViejo = CATALOGO_VIEJO.find(
-          (e) => e.id === equipoNuevo.id
-        );
+        const idViejo = idViejoDeEquipoNuevo(equipoNuevo);
+        const equipoViejo = CATALOGO_VIEJO.find((e) => e.id === idViejo);
         if (equipoViejo) {
           const config: ConfiguracionBESS = {
             p_kw: equipoViejo.kw_ac,

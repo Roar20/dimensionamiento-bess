@@ -62,19 +62,23 @@ function rend() {
 }
 
 describe("TabSFVBess — integración", () => {
-  it("renderiza header dossier, panel precios, banda KPIs, charts, comparativas y metodología", () => {
+  it("renderiza header dossier SFV+BESS, panel precios, banda KPIs, charts, comparativas y metodología", () => {
     rend();
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: /análisis de la curva de generación del sfv.*tequila 1/i,
+        name: /análisis del sfv \+ bess.*tequila 1/i,
       })
     ).toBeInTheDocument();
     expect(screen.getByText(/precios proxy editables/i)).toBeInTheDocument();
     expect(screen.getAllByText(/energía capturada/i).length).toBeGreaterThan(0);
-    // Charts presentes (stubs).
+    // Chart de despacho siempre presente; el de captura mensual puede
+    // sustituirse por HallazgoEjecutivo cuando la captura agregada = 0.
     expect(screen.getByTestId("chart-line")).toBeInTheDocument();
-    expect(screen.getByTestId("chart-bar")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("chart-bar") ??
+        screen.getByText(/sin captura mensual bajo/i)
+    ).toBeInTheDocument();
     // Comparativas presentes.
     expect(
       screen.getByText(/comparativa de estrategias/i)

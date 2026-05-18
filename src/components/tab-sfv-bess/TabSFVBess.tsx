@@ -49,16 +49,20 @@ ensureChartJsRegistered();
 export function TabSFVBess({ datos }: Props) {
   const { config, registros, meta } = datos;
   const { params } = useParametrosPPA(datos);
-  const { precios } = usePreciosProxy();
-  const { tipoCambio } = useTipoCambio();
+  const preciosProxy = usePreciosProxy();
+  const tipoCambioState = useTipoCambio();
+  const { precios } = preciosProxy;
+  const { tipoCambio } = tipoCambioState;
 
   const categorias = useMemo<readonly CategoriaEnergia[]>(() => {
     if (!params) return [];
     return construirCategoriasDefault(params);
   }, [params]);
 
+  // Defaults que producen señal: toda_energia entrega el universo total
+  // capturable. Greedy es la estrategia simple de referencia.
   const [categoriaTipo, setCategoriaTipo] = useState<CategoriaEnergia["tipo"]>(
-    "exceso_capacidad_cfe_kw"
+    "toda_energia"
   );
   const [estrategia, setEstrategia] = useState<EstrategiaDespacho>("greedy");
 
@@ -73,12 +77,14 @@ export function TabSFVBess({ datos }: Props) {
     [categorias, categoriaTipo]
   );
 
-  // Equipo "principal" para BandaKPIs y charts: Cube Max (recomendado para
-  // Tequila). El usuario compara los 3 abajo en SeccionComparativaEquipos.
+  // Equipo "principal" para BandaKPIs, charts y lectura ejecutiva: Cube
+  // Plus (escala C&I conservadora, alineada con los precios proxy
+  // Estanzuela 2). El usuario compara los 3 abajo en SeccionComparativaEquipos.
   const equipoPrincipal = useMemo(
-    () => CATALOGO_VIEJO.find((e) => e.id === "hypercube-max"),
+    () => CATALOGO_VIEJO.find((e) => e.id === "hypercube-plus"),
     []
   );
+  const nombreEquipoPrincipal = "Cube Plus";
 
   const configPrincipal = useMemo<ConfiguracionBESS | null>(() => {
     if (!equipoPrincipal) return null;
@@ -142,9 +148,17 @@ export function TabSFVBess({ datos }: Props) {
         totalRegistros={meta.total_horas}
         poiKw={config.capacidad_poi_kw}
         zonaLmp={config.zona_lmp}
+        tituloBase="Análisis del SFV + BESS"
       />
 
-      <PanelPreciosEditables />
+      <PanelPreciosEditables
+        precios={precios}
+        setPrecio={preciosProxy.setPrecio}
+        reset={preciosProxy.reset}
+        esProxy={preciosProxy.esProxy}
+        tipoCambio={tipoCambio}
+        setTipoCambio={tipoCambioState.setTipoCambio}
+      />
 
       {!activa || !simulacionPrincipal ? (
         <p className="mb-8 rounded-md border-[0.5px] border-[var(--color-border-light)] bg-white p-5 text-[13px] text-[var(--color-text-secondary)]">
@@ -152,6 +166,14 @@ export function TabSFVBess({ datos }: Props) {
         </p>
       ) : (
         <>
+          <LecturaEjecutivaSFVBess
+            energiaCapturadaMwh={activa.kpis.cargado_total_mwh}
+            ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
+            paybackAnios={economia?.payback.payback_anios ?? null}
+            estrategia={estrategia}
+            equipoNombre={nombreEquipoPrincipal}
+          />
+
           <BandaKPIsSFVBess
             cargadoMwh={activa.kpis.cargado_total_mwh}
             descargadoMwh={activa.kpis.descargado_total_mwh}
@@ -159,19 +181,17 @@ export function TabSFVBess({ datos }: Props) {
             ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
           />
 
-          <LecturaEjecutivaSFVBess
-            energiaCapturadaMwh={activa.kpis.cargado_total_mwh}
-            ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
-            paybackAnios={economia?.payback.payback_anios ?? null}
-            estrategia={estrategia}
-          />
-
           <SeccionDespachoDiarioPromedio
             detalle={activa.detalle_horario}
             capUtilKwh={activa.kpis.soc_max_kwh}
           />
 
-          <SeccionCapturaPorPeriodo detalle={activa.detalle_horario} />
+          <SeccionCapturaPorPeriodo
+            detalle={activa.detalle_horario}
+            categoriaEtiqueta={categoriaActiva?.etiqueta ?? "—"}
+            nombrePlanta={config.nombre || "el SFV"}
+            poiKw={config.capacidad_poi_kw}
+          />
 
           <SeccionComparativaEstrategias
             greedy={simulacionPrincipal.greedy.kpis}

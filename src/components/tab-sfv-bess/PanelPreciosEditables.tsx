@@ -4,8 +4,7 @@ import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { TipoCambioInput } from "@/components/bess/TipoCambioInput";
 import { TOOLTIPS_SFV_BESS } from "@/data/tooltips-sfv-bess";
 import { COPY_SFV_BESS } from "@/lib/copy/sfv-bess";
-import { usePreciosProxy, type PrecioKey } from "@/hooks/usePreciosProxy";
-import { useTipoCambio } from "@/hooks/useTipoCambio";
+import type { PrecioKey, PreciosProxy } from "@/hooks/usePreciosProxy";
 
 import { BannerProxyPrecios } from "./BannerProxyPrecios";
 
@@ -14,9 +13,23 @@ const FORMATO_ENTERO_2DEC = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 2,
 });
 
-export function PanelPreciosEditables() {
-  const { precios, setPrecio, reset, esProxy } = usePreciosProxy();
-  const { tipoCambio, setTipoCambio } = useTipoCambio();
+interface Props {
+  precios: PreciosProxy;
+  setPrecio: (key: PrecioKey, next: number) => boolean;
+  reset: () => void;
+  esProxy: boolean;
+  tipoCambio: number;
+  setTipoCambio: (n: number) => boolean;
+}
+
+export function PanelPreciosEditables({
+  precios,
+  setPrecio,
+  reset,
+  esProxy,
+  tipoCambio,
+  setTipoCambio,
+}: Props) {
   const copy = COPY_SFV_BESS.paneles.precios;
 
   return (

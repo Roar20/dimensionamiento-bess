@@ -6,6 +6,7 @@ interface Props {
   ciclosAnuales: number;
   paybackAnios: number | null;
   estrategia: "greedy" | "arbitraje";
+  equipoNombre: string;
 }
 
 export function LecturaEjecutivaSFVBess({
@@ -13,6 +14,7 @@ export function LecturaEjecutivaSFVBess({
   ciclosAnuales,
   paybackAnios,
   estrategia,
+  equipoNombre,
 }: Props) {
   const texto = COPY_SFV_BESS.lecturaEjecutiva.plantilla({
     energia_capturada_mwh: energiaCapturadaMwh,
@@ -22,6 +24,7 @@ export function LecturaEjecutivaSFVBess({
       estrategia === "greedy"
         ? COPY_SFV_BESS.estrategias.greedy
         : COPY_SFV_BESS.estrategias.arbitraje,
+    equipo_nombre: equipoNombre,
   });
   return <LecturaEjecutiva texto={texto} />;
 }

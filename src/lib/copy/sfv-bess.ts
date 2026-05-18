@@ -9,23 +9,31 @@ export const COPY_SFV_BESS = {
 
   lecturaEjecutiva: {
     label: "Lectura ejecutiva",
-    // Template; los valores se interpolan en runtime.
     plantilla: (args: {
       energia_capturada_mwh: number;
       ciclos: number;
       payback_anios: number | null;
       estrategia: string;
+      equipo_nombre: string;
     }) => {
+      // Caso degenerado: la combinación categoría + estrategia no captura
+      // energía. Texto alterno reorienta a probar otra config.
+      if (args.energia_capturada_mwh < 0.05) {
+        return (
+          `Bajo la categoría seleccionada y la estrategia ${args.estrategia}, ` +
+          `el BESS ${args.equipo_nombre} no captura energía. ` +
+          `Prueba otra categoría o cambia a la estrategia alternativa.`
+        );
+      }
       const cap = formato1Dec(args.energia_capturada_mwh);
       const ciclos = formatoEntero(args.ciclos);
       const pb =
         args.payback_anios === null
-          ? "payback no calculable bajo los precios proxy actuales"
-          : `payback preliminar de ${formato1Dec(args.payback_anios)} años bajo los precios proxy`;
+          ? "el payback no es calculable bajo los precios proxy actuales"
+          : `el payback preliminar con precios proxy Estanzuela 2 es de ${formato1Dec(args.payback_anios)} años para ${args.equipo_nombre}`;
       return (
-        `El BESS captura ${cap} MWh anuales sobre la categoría seleccionada y ` +
-        `entrega ${ciclos} ciclos equivalentes con estrategia ${args.estrategia}, ` +
-        `con ${pb} — los precios son editables arriba para sensibilizar.`
+        `El BESS captura ${cap} MWh anuales bajo estrategia ${args.estrategia}, ` +
+        `equivalentes a ${ciclos} ciclos efectivos. ${capitalizar(pb)}.`
       );
     },
   },
@@ -93,6 +101,11 @@ export const COPY_SFV_BESS = {
       `Fuente: cincominutales SFV ${planta} · año base ${anio}`,
   },
 } as const;
+
+function capitalizar(s: string): string {
+  if (s.length === 0) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 function formato1Dec(n: number): string {
   return new Intl.NumberFormat("es-MX", {
