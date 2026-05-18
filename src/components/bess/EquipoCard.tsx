@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
+import { DOD_PCT, RTE_PCT } from "@/data/parametros-operacion";
 import type { EquipoBess } from "@/data/catalogo-hyperstrong";
+import { TOOLTIPS_BESS } from "@/data/tooltips-bess";
 
 const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 0,
@@ -8,21 +11,32 @@ const FORMATO_1DEC = new Intl.NumberFormat("es-MX", {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
 });
+const FORMATO_MXN = new Intl.NumberFormat("es-MX", {
+  style: "currency",
+  currency: "MXN",
+  maximumFractionDigits: 0,
+});
+const FORMATO_USD = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 0,
+});
 
 interface Props {
   equipo: EquipoBess;
+  tipoCambio: number;
   onAbrirFicha: (equipo: EquipoBess) => void;
 }
 
-export function EquipoCard({ equipo, onAbrirFicha }: Props) {
+export function EquipoCard({ equipo, tipoCambio, onAbrirFicha }: Props) {
+  const aplicable = equipo.aplicableTequila;
   const potencia =
     equipo.potenciaKvaAc !== null
       ? `${FORMATO_ENTERO.format(equipo.potenciaKvaAc)} kVA`
       : equipo.potenciaKwDc !== null
-        ? `${FORMATO_ENTERO.format(equipo.potenciaKwDc)} kW`
+        ? `${FORMATO_ENTERO.format(equipo.potenciaKwDc)} kW DC`
         : "—";
-  const [w, d, h] = equipo.dimensionesMm;
-  const aplicable = equipo.aplicableTequila;
+
+  const precioUnidadMxn = equipo.precioUsdUnidad * tipoCambio;
+  const precioKwhMxn = equipo.precioUsdKwh * tipoCambio;
 
   return (
     <article
@@ -50,31 +64,63 @@ export function EquipoCard({ equipo, onAbrirFicha }: Props) {
         ) : null}
       </header>
 
-      <dl className="mb-4 grid grid-cols-2 gap-x-3 gap-y-3 text-[12px]">
-        <Spec label="Energía" valor={`${FORMATO_1DEC.format(equipo.energiaKwh)} kWh`} />
-        <Spec label="Potencia" valor={potencia} />
-        <Spec
-          label="Eficiencia"
-          valor={`${equipo.eficienciaMax}%`}
+      <SeccionLabel>Datasheet</SeccionLabel>
+      <dl className="mb-4 space-y-2 text-[13px]">
+        <Fila
+          label="Capacidad nominal"
+          valor={`${FORMATO_1DEC.format(equipo.energiaKwh)} kWh`}
+          tooltip={TOOLTIPS_BESS.capacidad_nominal}
+          etiquetaTooltip={`Trazabilidad: capacidad nominal de ${equipo.nombre}`}
         />
-        <Spec label="Vida útil" valor={`${equipo.vidaUtilAnos} años`} />
+        <Fila
+          label="Potencia AC PCS"
+          valor={potencia}
+          tooltip={TOOLTIPS_BESS.potencia_ac_pcs}
+          etiquetaTooltip={`Trazabilidad: potencia AC PCS de ${equipo.nombre}`}
+        />
+        <Fila
+          label="Vida útil"
+          valor={`${equipo.vidaUtilAnos} años`}
+          tooltip={TOOLTIPS_BESS.vida_util}
+          etiquetaTooltip={`Trazabilidad: vida útil de ${equipo.nombre}`}
+        />
       </dl>
 
-      <dl className="mb-5 space-y-1.5 border-t-[0.5px] border-[var(--color-border-light)] pt-3 text-[12px]">
-        <Meta label="Configuración" valor={equipo.configuracionCeldas} />
-        <Meta label="Voltaje DC" valor={`${equipo.voltajeDcV} V`} />
-        <Meta
-          label="Dimensiones"
-          valor={`${FORMATO_ENTERO.format(w)} × ${FORMATO_ENTERO.format(d)} × ${FORMATO_ENTERO.format(h)} mm`}
+      <SeccionLabel>Operación</SeccionLabel>
+      <dl className="mb-4 space-y-2 text-[13px]">
+        <Fila
+          label="DoD"
+          valor={`${DOD_PCT}%`}
+          tooltip={TOOLTIPS_BESS.dod}
+          etiquetaTooltip="Trazabilidad: DoD del sistema"
         />
-        <Meta label="Peso" valor={`${FORMATO_ENTERO.format(equipo.pesoKg)} kg`} />
-        <Meta
-          label="USD/unidad"
-          valor={FORMATO_ENTERO.format(equipo.precioUsdUnidad)}
+        <Fila
+          label="RTE"
+          valor={`${RTE_PCT}%`}
+          tooltip={TOOLTIPS_BESS.rte}
+          etiquetaTooltip="Trazabilidad: RTE del sistema"
         />
-        <Meta
-          label="USD/kWh"
-          valor={FORMATO_ENTERO.format(equipo.precioUsdKwh)}
+      </dl>
+
+      <SeccionLabel>Comercial</SeccionLabel>
+      <dl className="mb-5 space-y-3 text-[13px]">
+        <FilaPrecio
+          label="Precio por unidad"
+          usd={equipo.precioUsdUnidad}
+          mxn={precioUnidadMxn}
+          tooltipUsd={TOOLTIPS_BESS.precio_por_kwh}
+          tooltipMxn={TOOLTIPS_BESS.precio_mxn}
+          etiquetaUsd={`Trazabilidad: precio por unidad de ${equipo.nombre}`}
+          etiquetaMxn={`Trazabilidad: conversión MXN del precio por unidad de ${equipo.nombre}`}
+        />
+        <FilaPrecio
+          label="Precio por kWh"
+          usd={equipo.precioUsdKwh}
+          mxn={precioKwhMxn}
+          tooltipUsd={TOOLTIPS_BESS.precio_por_kwh}
+          tooltipMxn={TOOLTIPS_BESS.precio_mxn}
+          etiquetaUsd={`Trazabilidad: precio por kWh de ${equipo.nombre}`}
+          etiquetaMxn={`Trazabilidad: conversión MXN del precio por kWh de ${equipo.nombre}`}
         />
       </dl>
 
@@ -99,25 +145,69 @@ export function EquipoCard({ equipo, onAbrirFicha }: Props) {
   );
 }
 
-function Spec({ label, valor }: { label: string; valor: string }) {
+function SeccionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <dt className="text-[11px] uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
-        {label}
+    <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+      {children}
+    </p>
+  );
+}
+
+function Fila({
+  label,
+  valor,
+  tooltip,
+  etiquetaTooltip,
+}: {
+  label: string;
+  valor: string;
+  tooltip: string;
+  etiquetaTooltip: string;
+}) {
+  return (
+    <div className="flex items-baseline justify-between gap-3">
+      <dt className="inline-flex items-center gap-1 text-[var(--color-text-secondary)]">
+        <span>{label}</span>
+        <InfoTooltip texto={tooltip} etiqueta={etiquetaTooltip} />
       </dt>
-      <dd className="mt-0.5 text-[15px] font-medium tabular-nums text-[var(--color-text-primary)]">
+      <dd className="text-right tabular-nums text-[var(--color-text-primary)]">
         {valor}
       </dd>
     </div>
   );
 }
 
-function Meta({ label, valor }: { label: string; valor: string }) {
+function FilaPrecio({
+  label,
+  usd,
+  mxn,
+  tooltipUsd,
+  tooltipMxn,
+  etiquetaUsd,
+  etiquetaMxn,
+}: {
+  label: string;
+  usd: number;
+  mxn: number;
+  tooltipUsd: string;
+  tooltipMxn: string;
+  etiquetaUsd: string;
+  etiquetaMxn: string;
+}) {
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-[var(--color-text-tertiary)]">{label}</dt>
-      <dd className="text-right tabular-nums text-[var(--color-text-secondary)]">
-        {valor}
+    <div className="flex items-start justify-between gap-3">
+      <dt className="inline-flex items-center gap-1 pt-0.5 text-[var(--color-text-secondary)]">
+        <span>{label}</span>
+        <InfoTooltip texto={tooltipUsd} etiqueta={etiquetaUsd} />
+      </dt>
+      <dd className="text-right">
+        <div className="tabular-nums text-[var(--color-text-primary)]">
+          USD {FORMATO_USD.format(usd)}
+        </div>
+        <div className="mt-0.5 inline-flex items-center gap-1 text-[12px] tabular-nums text-[var(--color-text-secondary)]">
+          {FORMATO_MXN.format(mxn)}
+          <InfoTooltip texto={tooltipMxn} etiqueta={etiquetaMxn} />
+        </div>
       </dd>
     </div>
   );

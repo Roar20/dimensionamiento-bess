@@ -3,18 +3,19 @@ import { useState } from "react";
 import { FooterEstandar } from "@/components/ui/FooterEstandar";
 import { LecturaEjecutiva } from "@/components/ui/LecturaEjecutiva";
 import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
+import { useTipoCambio } from "@/hooks/useTipoCambio";
 import { CATALOGO_HYPERSTRONG, type EquipoBess } from "@/data/catalogo-hyperstrong";
 
 import { ComparativaTecnica } from "./ComparativaTecnica";
 import { EquipoCard } from "./EquipoCard";
 import { FichaTecnicaModal } from "./FichaTecnicaModal";
 import { HeaderCatalogo } from "./HeaderCatalogo";
+import { TipoCambioInput } from "./TipoCambioInput";
 
 const CHIPS_HEADER = [
   { icono: "ti-square-rotated", texto: "LFP-314Ah" },
   { icono: "ti-snowflake", texto: "Refrigeración líquida" },
   { icono: "ti-shield-check", texto: "UL9540A · IEC 62619" },
-  { icono: "ti-currency-dollar", texto: "TC 20 MXN/USD" },
 ];
 
 const LECTURA_EJECUTIVA =
@@ -22,12 +23,16 @@ const LECTURA_EJECUTIVA =
 
 export function TabBessCatalogo() {
   const [equipoFicha, setEquipoFicha] = useState<EquipoBess | null>(null);
+  const { tipoCambio, setTipoCambio } = useTipoCambio();
 
   return (
     <div>
       <HeaderCatalogo
         titulo="Catálogo de almacenamiento — Hyperstrong"
         chips={CHIPS_HEADER}
+        slotFinal={
+          <TipoCambioInput valor={tipoCambio} onChange={setTipoCambio} />
+        }
       />
 
       <LecturaEjecutiva texto={LECTURA_EJECUTIVA} />
@@ -41,6 +46,7 @@ export function TabBessCatalogo() {
             <EquipoCard
               key={equipo.id}
               equipo={equipo}
+              tipoCambio={tipoCambio}
               onAbrirFicha={setEquipoFicha}
             />
           ))}
@@ -86,8 +92,9 @@ export function TabBessCatalogo() {
           <strong className="font-medium text-[var(--color-text-primary)]">
             Tipo de cambio:
           </strong>{" "}
-          USD/MXN 20.00 configurable por planta. Los precios del catálogo se
-          mantienen en USD; la conversión a MXN ocurre en Tab Financiero.
+          USD/MXN configurable inline en el header del catálogo. Default 20.00,
+          persiste en este navegador. Cada precio del datasheet se muestra en
+          USD con la conversión MXN debajo, recalculada en vivo.
         </p>
       </MetodologiaDetalles>
 
