@@ -51,6 +51,87 @@ reescriban:
   Cuando ya no haya consumidores de `lucide-react`, removerlo del
   `package.json`.
 
+## Iteración Tab SFV+BESS · reescritura visual + comparativa con precios (P4 parcial)
+
+Reescribió Tab SFV+BESS al formato consultor sobre el motor horario
+existente. Hereda HeaderDossier de Tab SFV, agrega panel de precios
+proxy editables, banda de KPIs ejecutiva, despacho diario promedio
+(Chart.js, migrado de Recharts), captura mensual (bar), comparativa
+estrategias y comparativa equipos lado a lado con detección "fuera
+de escala" por arquitectura.
+
+### Componentes eliminados
+
+`src/components/tab-sfv-bess/`:
+- `HeroNarrativo.tsx`, `Seccion1ConfiguracionEquipo.tsx`,
+  `Seccion2AnatomiaCaptura.tsx`, `Seccion3DespachoDiario.tsx`,
+  `Seccion4CapturaPorPeriodo.tsx`, `Seccion5Comparativa.tsx`,
+  `Seccion6Resumen.tsx` — 6 secciones narrativas tipo pregunta.
+- `KPICardSFVBess.tsx` — KPI propio con ícono Info adicional;
+  reemplazado por `KpiCard` corporativo + `InfoTooltip`.
+- `GraficaDespacho.tsx` — Recharts; migrado a Chart.js en
+  `SeccionDespachoDiarioPromedio.tsx`.
+- `SelectorEquipoMultiplicador.tsx` — dependía transitivamente de
+  `KPICardSFVBess` (parte del sweep). Quedó sin recursos; si se
+  necesita en el futuro, rescatar de git history y reescribir el
+  KPI host con `KpiCard`.
+
+### Componentes conservados
+
+- `SelectorCategoriaCompacto.tsx` — atómico, sin dependencias
+  rotas. Hoy NO consumido por la nueva `TabSFVBess.tsx`; queda
+  como candidato si se necesita un selector standalone fuera de
+  `SelectoresComparativa`.
+
+### Componentes nuevos
+
+`src/components/tab-sfv-bess/`:
+- `TabSFVBess.tsx` (orquestador reescrito).
+- `LecturaEjecutivaSFVBess.tsx`, `BandaKPIsSFVBess.tsx`,
+  `MetodologiaSFVBess.tsx`.
+- `SeccionDespachoDiarioPromedio.tsx`,
+  `SeccionCapturaPorPeriodo.tsx`,
+  `SeccionComparativaEstrategias.tsx`,
+  `SeccionComparativaEquipos.tsx`.
+- `PanelPreciosEditables.tsx`, `BannerProxyPrecios.tsx`,
+  `SelectoresComparativa.tsx`, `CardEquipoComparativo.tsx`.
+
+`src/hooks/usePreciosProxy.ts` (+ tests).
+`src/lib/tab-sfv-bess/economia-preliminar.ts` (+ tests).
+`src/lib/tab-sfv-bess/comparativa-equipos.ts` (+ tests).
+`src/data/tooltips-sfv-bess.ts`, `src/lib/copy/sfv-bess.ts`.
+`src/data/parametros-operacion.ts` (de PR anterior, sigue activo).
+
+### DEUDA — Coexistencia de catálogos (heredada P3, sigue abierta)
+
+Confirmada explícitamente en este PR: el nuevo Tab SFV+BESS usa
+`src/data/catalogo-hyperstrong.ts` (NUEVO, camelCase, con `arquitectura`)
+para display + detección "fuera de escala", PERO lee
+`src/lib/bess/catalogo-hyperstrong.ts` (VIEJO, snake_case) para
+construir `ConfiguracionBESS` y correr `simularUna()`. Los ids
+coinciden 1:1 entre ambos catálogos.
+
+`useConfiguracionBESS` NO se tocó en este PR (instrucción explícita).
+Quedó como código activo pero sin consumidor de producción: solo lo
+referencia `useCambiarPlanta` para el cleanup de localStorage.
+
+Cierre de la deuda en próxima iteración:
+1. Migrar `useConfiguracionBESS:115-118` al shape camelCase.
+2. Eliminar `src/lib/bess/catalogo-hyperstrong.ts`.
+3. Reescribir `TabSFVBess.tsx` para consumir solo el catálogo nuevo
+   (sin el lookup dual `CATALOGO_VIEJO.find(...)` actual).
+
+### DEUDA — Potencia firme (PR #20 dedicado)
+
+`usePreciosProxy` captura y persiste `potencia_firme_mxn_mw_mes`
+para que el commercial lo configure desde ya. Pero
+`economia-preliminar.ts` NO lo consume todavía: el ingreso anual
+se calcula como `descargado_mwh × (precio_energia + precio_cel)`.
+La integración real requiere `calcularPotenciaFirme(detalle, ventana)`
+que vive en `src/lib/motor-potencia-firme/` (a crear en PR #20).
+Tooltip de "Ingreso anual estimado" anuncia explícitamente:
+"Potencia firme se integrará en próxima versión."
+
 ## Iteración Tab BESS · catálogo plano Hyperstrong (P3)
 
 Reescribió Tab BESS al formato catálogo del mockup `tab_02_bess.html`:

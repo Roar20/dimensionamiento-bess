@@ -1,189 +1,207 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { SelectorTemporal } from "@/components/tab-sfv/SelectorTemporal";
-import { usePeriodoActivo } from "@/hooks/usePeriodoActivo";
-import { useParametrosPPA } from "@/hooks/useParametrosPPA";
-import { useConfiguracionBESS } from "@/hooks/useConfiguracionBESS";
+import { FooterEstandar } from "@/components/ui/FooterEstandar";
+import { HeaderDossier } from "@/components/tab-sfv/HeaderDossier";
+import { ensureChartJsRegistered } from "@/components/tab-sfv/chart-setup";
+import { CATALOGO_HYPERSTRONG as CATALOGO_VIEJO } from "@/lib/bess/catalogo-hyperstrong";
 import {
-  calcularKPIs,
+  DOD_DEFAULT,
   construirCategoriasDefault,
-  simularCompleto,
+  simularUna,
 } from "@/lib/core/bess";
 import {
-  contarDiasDistintos,
-  filtrarSimulacion,
-} from "@/lib/tab-sfv-bess/filtrar-detalle-por-periodo";
-import type { DatosSFV } from "@/types/sfv";
-import type { Granularidad } from "@/lib/tab-sfv/filtrar-por-periodo";
+  calcularCapex,
+  calcularIngresoAnual,
+  calcularPaybackPreliminar,
+} from "@/lib/tab-sfv-bess/economia-preliminar";
+import { COPY_SFV_BESS } from "@/lib/copy/sfv-bess";
+import { useParametrosPPA } from "@/hooks/useParametrosPPA";
+import { usePreciosProxy } from "@/hooks/usePreciosProxy";
+import { useTipoCambio } from "@/hooks/useTipoCambio";
 import type {
-  ResultadoCompleto,
-  ResultadoSimulacion,
-  SeleccionCategoria,
+  CategoriaEnergia,
+  ConfiguracionBESS,
+  EstrategiaDespacho,
 } from "@/types/bess";
+import type { DatosSFV } from "@/types/sfv";
 
-import { HeroNarrativo } from "./HeroNarrativo";
-import { Seccion1ConfiguracionEquipo } from "./Seccion1ConfiguracionEquipo";
-import { Seccion2AnatomiaCaptura } from "./Seccion2AnatomiaCaptura";
-import { Seccion3DespachoDiario } from "./Seccion3DespachoDiario";
-import { Seccion4CapturaPorPeriodo } from "./Seccion4CapturaPorPeriodo";
-import { Seccion5Comparativa } from "./Seccion5Comparativa";
-import { Seccion6Resumen } from "./Seccion6Resumen";
-import { SelectorCategoriaCompacto } from "./SelectorCategoriaCompacto";
-import { compararEstrategias } from "@/lib/tab-sfv-bess/recomendar-estrategia";
-import { generarResumenEjecutivo } from "@/lib/tab-sfv-bess/narrativa";
-
-const GRANULARIDADES_SFV_BESS: readonly Granularidad[] = [
-  "anual",
-  "semestral",
-  "trimestral",
-  "mensual",
-  "semanal",
-  "diario",
-];
+import { BandaKPIsSFVBess } from "./BandaKPIsSFVBess";
+import { LecturaEjecutivaSFVBess } from "./LecturaEjecutivaSFVBess";
+import { MetodologiaSFVBess } from "./MetodologiaSFVBess";
+import { PanelPreciosEditables } from "./PanelPreciosEditables";
+import { SeccionCapturaPorPeriodo } from "./SeccionCapturaPorPeriodo";
+import { SeccionComparativaEquipos } from "./SeccionComparativaEquipos";
+import { SeccionComparativaEstrategias } from "./SeccionComparativaEstrategias";
+import { SeccionDespachoDiarioPromedio } from "./SeccionDespachoDiarioPromedio";
 
 interface Props {
   datos: DatosSFV;
 }
 
+const FECHA_FORMATTER = new Intl.DateTimeFormat("es-MX", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+ensureChartJsRegistered();
+
 export function TabSFVBess({ datos }: Props) {
-  const periodo = usePeriodoActivo(datos);
+  const { config, registros, meta } = datos;
   const { params } = useParametrosPPA(datos);
-  const [seleccion, setSeleccion] = useState<SeleccionCategoria>("ninguna");
+  const { precios } = usePreciosProxy();
+  const { tipoCambio } = useTipoCambio();
 
-  const config = useConfiguracionBESS(datos, params, seleccion);
-
-  const categorias = useMemo(() => {
+  const categorias = useMemo<readonly CategoriaEnergia[]>(() => {
     if (!params) return [];
     return construirCategoriasDefault(params);
   }, [params]);
 
-  const resultadoCompletoAnual = useMemo(() => {
-    if (categorias.length === 0) return null;
-    return simularCompleto(
-      datos.registros,
-      config.configuracionBESS,
-      categorias
-    );
-  }, [datos.registros, config.configuracionBESS, categorias]);
+  const [categoriaTipo, setCategoriaTipo] = useState<CategoriaEnergia["tipo"]>(
+    "exceso_capacidad_cfe_kw"
+  );
+  const [estrategia, setEstrategia] = useState<EstrategiaDespacho>("greedy");
 
-  /** Resultado filtrado al periodo activo + KPIs recalculados sobre ese subset. */
-  const resultadoCompleto: ResultadoCompleto | null = useMemo(() => {
-    if (!resultadoCompletoAnual) return null;
+  useEffect(() => {
+    if (categorias.length === 0) return;
+    const existe = categorias.some((c) => c.tipo === categoriaTipo);
+    if (!existe) setCategoriaTipo(categorias[0]!.tipo);
+  }, [categorias, categoriaTipo]);
+
+  const categoriaActiva = useMemo(
+    () => categorias.find((c) => c.tipo === categoriaTipo) ?? null,
+    [categorias, categoriaTipo]
+  );
+
+  // Equipo "principal" para BandaKPIs y charts: Cube Max (recomendado para
+  // Tequila). El usuario compara los 3 abajo en SeccionComparativaEquipos.
+  const equipoPrincipal = useMemo(
+    () => CATALOGO_VIEJO.find((e) => e.id === "hypercube-max"),
+    []
+  );
+
+  const configPrincipal = useMemo<ConfiguracionBESS | null>(() => {
+    if (!equipoPrincipal) return null;
     return {
-      config: resultadoCompletoAnual.config,
-      simulaciones: resultadoCompletoAnual.simulaciones.map((s) => {
-        const filtrado = filtrarSimulacion(s, periodo.periodo);
-        return {
-          ...filtrado,
-          kpis: calcularKPIs(filtrado.detalle_horario, filtrado.config),
-        };
-      }),
+      p_kw: equipoPrincipal.kw_ac,
+      e_kwh: equipoPrincipal.kwh,
+      dod: DOD_DEFAULT,
+      rte: equipoPrincipal.eficiencia_max,
+      soc_inicial_kwh: 0,
     };
-  }, [resultadoCompletoAnual, periodo.periodo]);
+  }, [equipoPrincipal]);
 
-  const simActiva = useMemo(() => {
-    if (!resultadoCompleto) return { greedy: null, arbitraje: null };
-    const tipoActivo =
-      seleccion === "ninguna" ? "fuera_hora_punta_cfe" : seleccion;
-    const greedy =
-      resultadoCompleto.simulaciones.find(
-        (s) => s.categoria.tipo === tipoActivo && s.estrategia === "greedy"
-      ) ?? null;
-    const arbitraje =
-      resultadoCompleto.simulaciones.find(
-        (s) => s.categoria.tipo === tipoActivo && s.estrategia === "arbitraje"
-      ) ?? null;
-    return { greedy, arbitraje } as {
-      greedy: ResultadoSimulacion | null;
-      arbitraje: ResultadoSimulacion | null;
+  const simulacionPrincipal = useMemo(() => {
+    if (!configPrincipal || !categoriaActiva) return null;
+    return {
+      greedy: simularUna(registros, configPrincipal, categoriaActiva, "greedy"),
+      arbitraje: simularUna(
+        registros,
+        configPrincipal,
+        categoriaActiva,
+        "arbitraje"
+      ),
     };
-  }, [resultadoCompleto, seleccion]);
+  }, [registros, configPrincipal, categoriaActiva]);
 
-  const nDiasPeriodo = useMemo(() => {
-    if (!simActiva.greedy) return 0;
-    return contarDiasDistintos(simActiva.greedy.detalle_horario);
-  }, [simActiva.greedy]);
+  const activa =
+    simulacionPrincipal === null
+      ? null
+      : estrategia === "greedy"
+        ? simulacionPrincipal.greedy
+        : simulacionPrincipal.arbitraje;
 
-  const labelDiaUnico =
-    periodo.granularidad === "diario" && periodo.periodo
-      ? periodo.periodo.label
-      : undefined;
+  const economia = useMemo(() => {
+    if (!activa || !equipoPrincipal) return null;
+    const capex = calcularCapex(
+      equipoPrincipal.precio_usd,
+      equipoPrincipal.precio_usd / equipoPrincipal.kwh,
+      tipoCambio
+    );
+    const ingreso = calcularIngresoAnual(activa.kpis, precios);
+    const payback = calcularPaybackPreliminar(
+      capex.capex_mxn,
+      ingreso.total_mxn
+    );
+    return { capex, ingreso, payback };
+  }, [activa, equipoPrincipal, precios, tipoCambio]);
+
+  const fechaFooter = (() => {
+    try {
+      return FECHA_FORMATTER.format(new Date(meta.fecha_carga));
+    } catch {
+      return meta.fecha_carga;
+    }
+  })();
 
   return (
     <div>
-      <HeroNarrativo capacidad_poi_kw={datos.config.capacidad_poi_kw} />
-
-      <SelectorTemporal
-        granularidad={periodo.granularidad}
-        setGranularidad={periodo.setGranularidad}
-        periodo={periodo.periodo}
-        periodos={periodo.periodosDisponibles}
-        irAnterior={periodo.irAnterior}
-        irSiguiente={periodo.irSiguiente}
-        hayAnterior={periodo.hayAnterior}
-        haySiguiente={periodo.haySiguiente}
-        seleccionarPorId={periodo.seleccionarPorId}
-        granularidadesDisponibles={GRANULARIDADES_SFV_BESS}
+      <HeaderDossier
+        nombrePlanta={config.nombre || null}
+        anio={meta.anio}
+        totalRegistros={meta.total_horas}
+        poiKw={config.capacidad_poi_kw}
+        zonaLmp={config.zona_lmp}
       />
 
-      <div className="container mx-auto max-w-[1080px] space-y-12 px-4 py-8">
-        <Seccion1ConfiguracionEquipo
-          equipoSeleccionado={config.equipoSeleccionado}
-          multiplicador={config.multiplicador}
-          equipoRecomendado={config.equipoRecomendado}
-          min={config.MULTIPLICADOR_MIN}
-          max={config.MULTIPLICADOR_MAX}
-          setEquipo={config.setEquipo}
-          setMultiplicador={config.setMultiplicador}
-        />
+      <PanelPreciosEditables />
 
-        <SelectorCategoriaCompacto
-          seleccion={seleccion}
-          resumenes={config.resumenes}
-          onSeleccionar={setSeleccion}
-        />
-
-        <Seccion2AnatomiaCaptura resultado={resultadoCompleto} />
-
-        <Seccion3DespachoDiario
-          simGreedy={simActiva.greedy}
-          simArbitraje={simActiva.arbitraje}
-          config={config.configuracionBESS}
-          nDias={nDiasPeriodo}
-          labelDiaUnico={labelDiaUnico}
-        />
-
-        <Seccion4CapturaPorPeriodo
-          simArbitraje={simActiva.arbitraje}
-          granularidad={periodo.granularidad}
-        />
-
-        <Seccion5Comparativa
-          simGreedy={simActiva.greedy}
-          simArbitraje={simActiva.arbitraje}
-        />
-
-        {simActiva.greedy && simActiva.arbitraje && periodo.periodo ? (
-          <Seccion6Resumen
-            bullets={generarResumenEjecutivo({
-              totalEnergiaSFV_mwh: simActiva.arbitraje.detalle_horario.reduce(
-                (s, e) => s + e.gen_mwh,
-                0
-              ),
-              equipo: config.equipoSeleccionado,
-              multiplicador: config.multiplicador,
-              config: config.configuracionBESS,
-              simArbitraje: simActiva.arbitraje,
-              comparativa: compararEstrategias(
-                simActiva.greedy,
-                simActiva.arbitraje
-              ),
-              poi_kw: datos.config.capacidad_poi_kw,
-              periodoLabel: periodo.periodo.label,
-            })}
+      {!activa || !simulacionPrincipal ? (
+        <p className="mb-8 rounded-md border-[0.5px] border-[var(--color-border-light)] bg-white p-5 text-[13px] text-[var(--color-text-secondary)]">
+          Sin parámetros PPA o categorías disponibles para simular el BESS.
+        </p>
+      ) : (
+        <>
+          <BandaKPIsSFVBess
+            cargadoMwh={activa.kpis.cargado_total_mwh}
+            descargadoMwh={activa.kpis.descargado_total_mwh}
+            fraccionCapturada={activa.kpis.fraccion_capturada}
+            ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
           />
-        ) : null}
-      </div>
+
+          <LecturaEjecutivaSFVBess
+            energiaCapturadaMwh={activa.kpis.cargado_total_mwh}
+            ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
+            paybackAnios={economia?.payback.payback_anios ?? null}
+            estrategia={estrategia}
+          />
+
+          <SeccionDespachoDiarioPromedio
+            detalle={activa.detalle_horario}
+            capUtilKwh={activa.kpis.soc_max_kwh}
+          />
+
+          <SeccionCapturaPorPeriodo detalle={activa.detalle_horario} />
+
+          <SeccionComparativaEstrategias
+            greedy={simulacionPrincipal.greedy.kpis}
+            arbitraje={simulacionPrincipal.arbitraje.kpis}
+            estrategiaActiva={estrategia}
+            onCambiarEstrategia={setEstrategia}
+          />
+
+          <SeccionComparativaEquipos
+            registros={registros}
+            categorias={categorias}
+            categoriaTipo={categoriaTipo}
+            onCambiarCategoria={setCategoriaTipo}
+            estrategia={estrategia}
+            onCambiarEstrategia={setEstrategia}
+            precios={precios}
+            tipoCambio={tipoCambio}
+          />
+        </>
+      )}
+
+      <MetodologiaSFVBess
+        nombrePlanta={config.nombre || null}
+        anio={meta.anio}
+      />
+
+      <FooterEstandar
+        fuente={COPY_SFV_BESS.footer.fuente(config.nombre || "—", meta.anio)}
+        fecha={fechaFooter}
+      />
     </div>
   );
 }

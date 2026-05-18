@@ -1,8 +1,12 @@
+export type ArquitecturaBess = "AC" | "DC" | "AC+DC";
+
 export type EquipoBess = {
   id: "cube-plus" | "cube-max" | "block-iii";
   nombre: string;
   modelo: string;
   modeloDetalle: string;
+  /** Lado eléctrico del equipo. Define cómo se conecta al POI. */
+  arquitectura: ArquitecturaBess;
   energiaKwh: number;
   potenciaKvaAc: number | null;
   potenciaKwDc: number | null;
@@ -31,6 +35,7 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     nombre: "HyperCube C&I II Plus",
     modelo: "HSL2E6922-0261-EU",
     modeloDetalle: "HSL2E6922-0261-EU",
+    arquitectura: "AC",
     energiaKwh: 261.2,
     potenciaKvaAc: 125,
     potenciaKwDc: null,
@@ -57,6 +62,7 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     nombre: "HyperCube C&I II Max",
     modelo: "250/430 kVA · AC/DC version",
     modeloDetalle: "250/430 kVA · AC/DC version",
+    arquitectura: "AC+DC",
     energiaKwh: 835.9,
     potenciaKvaAc: 250,
     potenciaKwDc: null,
@@ -83,6 +89,7 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     nombre: "HyperBlock III",
     modelo: "HSL3C7001-05015",
     modeloDetalle: "HSL3C7001-05015 · DC version",
+    arquitectura: "DC",
     energiaKwh: 5015.96,
     potenciaKvaAc: null,
     potenciaKwDc: 2500,
