@@ -87,8 +87,16 @@ export function TablaResumenMensual({ resumen, mejoresDiaKwhPorMes }: Props) {
                     <Unit>MWh</Unit>
                   </Td>
                   <Td>
-                    {FORMATO_1DEC.format(m.excedente_mwh)}{" "}
-                    <Unit>MWh</Unit>
+                    {m.excedente_mwh < 0.05 ? (
+                      <span className="text-[var(--color-text-tertiary)]">
+                        —
+                      </span>
+                    ) : (
+                      <>
+                        {FORMATO_1DEC.format(m.excedente_mwh)}{" "}
+                        <Unit>MWh</Unit>
+                      </>
+                    )}
                   </Td>
                   <Td>
                     {FORMATO_ENTERO.format(m.pico_kw)} <Unit>kW</Unit>

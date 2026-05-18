@@ -9,6 +9,7 @@ interface Props {
   potenciaPromedioKw: number;
   pctDelPoi: number;
   diasOperativos: number;
+  anio: number;
 }
 
 const FORMATO_1DEC = new Intl.NumberFormat("es-MX", {
@@ -28,11 +29,16 @@ export function BandaKpis({
   potenciaPromedioKw,
   pctDelPoi,
   diasOperativos,
+  anio,
 }: Props) {
   const pctCalendario =
     horasCalendarioTotales > 0
       ? (horasConGeneracion / horasCalendarioTotales) * 100
       : 0;
+
+  const genStr = FORMATO_1DEC.format(generacionAnualMwh);
+  const poiStr = FORMATO_ENTERO.format(poiKw);
+  const horasCalStr = FORMATO_ENTERO.format(horasCalendarioTotales);
 
   return (
     <>
@@ -43,32 +49,32 @@ export function BandaKpis({
         <KpiCard
           variant="primary"
           label="Generación anual"
-          value={FORMATO_1DEC.format(generacionAnualMwh)}
+          value={genStr}
           unit="MWh"
           sub={`${FORMATO_ENTERO.format(diasOperativos)} días operativos`}
-          tooltip="Energía total entregada al POI durante el periodo. Suma de cincominutales reales × Δt."
+          tooltip={`Energía entregada al POI durante el año calendario ${anio}. Suma de ${horasCalStr} registros horarios validados contra Excel de Soluciones MHG.`}
         />
         <KpiCard
           variant="primary"
           label="Factor de capacidad"
           value={FORMATO_1DEC.format(factorCapacidadPct)}
           unit="%"
-          sub={`sobre POI ${FORMATO_ENTERO.format(poiKw)} kW`}
-          tooltip="Generación anual ÷ (POI × 8,760 h). Convención utility scale (DOE / IRENA) para medir aprovechamiento del punto de interconexión."
+          sub={`sobre POI ${poiStr} kW`}
+          tooltip={`Energía anual ÷ (potencia POI × 8,760 h). ${genStr} MWh ÷ (${poiStr} kW × 8,760 h). Convención utility scale DOE/IRENA.`}
         />
         <KpiCard
           label="Horas con generación"
           value={FORMATO_ENTERO.format(horasConGeneracion)}
           unit="h/año"
           sub={`${FORMATO_1DEC.format(pctCalendario)}% del calendario`}
-          tooltip="Total de horas del año con generación instantánea ≥ 50 kW. Define la ventana operativa diurna."
+          tooltip="Horas del año donde la generación instantánea es ≥ 50 kW (10% del POI). Excluye amaneceres y atardeceres con generación marginal."
         />
         <KpiCard
           label="Potencia promedio"
           value={FORMATO_ENTERO.format(potenciaPromedioKw)}
           unit="kW"
           sub={`${FORMATO_1DEC.format(pctDelPoi)}% del POI`}
-          tooltip="Potencia promedio durante horas con generación ≥ 50 kW. Indica el régimen típico de operación."
+          tooltip="Promedio de generación durante horas activas (≥ 50 kW), no promedio anual. Mide la intensidad cuando el SFV está produciendo."
         />
       </div>
     </>

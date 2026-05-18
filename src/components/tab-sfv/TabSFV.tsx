@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { FooterEstandar } from "@/components/ui/FooterEstandar";
+import { HallazgoEjecutivo } from "@/components/ui/HallazgoEjecutivo";
 import { LecturaEjecutiva } from "@/components/ui/LecturaEjecutiva";
 import {
   calcularPerfilHorario,
@@ -25,6 +26,7 @@ interface Props {
 
 const UMBRAL_GENERACION_KW = 50;
 const HORAS_ANIO = 8760;
+const UMBRAL_EXCEDENTE_ANUAL_MWH = 1;
 
 const FECHA_FORMATTER = new Intl.DateTimeFormat("es-MX", {
   day: "numeric",
@@ -76,6 +78,7 @@ export function TabSFV({ datos }: Props) {
         perfil.hora_fin_generacion !== null
           ? perfil.hora_fin_generacion - perfil.hora_inicio_generacion + 1
           : 0,
+      hora_pico: perfil.hora_pico,
     };
   }, [registros, config.capacidad_poi_kw, config.capacidad_instalada_kw]);
 
@@ -89,30 +92,26 @@ export function TabSFV({ datos }: Props) {
     [registros, config.capacidad_poi_kw]
   );
 
-  const excedentePorDia = useMemo(() => {
-    const poiMwhH = config.capacidad_poi_kw / 1000;
-    const acc = new Map<string, number>();
-    for (const r of registros) {
-      const y = r.timestamp.getFullYear();
-      const m = String(r.timestamp.getMonth() + 1).padStart(2, "0");
-      const d = String(r.timestamp.getDate()).padStart(2, "0");
-      const key = `${y}-${m}-${d}`;
-      const exc = Math.max(0, r.energia_mwh - poiMwhH);
-      acc.set(key, (acc.get(key) ?? 0) + exc);
-    }
-    return acc;
-  }, [registros, config.capacidad_poi_kw]);
+  const excedenteAnualMwh = useMemo(
+    () => resumenMensual.reduce((acc, m) => acc + m.excedente_mwh, 0),
+    [resumenMensual]
+  );
 
+  const sinExcedentes = excedenteAnualMwh < UMBRAL_EXCEDENTE_ANUAL_MWH;
+
+  // Mejor día del mes en kWh = generación bruta del día con mayor MWh.
+  // (FIX E: antes pasábamos el excedente del mejor día, que en plantas sin
+  // excedentes da 0 kWh. La columna "Mejor día" muestra generación, no
+  // excedente.)
   const mejoresDiaKwhPorMes = useMemo(() => {
     const out = new Map<string, number>();
     for (const m of resumenMensual) {
       if (!m.mejor_dia_fecha) continue;
-      const mes = `${m.anio}-${String(m.mes + 1).padStart(2, "0")}`;
-      const excMwh = excedentePorDia.get(m.mejor_dia_fecha) ?? 0;
-      out.set(mes, excMwh * 1000);
+      const clave = `${m.anio}-${String(m.mes + 1).padStart(2, "0")}`;
+      out.set(clave, m.mejor_dia_mwh * 1000);
     }
     return out;
-  }, [resumenMensual, excedentePorDia]);
+  }, [resumenMensual]);
 
   const lecturaEjecutiva = construirLecturaEjecutiva({
     factor_capacidad_pct: indicadores.factor_capacidad_pct,
@@ -121,8 +120,23 @@ export function TabSFV({ datos }: Props) {
         ? (indicadores.pico_kw / config.capacidad_poi_kw) * 100
         : 0,
     ventana_diurna_horas: indicadores.ventana_diurna_horas,
+    hora_pico: indicadores.hora_pico,
     excedente_promedio_kwh: excedentesDiarios.promedio_kwh,
+    sin_excedentes: sinExcedentes,
   });
+
+  const parrafosHallazgo = useMemo(() => {
+    const horasCal = meta.total_horas;
+    const picoKw = indicadores.pico_kw;
+    const pctPoi =
+      config.capacidad_poi_kw > 0
+        ? (picoKw / config.capacidad_poi_kw) * 100
+        : 0;
+    return [
+      `El SFV opera consistentemente por debajo del POI: ${FORMATO_ENTERO.format(horasCal)} horas sin clipping, pico anual ${FORMATO_1DEC.format(picoKw)} kW (${FORMATO_ENTERO.format(pctPoi)}% del techo CFE). No hay energía solar perdida por restricción de inyección.`,
+      "La oportunidad de almacenamiento se evalúa por desplazamiento horario y potencia firme, no por captura de excedentes.",
+    ];
+  }, [meta.total_horas, indicadores.pico_kw, config.capacidad_poi_kw]);
 
   const fechaFooter = (() => {
     try {
@@ -151,17 +165,32 @@ export function TabSFV({ datos }: Props) {
         potenciaPromedioKw={indicadores.potencia_promedio_kw}
         pctDelPoi={indicadores.pct_del_poi}
         diasOperativos={indicadores.dias_operativos}
+        anio={meta.anio}
       />
 
       <LecturaEjecutiva texto={lecturaEjecutiva} />
 
       <ChartPerfilHorario registros={registros} />
-      <ChartExcedentesMensuales
-        registros={registros}
-        poiKw={config.capacidad_poi_kw}
-      />
 
-      <MiniKpisExcedentesDiarios stats={excedentesDiarios} />
+      {sinExcedentes ? (
+        <PlaceholderExcedentesMensuales />
+      ) : (
+        <ChartExcedentesMensuales
+          registros={registros}
+          poiKw={config.capacidad_poi_kw}
+        />
+      )}
+
+      {sinExcedentes ? (
+        <HallazgoEjecutivo
+          titulo="Sin excedentes físicos en el año base"
+          parrafos={parrafosHallazgo}
+          ctaLabel="Ver Tab SFV + BESS"
+          ctaHref="/sfv-bess"
+        />
+      ) : (
+        <MiniKpisExcedentesDiarios stats={excedentesDiarios} />
+      )}
 
       <TablaResumenMensual
         resumen={resumenMensual}
@@ -197,18 +226,52 @@ function construirLecturaEjecutiva(args: {
   factor_capacidad_pct: number;
   pico_vs_poi_pct: number;
   ventana_diurna_horas: number;
+  hora_pico: number;
   excedente_promedio_kwh: number;
+  sin_excedentes: boolean;
 }): string {
-  // Si el pico anual está cerca o por encima del POI, la planta sí toca el
-  // techo con frecuencia (clipping efectivo); cambia la primera frase.
-  const tocaPoi = args.pico_vs_poi_pct >= 95;
-  const apertura = tocaPoi
-    ? `El SFV toca con frecuencia el techo del POI`
-    : `El SFV opera consistentemente por debajo del POI`;
+  const fc = FORMATO_1DEC.format(args.factor_capacidad_pct);
   const ventana = args.ventana_diurna_horas > 0 ? args.ventana_diurna_horas : 0;
+
+  if (args.sin_excedentes) {
+    const horaPicoStr = String(args.hora_pico).padStart(2, "0");
+    return (
+      `El SFV opera consistentemente por debajo del POI con un factor de capacidad de ${fc}%. ` +
+      `La generación se concentra en una ventana diurna de ${ventana} horas con pico promedio cerca de las ${horaPicoStr}:00 y sin excedentes físicos capturables ` +
+      `— la oportunidad de almacenamiento se evalúa por arbitraje horario y potencia firme bajo régimen CNE 2026.`
+    );
+  }
+
+  const apertura =
+    args.pico_vs_poi_pct >= 95
+      ? `El SFV toca con frecuencia el techo del POI`
+      : `El SFV opera consistentemente por debajo del POI`;
   return (
-    `${apertura} con un factor de capacidad de ${FORMATO_1DEC.format(args.factor_capacidad_pct)}%. ` +
+    `${apertura} con un factor de capacidad de ${fc}%. ` +
     `La generación se concentra en una ventana diurna de ~${ventana} horas con excedentes diarios promedio de ${FORMATO_ENTERO.format(args.excedente_promedio_kwh)} kWh, ` +
     `definiendo el potencial técnico de captura para almacenamiento.`
+  );
+}
+
+function PlaceholderExcedentesMensuales() {
+  return (
+    <section className="mb-8">
+      <header className="mb-3 flex items-baseline justify-between gap-3">
+        <div>
+          <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
+            Excedentes mensuales
+          </h2>
+          <p className="text-[12px] text-[var(--color-text-secondary)]">
+            Energía generada por encima del techo POI agregada por mes
+          </p>
+        </div>
+        <span className="text-[11px] text-[var(--color-text-tertiary)]">
+          MWh/mes
+        </span>
+      </header>
+      <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-6 text-center text-[13px] text-[var(--color-text-secondary)]">
+        Sin excedentes mensuales sobre POI durante el año base.
+      </div>
+    </section>
   );
 }
