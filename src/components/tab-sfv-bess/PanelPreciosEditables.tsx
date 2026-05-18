@@ -129,7 +129,11 @@ function CampoPrecio({
         >
           {label}
         </label>
-        <InfoTooltip texto={tooltip} etiqueta={`Trazabilidad: ${label}`} />
+        <InfoTooltip
+          texto={tooltip}
+          etiqueta={`Trazabilidad: ${label}`}
+          align="start"
+        />
       </div>
       <div className="flex items-center gap-2">
         <input

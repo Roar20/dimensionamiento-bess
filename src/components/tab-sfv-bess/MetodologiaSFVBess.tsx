@@ -13,8 +13,8 @@ export function MetodologiaSFVBess({ nombrePlanta, anio }: Props) {
         <strong className="font-medium text-[var(--color-text-primary)]">
           Fuente de datos:
         </strong>{" "}
-        registros horarios SFV {planta} año {anio}, agregados desde el reporte
-        cincominutales de Soluciones MHG.
+        registros horarios SFV {planta} año {anio}, provistos por Soluciones
+        MHG.
       </p>
       <p className="mb-2">
         <strong className="font-medium text-[var(--color-text-primary)]">

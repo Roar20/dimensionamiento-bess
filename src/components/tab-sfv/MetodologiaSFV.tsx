@@ -24,7 +24,7 @@ export function MetodologiaSFV({
         <strong className="font-medium text-[var(--color-text-primary)]">
           Fuente de datos:
         </strong>{" "}
-        {FORMATO_ENTERO.format(totalRegistros)} registros cincominutales del SFV{" "}
+        {FORMATO_ENTERO.format(totalRegistros)} registros horarios del SFV{" "}
         {planta} correspondientes al año calendario {anio}, provistos por
         Soluciones MHG.
       </p>

@@ -98,7 +98,7 @@ export const COPY_SFV_BESS = {
 
   footer: {
     fuente: (planta: string, anio: number) =>
-      `Fuente: cincominutales SFV ${planta} · año base ${anio}`,
+      `Fuente: registros horarios SFV ${planta} · año base ${anio}`,
   },
 } as const;
 

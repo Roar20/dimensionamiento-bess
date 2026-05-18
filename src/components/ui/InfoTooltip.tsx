@@ -10,6 +10,13 @@ interface Props {
   texto: string;
   /** Etiqueta accesible para el botón trigger. Aparece como `aria-label`. */
   etiqueta: string;
+  /**
+   * Alineación horizontal del tooltip respecto del trigger. Default
+   * "center". Usar "start" cuando el trigger está cerca del borde
+   * izquierdo de su contenedor y el ancho del tooltip taparía contenido
+   * vecino a la derecha.
+   */
+  align?: "start" | "center" | "end";
 }
 
 /**
@@ -17,7 +24,7 @@ interface Props {
  * Patrón compartido por `KpiCard` (Tab SFV) y los renglones de
  * `EquipoCard` (Tab BESS). Hover en desktop, tap/focus en mobile.
  */
-export function InfoTooltip({ texto, etiqueta }: Props) {
+export function InfoTooltip({ texto, etiqueta, align = "center" }: Props) {
   return (
     <TooltipProvider delayDuration={120}>
       <Tooltip>
@@ -35,10 +42,11 @@ export function InfoTooltip({ texto, etiqueta }: Props) {
         </TooltipTrigger>
         <TooltipContent
           side="bottom"
+          align={align}
           sideOffset={6}
           collisionPadding={12}
           avoidCollisions
-          className="max-w-[280px] bg-[var(--color-text-primary)] px-3 py-2 text-[12px] leading-snug text-white"
+          className="max-w-[260px] bg-[var(--color-text-primary)] px-3 py-2 text-[12px] leading-snug text-white"
         >
           {texto}
         </TooltipContent>
