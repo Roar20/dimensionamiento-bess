@@ -4,10 +4,10 @@ import { render, screen } from "@testing-library/react";
 import { App } from "@/App";
 
 describe("App shell — smoke", () => {
-  it("renderiza el hero del onboarding cuando no hay datos", () => {
+  it("renderiza el header del onboarding cuando no hay datos", () => {
     render(<App />);
     expect(
-      screen.getByRole("heading", { name: /onboarding del proyecto/i })
+      screen.getByRole("heading", { name: /nuevo proyecto/i })
     ).toBeInTheDocument();
   });
 

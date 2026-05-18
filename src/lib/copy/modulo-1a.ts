@@ -1,29 +1,22 @@
 export const COPY_M1A = {
   hero: {
-    titulo: "Simulador BESS — Onboarding del proyecto",
-    subtitulo:
-      "Sube el reporte de generación del cliente y configura los parámetros contractuales de la planta.",
+    titulo: "Nuevo proyecto",
   },
   secciones: {
     cliente: {
       numero: "1",
-      titulo: "Datos del cliente",
-      descripcion:
-        "Identifica la planta y, si quieres, agrega el cliente y la ubicación.",
+      titulo: "Identificación",
       campos: {
         nombre: {
           label: "Nombre de la planta",
-          helper: "Identificador del SFV en tu portafolio.",
           placeholder: "Ej. Tequila 1",
         },
         cliente: {
           label: "Cliente",
-          helper: "Razón social del operador.",
           placeholder: "Ej. Soluciones MHG, S.A. de C.V.",
         },
         ubicacion: {
           label: "Ubicación",
-          helper: "Municipio y estado.",
           placeholder: "Ej. Tequila, Jalisco, México",
         },
       },
@@ -31,28 +24,21 @@ export const COPY_M1A = {
     contractuales: {
       numero: "2",
       titulo: "Parámetros contractuales",
-      descripcion:
-        "Capacidad autorizada por CFE, capacidad instalada actual y, si lo tienes, el precio del contrato PPA.",
       campos: {
         poi: {
-          label: "Capacidad autorizada por CFE (kW)",
-          helper: "Capacidad de interconexión autorizada por CFE.",
+          label: "Capacidad CFE (kW)",
           placeholder: "Ej. 500",
         },
         instalada: {
-          label: "Capacidad instalada actual (kW)",
-          helper: "Capacidad fotovoltaica de hoy.",
+          label: "Capacidad SFV instalada (kW)",
           placeholder: "Ej. 500",
         },
         zonaLmp: {
           label: "Zona LMP",
-          helper: "Zona de precio del mercado eléctrico (CENACE).",
           placeholder: "Ej. MINAS",
         },
         precioPpa: {
           label: "Precio PPA (MXN/MWh)",
-          helper:
-            "Si lo tienes, puedes capturarlo ahora; si no, lo agregamos después.",
           placeholder: "Ej. 1010.80",
         },
       },
@@ -61,10 +47,9 @@ export const COPY_M1A = {
       numero: "3",
       titulo: "Archivo de generación",
       descripcion:
-        "Formato esperado: Excel (.xlsx) con las columnas Día de Operación, Hora (1-24) y Energía Registrada [MWh]. Reporte anual o mensual.",
+        "Excel (.xlsx) · Día de Operación · Hora (1-24) · Energía Registrada [MWh]",
       dropzone: {
-        instruccion:
-          "Arrastra el archivo aquí o haz clic para seleccionar",
+        instruccion: "Arrastra el .xlsx o haz clic para seleccionar",
         botonSeleccionar: "Seleccionar archivo",
         formatoNoValido:
           "El archivo debe ser un Excel (.xlsx). Selecciona otro archivo.",
@@ -107,6 +92,8 @@ export const COPY_M1A = {
       },
     },
   },
+  // Conservado para `CajaComoFunciona.tsx`, no renderizado en el onboarding
+  // (ver docs/MIGRATION_NOTES.md). Candidato a eliminación.
   como: {
     titulo: "Cómo funciona",
     pasos: [

@@ -79,16 +79,13 @@ export function SeccionArchivoGeneracion({ archivo, onArchivoChange }: Props) {
               {archivo.name}
             </p>
             <p className="text-xs text-ink-helper">
-              {formatearBytes(archivo.size)} · Listo para procesar
+              {formatearBytes(archivo.size)}
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-ink-primary">
-              {copy.dropzone.instruccion}
-            </p>
-            <p className="text-xs text-ink-helper">Solo archivos .xlsx</p>
-          </div>
+          <p className="text-sm font-medium text-ink-primary">
+            {copy.dropzone.instruccion}
+          </p>
         )}
         <Button
           type="button"

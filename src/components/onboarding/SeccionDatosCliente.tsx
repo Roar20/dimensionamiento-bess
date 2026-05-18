@@ -22,16 +22,11 @@ export function SeccionDatosCliente({
   const campos = copy.campos;
 
   return (
-    <SeccionCard
-      numero={copy.numero}
-      titulo={copy.titulo}
-      descripcion={copy.descripcion}
-    >
+    <SeccionCard numero={copy.numero} titulo={copy.titulo}>
       <div className="space-y-4">
         <Campo
           id="planta-nombre"
           label={campos.nombre.label}
-          helper={campos.nombre.helper}
           placeholder={campos.nombre.placeholder}
           required
           value={nombre}
@@ -42,7 +37,6 @@ export function SeccionDatosCliente({
           <Campo
             id="planta-cliente"
             label={campos.cliente.label}
-            helper={campos.cliente.helper}
             placeholder={campos.cliente.placeholder}
             value={cliente}
             onChange={(v) => onChange({ cliente: v })}
@@ -51,7 +45,6 @@ export function SeccionDatosCliente({
           <Campo
             id="planta-ubicacion"
             label={campos.ubicacion.label}
-            helper={campos.ubicacion.helper}
             placeholder={campos.ubicacion.placeholder}
             value={ubicacion}
             onChange={(v) => onChange({ ubicacion: v })}
@@ -66,7 +59,6 @@ export function SeccionDatosCliente({
 interface CampoProps {
   id: string;
   label: string;
-  helper: string;
   placeholder: string;
   required?: boolean;
   value: string;
@@ -77,7 +69,6 @@ interface CampoProps {
 function Campo({
   id,
   label,
-  helper,
   placeholder,
   required,
   value,
@@ -88,7 +79,7 @@ function Campo({
     <div className="space-y-1.5">
       <Label htmlFor={id}>
         {label}
-        {required ? <span className="ml-0.5 text-status-error">*</span> : null}
+        {required ? <span className="ml-0.5 text-ink-helper">*</span> : null}
       </Label>
       <Input
         id={id}
@@ -98,7 +89,6 @@ function Campo({
         onChange={(e) => onChange(e.target.value)}
         maxLength={maxLength}
       />
-      <p className="text-xs text-ink-helper">{helper}</p>
     </div>
   );
 }
