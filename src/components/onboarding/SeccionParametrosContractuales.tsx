@@ -31,16 +31,11 @@ export function SeccionParametrosContractuales({
   const campos = copy.campos;
 
   return (
-    <SeccionCard
-      numero={copy.numero}
-      titulo={copy.titulo}
-      descripcion={copy.descripcion}
-    >
+    <SeccionCard numero={copy.numero} titulo={copy.titulo}>
       <div className="grid gap-4 md:grid-cols-2">
         <CampoNumero
           id="planta-poi"
           label={campos.poi.label}
-          helper={campos.poi.helper}
           placeholder={campos.poi.placeholder}
           required
           value={capacidad_poi_kw}
@@ -49,7 +44,6 @@ export function SeccionParametrosContractuales({
         <CampoNumero
           id="planta-instalada"
           label={campos.instalada.label}
-          helper={campos.instalada.helper}
           placeholder={campos.instalada.placeholder}
           required
           value={capacidad_instalada_kw}
@@ -58,7 +52,6 @@ export function SeccionParametrosContractuales({
         <CampoTexto
           id="planta-zona-lmp"
           label={campos.zonaLmp.label}
-          helper={campos.zonaLmp.helper}
           placeholder={campos.zonaLmp.placeholder}
           value={zona_lmp}
           onChange={(v) => onChange({ zona_lmp: v })}
@@ -66,7 +59,6 @@ export function SeccionParametrosContractuales({
         <CampoNumero
           id="planta-precio-ppa"
           label={campos.precioPpa.label}
-          helper={campos.precioPpa.helper}
           placeholder={campos.precioPpa.placeholder}
           value={precio_ppa_mxn_mwh}
           onChange={(v) => onChange({ precio_ppa_mxn_mwh: v })}
@@ -81,7 +73,6 @@ export function SeccionParametrosContractuales({
 interface CampoTextoProps {
   id: string;
   label: string;
-  helper: string;
   placeholder: string;
   required?: boolean;
   value: string;
@@ -91,7 +82,6 @@ interface CampoTextoProps {
 function CampoTexto({
   id,
   label,
-  helper,
   placeholder,
   required,
   value,
@@ -101,7 +91,7 @@ function CampoTexto({
     <div className="space-y-1.5">
       <Label htmlFor={id}>
         {label}
-        {required ? <span className="ml-0.5 text-status-error">*</span> : null}
+        {required ? <span className="ml-0.5 text-ink-helper">*</span> : null}
       </Label>
       <Input
         id={id}
@@ -110,7 +100,6 @@ function CampoTexto({
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
-      <p className="text-xs text-ink-helper">{helper}</p>
     </div>
   );
 }
@@ -118,7 +107,6 @@ function CampoTexto({
 interface CampoNumeroProps {
   id: string;
   label: string;
-  helper: string;
   placeholder: string;
   required?: boolean;
   value: number | null;
@@ -130,7 +118,6 @@ interface CampoNumeroProps {
 function CampoNumero({
   id,
   label,
-  helper,
   placeholder,
   required,
   value,
@@ -142,7 +129,7 @@ function CampoNumero({
     <div className="space-y-1.5">
       <Label htmlFor={id}>
         {label}
-        {required ? <span className="ml-0.5 text-status-error">*</span> : null}
+        {required ? <span className="ml-0.5 text-ink-helper">*</span> : null}
       </Label>
       <Input
         id={id}
@@ -164,9 +151,7 @@ function CampoNumero({
         <p id={`${id}-error`} className="text-xs text-status-error">
           {error}
         </p>
-      ) : (
-        <p className="text-xs text-ink-helper">{helper}</p>
-      )}
+      ) : null}
     </div>
   );
 }

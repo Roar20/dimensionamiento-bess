@@ -51,6 +51,25 @@ reescriban:
   Cuando ya no haya consumidores de `lucide-react`, removerlo del
   `package.json`.
 
+## Iteración onboarding · registro consultor (post-P1)
+
+Reescribimos el onboarding (`/`) al registro consultor seco. Para mantener
+el blast radius mínimo, dos componentes quedan **no renderizados** pero
+**sin eliminar**:
+
+- **`src/components/onboarding/CajaComoFunciona.tsx`** — caja didáctica
+  "Cómo funciona" con 3 pasos explicativos. Se quitó del montaje en
+  `Onboarding.tsx` por chocar con el registro consultor (tono tutorial).
+  El archivo `.tsx` y la clave `COPY_M1A.como` se conservan por si se
+  rescata en presentaciones futuras (deck inicial, modal de ayuda, etc.).
+  Candidato a eliminación si no se rescata en P2-P6.
+- **`src/components/onboarding/ResumenCarga.tsx`** — vista alternativa con
+  Hero navy + KPIs cuando hay datos persistidos. Hoy `Home.tsx` redirige
+  a `/sfv` cuando `datos != null` antes de que `ResumenCarga` se monte,
+  por lo que en la práctica nunca se renderiza. Candidato a verificación
+  de código muerto durante P2/P3 (cuando se reescriba el flujo de carga
+  / cambio de planta). No tocado en esta iteración.
+
 ## Componentes obsoletos eliminados en P1
 
 - `src/components/shell/AppHeader.tsx` — reemplazado por `<TabNav>`

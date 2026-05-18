@@ -12,7 +12,6 @@ import {
 import { COPY_M1A } from "@/lib/copy/modulo-1a";
 import type { ConfiguracionPlanta } from "@/types/sfv";
 import { ErrorFormatoArchivo } from "@/types/sfv";
-import { CajaComoFunciona } from "@/components/onboarding/CajaComoFunciona";
 import { SeccionDatosCliente } from "@/components/onboarding/SeccionDatosCliente";
 import { SeccionParametrosContractuales } from "@/components/onboarding/SeccionParametrosContractuales";
 import { SeccionArchivoGeneracion } from "@/components/onboarding/SeccionArchivoGeneracion";
@@ -101,10 +100,14 @@ export function Onboarding({
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      <Hero />
+    <div className="mx-auto max-w-[1080px] space-y-6 px-10 pb-16 pt-8">
+      <header>
+        <h1 className="text-2xl font-medium tracking-tight text-ink-primary">
+          {COPY_M1A.hero.titulo}
+        </h1>
+      </header>
 
-      <div className="container max-w-4xl space-y-5">
+      <div className="space-y-5">
         <SeccionDatosCliente
           nombre={estado.nombre}
           cliente={estado.cliente}
@@ -152,8 +155,6 @@ export function Onboarding({
             </>
           ) : null}
         </div>
-
-        <CajaComoFunciona />
       </div>
 
       <Dialog open={confirmarBorrar} onOpenChange={setConfirmarBorrar}>
@@ -188,22 +189,6 @@ export function Onboarding({
         </DialogContent>
       </Dialog>
     </div>
-  );
-}
-
-function Hero() {
-  const copy = COPY_M1A.hero;
-  return (
-    <section className="bg-brand-header text-brand-headerFg">
-      <div className="container max-w-4xl space-y-2 py-10">
-        <h1 className="text-2xl font-medium leading-tight md:text-3xl">
-          {copy.titulo}
-        </h1>
-        <p className="max-w-2xl text-sm text-white/80 md:text-base">
-          {copy.subtitulo}
-        </p>
-      </div>
-    </section>
   );
 }
 
