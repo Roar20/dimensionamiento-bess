@@ -51,6 +51,71 @@ reescriban:
   Cuando ya no haya consumidores de `lucide-react`, removerlo del
   `package.json`.
 
+## Iteración Tab SFV · estructura ejecutiva (P2)
+
+Reescribió el Tab SFV completo al formato consultor del mockup
+`tab_01_sfv.html`. Eliminadas 5 secciones narrativas tipo pregunta + el
+selector temporal sticky global del Tab SFV. Sustituidas por header
+dossier + 4 KPIs + Lectura ejecutiva + Perfil horario (Chart.js con
+banda P25-P75 y selector inline) + Excedentes mensuales (Chart.js bar
+locked a año) + 4 mini-KPIs + Tabla mensual + Metodología.
+
+### Decisiones de scope
+
+- **Selector temporal inline solo en Perfil horario.** El chart de
+  Excedentes mensuales se mantiene locked a "año completo" (el mockup
+  no lo muestra con selector y agregar uno desnaturaliza la vista
+  comparativa mes-a-mes).
+- **KPIs ejecutivos sobre dataset anual** (no se mueven con el selector
+  inline). Son "estado del activo" — convención dashboards consultor.
+- **`usePeriodoActivo` global persistido NO se toca** (lo siguen usando
+  Tab BESS y Tab SFV+BESS). Se introdujo un hook local `usePeriodoInline`
+  para el selector del Perfil horario, sin persistencia en localStorage.
+
+### Charts: Chart.js + react-chartjs-2 (coexistencia con Recharts)
+
+P2 instaló `chart.js@^4.4` + `react-chartjs-2@^5.2`. **Recharts sigue
+instalado** porque Tab BESS y Tab SFV+BESS aún lo consumen vía
+`TooltipRecharts.tsx`, `Seccion3Variabilidad`, etc. Sweep completo
+(uninstall recharts, migrar tabs restantes a Chart.js) es deuda para
+P3/P4. Mientras tanto el bundle carga ambas librerías. Anotado para
+seguimiento.
+
+### Componentes "tab-sfv" que sobreviven como utilidades compartidas
+
+Los siguientes archivos del directorio `src/components/tab-sfv/`
+**ya no son consumidos por Tab SFV**, pero permanecen porque Tab BESS y
+Tab SFV+BESS los importan:
+
+- `NarrativaIntro.tsx` — consumido por 7 secciones de Tab BESS y Tab
+  SFV+BESS. P3/P4 eliminan al reescribir.
+- `SelectorTemporal.tsx` — consumido por `TabSFVBess.tsx`. P4 elimina.
+- `TooltipRecharts.tsx` (+ test) — consumido por `Seccion3Variabilidad`,
+  `Seccion4Heatmap` (Tab SFV — pero estos ya no se montan), y por
+  `GraficaComparativa` (Tab BESS) + `GraficaDespacho` (Tab SFV+BESS) +
+  `Seccion4CapturaPorPeriodo` (Tab SFV+BESS). P3/P4 los reemplazan.
+
+Cuando P4 cierre, mover estos archivos a una ubicación neutral (ej.
+`src/components/charts-legacy/`) o eliminarlos definitivamente.
+
+### Encabezado contextual chrome global (Q ABIERTA)
+
+El `EncabezadoContextual` (chrome global de P1, `AppShell.tsx`) sigue
+renderizándose arriba del Tab SFV con el strip
+`Tequila · 500 kW PV · 500 kW POI · 8,760 registros · cargado …`. Esto
+**duplica info** con el nuevo `HeaderDossier` del Tab SFV (POI,
+registros, año base) y **no aparece en el mockup `tab_01_sfv.html`**.
+
+Tres rutas posibles, todas pendientes de decisión:
+- (A) Dejar como está. "Cambiar planta" sigue accesible arriba.
+  Pixel-perfect imposible.
+- (B) Sacar `EncabezadoContextual` de `AppShell` y dejar que cada tab
+  decida si lo renderiza. SFV no, BESS sí, SFV+BESS sí. "Cambiar
+  planta" se mueve a `HeaderDossier` esquina derecha discreta.
+- (C) `AppShell` route-aware: ocultar el strip solo en `/sfv`.
+
+P2 deja la decisión abierta. Acción de seguimiento.
+
 ## Iteración onboarding · registro consultor (post-P1)
 
 Reescribimos el onboarding (`/`) al registro consultor seco. Para mantener

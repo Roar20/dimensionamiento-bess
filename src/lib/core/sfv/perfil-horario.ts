@@ -5,7 +5,7 @@ import type {
 } from "@/types/sfv-kpis";
 
 import { UMBRAL_GENERACION_PCT, VENTANA_PUNTA_CFE } from "./constantes";
-import { horaEnding, redondear } from "./_utils";
+import { horaEnding, quantileSorted, redondear } from "./_utils";
 
 /**
  * Sección 7 del Colab (`calcular_perfil_horario`).
@@ -27,9 +27,7 @@ export function calcularPerfilHorario(
     throw new Error("calcularPerfilHorario requiere al menos un registro.");
   }
 
-  const sumasPorHora = new Map<number, number>();
-  const conteosPorHora = new Map<number, number>();
-  const maximosPorHora = new Map<number, number>();
+  const muestrasPorHora = new Map<number, number[]>();
 
   let energia_total_mwh = 0;
   let energia_durante_punta_mwh = 0;
@@ -39,10 +37,9 @@ export function calcularPerfilHorario(
     const hora = horaEnding(r.timestamp);
     const kW = r.energia_mwh * 1000;
 
-    sumasPorHora.set(hora, (sumasPorHora.get(hora) ?? 0) + kW);
-    conteosPorHora.set(hora, (conteosPorHora.get(hora) ?? 0) + 1);
-    const max = maximosPorHora.get(hora) ?? 0;
-    if (kW > max) maximosPorHora.set(hora, kW);
+    const muestras = muestrasPorHora.get(hora);
+    if (muestras) muestras.push(kW);
+    else muestrasPorHora.set(hora, [kW]);
 
     energia_total_mwh += r.energia_mwh;
     if (hora >= puntaInicio && hora <= puntaFin) {
@@ -55,13 +52,24 @@ export function calcularPerfilHorario(
   let hora_pico = 1;
 
   for (let h = 1; h <= 24; h += 1) {
-    const suma = sumasPorHora.get(h) ?? 0;
-    const conteo = conteosPorHora.get(h) ?? 0;
-    const prom = conteo > 0 ? suma / conteo : 0;
-    const max = maximosPorHora.get(h) ?? 0;
+    const muestras = muestrasPorHora.get(h) ?? [];
+    if (muestras.length === 0) {
+      perfil_por_hora[h] = { kW_promedio: 0, kW_maximo: 0, kW_p25: 0, kW_p75: 0 };
+      continue;
+    }
+    const sorted = [...muestras].sort((a, b) => a - b);
+    let suma = 0;
+    for (const x of sorted) suma += x;
+    const prom = suma / sorted.length;
+    const max = sorted[sorted.length - 1] ?? 0;
+    const p25 = quantileSorted(sorted, 0.25);
+    const p75 = quantileSorted(sorted, 0.75);
+
     perfil_por_hora[h] = {
       kW_promedio: redondear(prom, 2),
       kW_maximo: redondear(max, 2),
+      kW_p25: redondear(p25, 2),
+      kW_p75: redondear(p75, 2),
     };
     if (prom > pico_prom) {
       pico_prom = prom;

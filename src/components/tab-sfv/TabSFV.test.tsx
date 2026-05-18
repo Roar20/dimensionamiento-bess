@@ -1,27 +1,34 @@
-import { describe, expect, it } from "vitest";
-import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
 
 import { TabSFV } from "@/components/tab-sfv/TabSFV";
 import { generarDiaPlano, sumarDias } from "@/test/fixtures/sfv-fixtures";
 import type { DatosSFV } from "@/types/sfv";
 
+// Chart.js usa canvas, no soportado por jsdom. Stub: render mínimo que
+// exponga el tipo de chart sin tocar el DOM real.
+vi.mock("react-chartjs-2", () => ({
+  Line: ({ data }: { data: { datasets: { label: string }[] } }) => (
+    <div data-testid="chart-line" data-series={data.datasets.length} />
+  ),
+  Bar: ({ data }: { data: { datasets: { label: string }[] } }) => (
+    <div data-testid="chart-bar" data-series={data.datasets.length} />
+  ),
+}));
+
 function construirDatos(): DatosSFV {
   const registros = [];
-  for (let d = 0; d < 30; d += 1) {
-    registros.push(
-      ...generarDiaPlano(sumarDias("2025-03-01", d), 200, 8, 17)
-    );
+  for (let d = 0; d < 60; d += 1) {
+    registros.push(...generarDiaPlano(sumarDias("2025-03-01", d), 200, 8, 17));
   }
   return {
     config: {
-      nombre: "Test Plant",
+      nombre: "Tequila 1",
       cliente: null,
       ubicacion: null,
       capacidad_poi_kw: 500,
       capacidad_instalada_kw: 500,
-      zona_lmp: null,
+      zona_lmp: "MINAS",
       precio_ppa_mxn_mwh: null,
     },
     registros,
@@ -38,66 +45,92 @@ function construirDatos(): DatosSFV {
 }
 
 function renderTab() {
-  return render(
-    <MemoryRouter initialEntries={["/sfv"]}>
-      <TabSFV datos={construirDatos()} />
-    </MemoryRouter>
-  );
+  return render(<TabSFV datos={construirDatos()} />);
 }
 
-describe("TabSFV", () => {
-  it("renderiza las 5 secciones del Tab SFV en granularidad anual", () => {
+describe("TabSFV — estructura ejecutiva", () => {
+  it("renderiza el header dossier con título y nombre de planta", () => {
     renderTab();
-
-    expect(
-      screen.getByRole("heading", { name: /¿cuánto genera tu sfv/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /¿cuándo genera durante el día/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { name: /¿cómo varía día a día/i })
-    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: /¿cuándo genera más, hora por hora/i,
+        level: 1,
+        name: /análisis de la curva de generación del sfv.*tequila 1/i,
       })
     ).toBeInTheDocument();
+  });
+
+  it("incluye los chips de metadata (año, registros, POI, zona LMP)", () => {
+    renderTab();
+    expect(screen.getByText(/^año base 2025$/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /resumen mensual/i })
+      screen.getByText(/^[\d,]+ registros horarios$/)
     ).toBeInTheDocument();
+    expect(screen.getByText(/^poi 500 kw$/i)).toBeInTheDocument();
+    expect(screen.getByText(/zona lmp minas/i)).toBeInTheDocument();
   });
 
-  it("ocultar la Sección 5 al cambiar a granularidad mensual", async () => {
-    const user = userEvent.setup();
+  it("renderiza la banda de 4 KPIs ejecutivos", () => {
     renderTab();
+    // Estos textos también aparecen en MetodologiaSFV; con getAllByText
+    // verificamos que al menos exista la versión KPI (label uppercase).
+    expect(screen.getAllByText(/generación anual/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/factor de capacidad/i).length).toBeGreaterThan(
+      0
+    );
+    expect(screen.getByText(/horas con generación/i)).toBeInTheDocument();
+    expect(screen.getByText(/potencia promedio/i)).toBeInTheDocument();
+  });
 
+  it("renderiza una Lectura ejecutiva con texto dinámico", () => {
+    renderTab();
+    // 200 kW pico ≤ 500 POI → primera frase variante "consistentemente por debajo".
     expect(
-      screen.getByRole("heading", { name: /resumen mensual/i })
+      screen.getByText(/consistentemente por debajo del poi/i)
     ).toBeInTheDocument();
-
-    const radioMensual = screen.getByLabelText(/^mensual$/i);
-    await user.click(radioMensual);
-
-    expect(
-      screen.queryByRole("heading", { name: /resumen mensual/i })
-    ).not.toBeInTheDocument();
+    // Label de la banda.
+    expect(screen.getByText(/lectura ejecutiva/i)).toBeInTheDocument();
   });
 
-  it("Metodología siempre visible (sin toggle vista técnica)", () => {
+  it("renderiza ambos charts (perfil horario line + excedentes mensuales bar)", () => {
     renderTab();
-    // Cada sección con metodología expone su <details> aunque colapsado.
-    expect(screen.getAllByText(/detalle técnico/i).length).toBeGreaterThan(0);
+    expect(screen.getByTestId("chart-line")).toBeInTheDocument();
+    expect(screen.getByTestId("chart-bar")).toBeInTheDocument();
   });
 
-  it("KPI Energía generada muestra MWh con número tabular", () => {
+  it("renderiza los 4 mini-KPIs de distribución de excedentes diarios", () => {
     renderTab();
-    const seccion1 = screen
-      .getByRole("heading", { name: /¿cuánto genera tu sfv/i })
-      .closest("section");
-    expect(seccion1).not.toBeNull();
-    const dentro = within(seccion1 as HTMLElement);
-    expect(dentro.getByText(/energía generada/i)).toBeInTheDocument();
-    expect(dentro.getAllByText(/MWh/).length).toBeGreaterThan(0);
+    expect(screen.getByText("Mediana")).toBeInTheDocument();
+    expect(screen.getByText("Promedio")).toBeInTheDocument();
+    expect(screen.getByText("P90")).toBeInTheDocument();
+    expect(screen.getByText("Día crítico")).toBeInTheDocument();
+  });
+
+  it("renderiza la tabla resumen mensual con headers consultor", () => {
+    renderTab();
+    const tabla = screen.getByRole("table");
+    expect(tabla).toBeInTheDocument();
+    const headers = Array.from(tabla.querySelectorAll("th")).map(
+      (h) => h.textContent
+    );
+    expect(headers).toEqual([
+      "Mes",
+      "Generación",
+      "Excedente",
+      "Pico",
+      "Días activos",
+      "Mejor día",
+    ]);
+  });
+
+  it("Metodología y supuestos siempre visible (sin toggle técnico)", () => {
+    renderTab();
+    expect(screen.getByText(/metodología y supuestos/i)).toBeInTheDocument();
+  });
+
+  it("no muestra estructura narrativa tipo pregunta", () => {
+    renderTab();
+    expect(screen.queryByText(/¿cuánto genera/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/¿cuándo genera/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/¿cómo varía/i)).not.toBeInTheDocument();
   });
 });

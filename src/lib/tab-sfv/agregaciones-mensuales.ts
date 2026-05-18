@@ -6,6 +6,8 @@ export type ResumenMes = {
   mes: number;
   nombre: string;
   energia_mwh: number;
+  /** MWh excedente sobre POI durante el mes. 0 si no se pasó `poi_kw`. */
+  excedente_mwh: number;
   pico_kw: number;
   dias_con_generacion: number;
   hora_pico_promedio: number | null;
@@ -23,8 +25,13 @@ function fechaISO(ts: Date): string {
 }
 
 export function agregarPorMes(
-  registros: readonly RegistroHorario[]
+  registros: readonly RegistroHorario[],
+  poi_kw?: number
 ): ResumenMes[] {
+  const poiMwhH =
+    poi_kw !== undefined && Number.isFinite(poi_kw) && poi_kw > 0
+      ? poi_kw / 1000
+      : null;
   const grupos = new Map<string, RegistroHorario[]>();
   for (const r of registros) {
     const clave = `${r.timestamp.getFullYear()}-${r.timestamp.getMonth()}`;
@@ -40,6 +47,7 @@ export function agregarPorMes(
     const mes = Number(mesStr);
 
     let energia = 0;
+    let excedente = 0;
     let pico = 0;
     const energiaPorDia = new Map<string, number>();
     const sumaPorHora = new Map<number, number>();
@@ -47,6 +55,9 @@ export function agregarPorMes(
 
     for (const r of regs) {
       energia += r.energia_mwh;
+      if (poiMwhH !== null) {
+        excedente += Math.max(0, r.energia_mwh - poiMwhH);
+      }
       if (r.potencia_kw_prom > pico) pico = r.potencia_kw_prom;
 
       const fecha = fechaISO(r.timestamp);
@@ -94,6 +105,7 @@ export function agregarPorMes(
       mes,
       nombre: nombreMes(mes),
       energia_mwh: redondear(energia, 4),
+      excedente_mwh: redondear(excedente, 4),
       pico_kw: redondear(pico, 2),
       dias_con_generacion: diasConGen,
       hora_pico_promedio: horaPicoProm,
