@@ -1,5 +1,4 @@
 import { NarrativaIntro } from "@/components/tab-sfv/NarrativaIntro";
-import { useViewMode } from "@/context/ViewModeContext";
 import { COPY_M3 } from "@/lib/copy/modulo-3";
 import {
   CATALOGO_HYPERSTRONG,
@@ -115,19 +114,14 @@ const FILAS_BASE: Fila[] = [
 ];
 
 export function Seccion3TablaComparativa({ equipoRecomendadoId }: Props) {
-  const { mode } = useViewMode();
   const copy = COPY_M3.seccion3;
 
   const filas: Fila[] = [
     ...FILAS_BASE,
-    ...(mode === "tecnico"
-      ? [
-          {
-            label: copy.filas.certificaciones,
-            valor: (e: EquipoBESS) => e.certificaciones.join(", "),
-          },
-        ]
-      : []),
+    {
+      label: copy.filas.certificaciones,
+      valor: (e: EquipoBESS) => e.certificaciones.join(", "),
+    },
   ];
 
   return (
@@ -171,7 +165,7 @@ export function Seccion3TablaComparativa({ equipoRecomendadoId }: Props) {
                       "px-3 py-2 tabular-nums text-ink-secondary",
                       e.id === equipoRecomendadoId &&
                         "bg-action/5 text-ink-primary",
-                      fila.destacar && "font-semibold"
+                      fila.destacar && "font-medium"
                     )}
                   >
                     {fila.valor(e)}

@@ -26,7 +26,7 @@ export function Seccion1IntroBESS() {
 function Bloque({ titulo, texto }: { titulo: string; texto: string }) {
   return (
     <div className="rounded-card border border-brand-cardBorder bg-white p-5 shadow-card">
-      <h3 className="text-sm font-semibold text-ink-primary">{titulo}</h3>
+      <h3 className="text-sm font-medium text-ink-primary">{titulo}</h3>
       <p className="mt-2 text-sm text-ink-secondary">{texto}</p>
     </div>
   );
@@ -41,7 +41,7 @@ function BloqueLista({
 }) {
   return (
     <div className="rounded-card border border-brand-cardBorder bg-white p-5 shadow-card">
-      <h3 className="text-sm font-semibold text-ink-primary">{titulo}</h3>
+      <h3 className="text-sm font-medium text-ink-primary">{titulo}</h3>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-secondary">
         {items.map((item, i) => (
           <li key={i}>{item}</li>

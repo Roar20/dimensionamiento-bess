@@ -25,7 +25,7 @@ import {
 } from "@/lib/tab-sfv/filtrar-por-periodo";
 import type { RegistroHorario } from "@/types/sfv";
 
-import { BloqueTecnico } from "./BloqueTecnico";
+import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
 import { NarrativaIntro } from "./NarrativaIntro";
 import { TooltipRecharts } from "./TooltipRecharts";
 
@@ -177,7 +177,7 @@ function HeatmapMensual({ registros, periodo }: Props) {
         </div>
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
+      <MetodologiaDetalles titulo={copy.tecnico.titulo}>
         <div className="max-h-[300px] overflow-auto">
           <table className="w-full border-collapse text-[10px]">
             <thead className="sticky top-0 bg-slate-50">
@@ -207,7 +207,7 @@ function HeatmapMensual({ registros, periodo }: Props) {
             </tbody>
           </table>
         </div>
-      </BloqueTecnico>
+      </MetodologiaDetalles>
     </section>
   );
 }

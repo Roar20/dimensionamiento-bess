@@ -57,7 +57,7 @@ export function TooltipRecharts({
               ) : null}
               <span className="text-slate-300">{item.label}</span>
             </div>
-            <span className="font-semibold text-white tabular-nums">
+            <span className="font-medium text-white tabular-nums">
               {item.valor}
             </span>
           </div>

@@ -7,18 +7,17 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: "1rem",
       screens: {
-        "2xl": "1400px",
+        "2xl": "1080px",
       },
     },
     extend: {
       fontFamily: {
         sans: [
-          "Inter Variable",
-          "ui-sans-serif",
-          "system-ui",
+          "Inter",
           "-apple-system",
+          "BlinkMacSystemFont",
           "Segoe UI",
           "Roboto",
           "sans-serif",
@@ -59,18 +58,32 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
 
-        /* Tokens del Módulo 1A (paleta de la captura) */
+        /* Paleta corporativa P1 (de los HTML validados) */
+        corp: {
+          primary: "var(--color-primary)",
+          "primary-light": "var(--color-primary-light)",
+          "primary-dark": "var(--color-primary-dark)",
+          capture: "var(--color-capture)",
+          "capture-light": "var(--color-capture-light)",
+          "capture-dark": "var(--color-capture-dark)",
+          generation: "var(--color-generation)",
+          discharge: "var(--color-discharge)",
+          baseline: "var(--color-baseline)",
+          loss: "var(--color-loss)",
+        },
+
+        /* Aliases legacy (Módulos 1A-5 los usan; P2-P6 los reemplazan) */
         brand: {
           header: "var(--color-header-bg)",
           headerFg: "var(--color-header-fg)",
-          page: "var(--color-page-bg)",
-          card: "var(--color-card-bg)",
+          page: "var(--color-bg-page)",
+          card: "var(--color-bg-card)",
           cardBorder: "var(--color-card-border)",
         },
         ink: {
           primary: "var(--color-text-primary)",
           secondary: "var(--color-text-secondary)",
-          helper: "var(--color-text-helper)",
+          helper: "var(--color-text-tertiary)",
         },
         field: {
           border: "var(--color-input-border)",

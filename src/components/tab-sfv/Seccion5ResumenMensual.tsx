@@ -10,7 +10,7 @@ import { COPY_M2 } from "@/lib/copy/modulo-2";
 import { formatFechaLarga } from "@/lib/tab-sfv/narrativa";
 import type { ConfiguracionPlanta, RegistroHorario } from "@/types/sfv";
 
-import { BloqueTecnico } from "./BloqueTecnico";
+import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
 import { NarrativaIntro } from "./NarrativaIntro";
 
 interface Props {
@@ -118,11 +118,11 @@ export function Seccion5ResumenMensual({ registros, config, anio }: Props) {
         </table>
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo}>
+      <MetodologiaDetalles titulo={copy.tecnico.titulo}>
         <Button type="button" variant="outline" onClick={exportar}>
           {copy.tecnico.boton}
         </Button>
-      </BloqueTecnico>
+      </MetodologiaDetalles>
     </section>
   );
 }

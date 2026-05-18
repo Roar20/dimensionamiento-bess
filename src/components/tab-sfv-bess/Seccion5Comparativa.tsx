@@ -111,7 +111,7 @@ export function Seccion5Comparativa({ simGreedy, simArbitraje }: Props) {
                       {f.g}
                     </td>
                     <td
-                      className={`px-4 py-2 text-right tabular-nums ${f.destacar ? "font-semibold text-action" : ""}`}
+                      className={`px-4 py-2 text-right tabular-nums ${f.destacar ? "font-medium text-action" : ""}`}
                     >
                       {f.a}
                     </td>
@@ -128,7 +128,7 @@ export function Seccion5Comparativa({ simGreedy, simArbitraje }: Props) {
 
       <div className="rounded-card border-l-4 border-action bg-action/5 p-4">
         <p className="text-sm text-ink-secondary">
-          <span className="font-semibold text-ink-primary">
+          <span className="font-medium text-ink-primary">
             {copy.recomendacionPrefijo}{" "}
           </span>
           {data.recomendacion}

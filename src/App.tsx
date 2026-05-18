@@ -1,6 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
-import { ViewModeProvider } from "@/context/ViewModeContext";
 import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 import { BESS } from "@/pages/BESS";
 import { Home } from "@/pages/Home";
@@ -9,19 +8,17 @@ import { SFVBess } from "@/pages/SFVBess";
 
 export function App() {
   return (
-    <ViewModeProvider>
-      <DatosSFVProvider>
-        <BrowserRouter>
-          <AppShell>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/sfv" element={<SFV />} />
-              <Route path="/bess" element={<BESS />} />
-              <Route path="/sfv-bess" element={<SFVBess />} />
-            </Routes>
-          </AppShell>
-        </BrowserRouter>
-      </DatosSFVProvider>
-    </ViewModeProvider>
+    <DatosSFVProvider>
+      <BrowserRouter>
+        <AppShell>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/sfv" element={<SFV />} />
+            <Route path="/bess" element={<BESS />} />
+            <Route path="/sfv-bess" element={<SFVBess />} />
+          </Routes>
+        </AppShell>
+      </BrowserRouter>
+    </DatosSFVProvider>
   );
 }

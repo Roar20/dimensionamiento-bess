@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { PageHeader } from "@/components/shell/PageHeader";
 import { TabSFV } from "@/components/tab-sfv/TabSFV";
 import { useDatosSFV } from "@/hooks/useDatosSFV";
 
@@ -14,5 +15,10 @@ export function SFV() {
 
   if (!datos) return null;
 
-  return <TabSFV datos={datos} />;
+  return (
+    <div className="mx-auto max-w-[1080px] px-10 pb-16 pt-8">
+      <PageHeader hayDatos />
+      <TabSFV datos={datos} />
+    </div>
+  );
 }

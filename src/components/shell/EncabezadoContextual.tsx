@@ -36,10 +36,10 @@ export function EncabezadoContextual({ datos, onCambiar }: Props) {
 
   return (
     <div className="w-full border-b border-brand-cardBorder bg-white">
-      <div className="container mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-[1080px] items-center justify-between gap-4 px-10 py-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-            <span className="font-semibold text-ink-primary">
+            <span className="font-medium text-ink-primary">
               {config.nombre}
             </span>
             {config.cliente ? (

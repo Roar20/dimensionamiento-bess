@@ -10,7 +10,7 @@ import { generarNarrativaSeccion1 } from "@/lib/tab-sfv/narrativa";
 import type { PeriodoActivo } from "@/lib/tab-sfv/filtrar-por-periodo";
 import type { ConfiguracionPlanta, RegistroHorario } from "@/types/sfv";
 
-import { BloqueTecnico } from "./BloqueTecnico";
+import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
 import { KPICard } from "./KPICard";
 import { NarrativaIntro } from "./NarrativaIntro";
 
@@ -94,7 +94,7 @@ export function Seccion1Generacion({ registros, config, periodo }: Props) {
         />
       </div>
 
-      <BloqueTecnico titulo={copy.tecnico.titulo} tooltip={copy.tecnico.tooltip}>
+      <MetodologiaDetalles titulo={copy.tecnico.titulo}>
         <dl className="grid gap-3 sm:grid-cols-3">
           <DatoTecnico
             label={copy.tecnico.hse}
@@ -109,7 +109,7 @@ export function Seccion1Generacion({ registros, config, periodo }: Props) {
             valor={String(recurso.dias_analizados)}
           />
         </dl>
-      </BloqueTecnico>
+      </MetodologiaDetalles>
     </section>
   );
 }

@@ -30,7 +30,7 @@ export function TabSFV({ datos }: Props) {
 
   if (!periodo) {
     return (
-      <div className="container mx-auto max-w-7xl px-4 py-8">
+      <div className="container mx-auto max-w-[1080px] px-4 py-8">
         <p className="text-sm text-ink-helper">
           No hay periodos disponibles para los datos cargados.
         </p>
@@ -54,7 +54,7 @@ export function TabSFV({ datos }: Props) {
         seleccionarPorId={seleccionarPorId}
       />
 
-      <div className="container mx-auto max-w-7xl space-y-12 px-4 py-8">
+      <div className="container mx-auto max-w-[1080px] space-y-12 px-4 py-8">
         {sinDatos ? (
           <SinDatos label={periodo.label} onAnterior={irAnterior} hayAnterior={hayAnterior} />
         ) : (
@@ -107,7 +107,7 @@ function SinDatos({
   const copy = COPY_M2.periodoSinDatos;
   return (
     <div className="rounded-card border border-brand-cardBorder bg-white p-8 text-center shadow-card">
-      <p className="text-lg font-semibold text-ink-primary">
+      <p className="text-lg font-medium text-ink-primary">
         {copy.titulo(label)}
       </p>
       <p className="mt-2 text-sm text-ink-helper">{copy.ayuda}</p>

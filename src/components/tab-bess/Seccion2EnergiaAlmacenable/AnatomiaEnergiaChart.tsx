@@ -41,7 +41,7 @@ export function AnatomiaEnergiaChart({
     <Card>
       <CardContent className="space-y-4 p-6">
         <header className="space-y-1">
-          <h3 className="text-base font-semibold text-ink-primary">
+          <h3 className="text-base font-medium text-ink-primary">
             {copy.tituloPrefijo}: {copy.tituloSufijo(totalSFV_mwh)}
           </h3>
           <p className="text-sm text-ink-helper">{copy.subtitulo}</p>
@@ -128,7 +128,7 @@ function TooltipAnatomia({ active, payload }: TooltipProps) {
   return (
     <div className="max-w-xs rounded-lg border border-slate-700 bg-brand-header px-3 py-2 shadow-lg">
       <div className="mb-1 text-xs font-medium text-slate-300">{d.nombre}</div>
-      <div className="mb-1 text-sm font-semibold text-white tabular-nums">
+      <div className="mb-1 text-sm font-medium text-white tabular-nums">
         {Math.round(d.valor).toLocaleString("es-MX")} MWh (
         {d.porcentaje.toFixed(0)}%)
       </div>

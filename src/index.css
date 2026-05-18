@@ -4,85 +4,74 @@
 
 @layer base {
   :root {
-    /* Branding */
-    --color-header-bg: #1b3a52;
+    /* Paleta corporativa (P1 — mockups validados) */
+    --color-primary: #1e40af;
+    --color-primary-light: #dbeafe;
+    --color-primary-dark: #1e3a8a;
+    --color-capture: #0f766e;
+    --color-capture-light: #ccfbf1;
+    --color-capture-dark: #115e59;
+    --color-generation: #b45309;
+    --color-discharge: #6366f1;
+    --color-baseline: #525252;
+    --color-loss: #991b1b;
+
+    --color-text-primary: #171717;
+    --color-text-secondary: #525252;
+    --color-text-tertiary: #737373;
+
+    --color-bg-page: #fafaf9;
+    --color-bg-card: #ffffff;
+    --color-bg-secondary: #f5f5f4;
+
+    --color-border-light: rgba(0, 0, 0, 0.08);
+    --color-border-medium: rgba(0, 0, 0, 0.15);
+
+    /* Aliases legacy (retrocompat con clases brand, ink, action mientras
+       P2-P6 reescriben las tabs). Apuntan a los nuevos valores corporativos. */
+    --color-header-bg: #1e3a8a;
     --color-header-fg: #ffffff;
-    --color-page-bg: #f5f7fa;
+    --color-page-bg: #fafaf9;
     --color-card-bg: #ffffff;
-    --color-card-border: #e2e8f0;
-
-    /* Texto */
-    --color-text-primary: #1b3a52;
-    --color-text-secondary: #475569;
-    --color-text-helper: #64748b;
-
-    /* Inputs */
-    --color-input-border: #cbd5e1;
-    --color-input-focus: #3b82f6;
-
-    /* Primario (botones de acción) */
-    --color-primary: #4a7c59;
-    --color-primary-hover: #3d6649;
-
-    /* Cajas informativas */
-    --color-info-bg: #eff6ff;
-    --color-info-border: #3b82f6;
-
-    /* Semánticos (regla 9 del copy) */
-    --color-success: #4a7c59;
+    --color-card-border: rgba(0, 0, 0, 0.08);
+    --color-input-border: rgba(0, 0, 0, 0.15);
+    --color-input-focus: #1e40af;
+    --color-primary-hover: #1e3a8a;
+    --color-info-bg: #dbeafe;
+    --color-info-border: #1e40af;
+    --color-success: #0f766e;
     --color-warning: #d97706;
-    --color-error: #dc2626;
-    --color-info: #3b82f6;
+    --color-error: #991b1b;
+    --color-info: #1e40af;
 
-    /* Radii y sombras */
+    /* Radios y sombras */
+    --radius-md: 8px;
+    --radius-lg: 12px;
     --radius-card: 12px;
     --radius-input: 8px;
-    --shadow-card:
-      0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.06);
+    --shadow-card: none;
 
-    /* Tokens de shadcn (siguen disponibles para primitives) */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Tokens shadcn (mantienen primitives funcionando) */
+    --background: 60 5% 98%;
+    --foreground: 0 0% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 224 76% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 60 5% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 60 5% 96%;
+    --muted-foreground: 0 0% 32%;
+    --accent: 60 5% 96%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 70% 35%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 224 76% 40%;
     --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
   }
 }
 
@@ -92,19 +81,19 @@
   }
   html,
   body {
-    background-color: var(--color-page-bg);
-    color: var(--color-text-secondary);
+    background-color: var(--color-bg-page);
+    color: var(--color-text-primary);
     font-family:
-      "Inter Variable",
-      ui-sans-serif,
-      system-ui,
+      "Inter",
       -apple-system,
       BlinkMacSystemFont,
       "Segoe UI",
       Roboto,
       sans-serif;
+    font-feature-settings: "cv11" 1;
+    -webkit-font-smoothing: antialiased;
   }
   .tabular-nums {
-    font-feature-settings: "tnum" 1, "cv11" 1;
+    font-variant-numeric: tabular-nums;
   }
 }

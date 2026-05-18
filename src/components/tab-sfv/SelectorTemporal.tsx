@@ -51,7 +51,7 @@ export function SelectorTemporal({
   const copy = COPY_M2.selectorTemporal;
   return (
     <div className="sticky top-0 z-20 border-b border-brand-cardBorder bg-brand-page/95 backdrop-blur">
-      <div className="container mx-auto max-w-7xl px-4 py-3">
+      <div className="container mx-auto max-w-[1080px] px-4 py-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <span className="text-sm text-ink-helper">{copy.label}</span>

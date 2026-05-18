@@ -42,7 +42,7 @@ export function GraficaComparativa({
   return (
     <Card>
       <CardContent className="space-y-2 p-5">
-        <h4 className="text-sm font-semibold text-ink-primary">{titulo}</h4>
+        <h4 className="text-sm font-medium text-ink-primary">{titulo}</h4>
         <p className="text-xs text-ink-helper">{descripcion}</p>
         <div className="h-[200px] w-full pt-2">
           <ResponsiveContainer>

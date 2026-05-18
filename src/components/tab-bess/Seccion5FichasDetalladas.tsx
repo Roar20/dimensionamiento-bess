@@ -72,7 +72,7 @@ function FichaEquipo({
     >
       <summary className="flex cursor-pointer items-center justify-between gap-3 px-5 py-3">
         <div className="flex items-center gap-3">
-          <span className="text-base font-semibold text-ink-primary">
+          <span className="text-base font-medium text-ink-primary">
             {equipo.nombre_completo}
           </span>
           {esRecomendado ? (

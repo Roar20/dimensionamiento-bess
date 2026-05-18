@@ -71,7 +71,7 @@ export function SelectorEquipoMultiplicador({
               )}
             >
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-ink-primary">
+                <span className="text-sm font-medium text-ink-primary">
                   {eq.nombre_corto}
                 </span>
                 {recomendado ? (
@@ -107,7 +107,7 @@ export function SelectorEquipoMultiplicador({
           >
             <Minus className="h-4 w-4" />
           </Button>
-          <span className="w-12 text-center text-lg font-semibold tabular-nums text-ink-primary">
+          <span className="w-12 text-center text-lg font-medium tabular-nums text-ink-primary">
             {multiplicador}
           </span>
           <Button
