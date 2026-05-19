@@ -8,7 +8,6 @@ interface Props {
   registros_ajustados: readonly RegistroHorario[];
   capacidad_poi_kw: number;
   capacidad_carga_bess_kw: number;
-  factor_produccion: number;
 }
 
 const COLOR_GEN = "#B45309";
@@ -17,15 +16,10 @@ const COLOR_CAPT = "rgba(34, 197, 94, 0.35)";
 const COLOR_NO_CAPT = "rgba(220, 38, 38, 0.30)";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
 
-const FMT_PCT = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 0,
-});
-
 export function SeccionGeneracionFactor({
   registros_ajustados,
   capacidad_poi_kw,
   capacidad_carga_bess_kw,
-  factor_produccion,
 }: Props) {
   const { promedioPorHora, capturable, noCapturable, poiLine } =
     useMemo(() => {
@@ -145,24 +139,17 @@ export function SeccionGeneracionFactor({
   return (
     <section className="mb-8">
       <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
-        Sensibilidad operativa
+        Efecto operativo del factor
       </p>
       <header className="mb-3">
         <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          Generación bajo factor {FMT_PCT.format(factor_produccion * 100)}% vs capacidad POI
+          Generación diaria bajo el factor configurado
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Curva promedio diaria de generación con el factor del slider
-          aplicado. La línea POI define el techo de inyección al PPA. La zona
-          verde es el excedente que el BESS puede capturar (limitado por su
-          potencia de carga); la zona roja es el excedente que excede la
-          capacidad del BESS y se perdería por curtailment.{" "}
-          <strong className="font-medium">
-            El factor modela sensibilidad operativa del perfil
-          </strong>{" "}
-          (tracker alineado, strings limpios, condiciones óptimas); no
-          modela ampliación de capacidad CFE ni overbuild adicional del SFV
-          (Wave 1: SFV existente, sin modificar capacidad CFE).
+          El factor del panel ajusta la altura de la curva de generación. La
+          zona verde es el excedente que el BESS captura; la zona roja se
+          pierde por curtailment. Este perfil alimenta los cálculos
+          financieros mostrados abajo.
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
