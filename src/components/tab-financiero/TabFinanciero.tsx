@@ -286,6 +286,12 @@ export function TabFinanciero({ datos }: Props) {
         </div>
       ) : null}
 
+      <SeccionGeneracionFactor
+        registros_ajustados={calculo.registros_ajustados}
+        capacidad_poi_kw={datos.config.capacidad_poi_kw}
+        capacidad_carga_bess_kw={calculo.config.p_kw}
+      />
+
       <SeccionComparativa
         ingreso_sfv_solo_anio1={calculo.ingreso_sfv_solo_anio1}
         ingreso_proyecto_anio1={calculo.ingreso_proyecto_anio1}
@@ -322,13 +328,6 @@ export function TabFinanciero({ datos }: Props) {
       <SeccionSohErosion
         flujos={calculo.flujos}
         curva_soh={calculo.equipo.curvaSoh}
-      />
-
-      <SeccionGeneracionFactor
-        registros_ajustados={calculo.registros_ajustados}
-        capacidad_poi_kw={datos.config.capacidad_poi_kw}
-        capacidad_carga_bess_kw={calculo.config.p_kw}
-        factor_produccion={params.factor_produccion}
       />
 
       <SeccionSensibilidades
