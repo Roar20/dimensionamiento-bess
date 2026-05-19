@@ -226,8 +226,9 @@ export function TabFinanciero({ datos }: Props) {
       {
         label: "Aporte BESS · año 1",
         valor: formatMxnMillones(calculo.ingreso_incremental_bess_anio1),
-        sublabel: "Captura + arbitraje + pfirme − OPEX",
+        sublabel: "Captura + arbitraje + pfirme proxy − OPEX",
         destacar: true,
+        badge: "incl. pfirme proxy",
       },
       {
         label: "Acumulado BESS · 20 años",
@@ -238,6 +239,7 @@ export function TabFinanciero({ datos }: Props) {
         label: "Proyecto total · año 1",
         valor: formatMxnMillones(calculo.ingreso_proyecto_anio1),
         sublabel: "SFV existente + aporte BESS",
+        secundaria: true,
       },
       {
         label: "Utilización BESS",
@@ -360,6 +362,7 @@ export function TabFinanciero({ datos }: Props) {
           lmp_mxn_mwh: params.lmp_mxn_mwh,
           diferencial_lmp_pct: params.diferencial_lmp_pct,
         }}
+        flujos_base={calculo.flujos}
       />
 
       <TablaAnual21 flujos={calculo.flujos} payback={calculo.payback} />

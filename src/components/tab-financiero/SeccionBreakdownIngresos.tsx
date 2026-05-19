@@ -44,7 +44,7 @@ export function SeccionBreakdownIngresos({
     () => [
       { label: "Captura excedentes", valor: ingreso_captura_excedentes_mxn, color: COLOR_CAPTURA },
       { label: "Arbitraje hora-punta", valor: ingreso_arbitraje_mxn, color: COLOR_ARB },
-      { label: "Potencia firme proxy", valor: ingreso_potencia_firme_mxn, color: COLOR_PFIRME },
+      { label: "Pfirme proxy conservador", valor: ingreso_potencia_firme_mxn, color: COLOR_PFIRME },
     ],
     [
       ingreso_captura_excedentes_mxn,

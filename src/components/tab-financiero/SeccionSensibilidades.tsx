@@ -5,13 +5,18 @@ import {
   calcularTIR,
   proyectar20Anios,
   type EntradasProyeccion,
+  type FlujoAnual,
 } from "@/lib/tab-financiero/calculos";
 
 interface Props {
-  /** Entradas base del escenario "Base". Las sensibilidades aplican
-   *  factores escalares sobre precios, CAPEX y FF (factor escalar de
-   *  potencia firme, sin re-dispatch). */
+  /**
+   * Entradas base del hero. Sirven para reescalar precios/CAPEX/pfirme en
+   * Conservador y Optimista. Para Base NO se recalcula: se reusa el array
+   * `flujos_base` para garantizar identidad exacta con el hero.
+   */
   entradas_base: EntradasProyeccion;
+  /** Flujos del hero. La card "Base" reusa este array sin recalcular. */
+  flujos_base: readonly FlujoAnual[];
 }
 
 const FMT_NUM = new Intl.NumberFormat("es-MX", {
@@ -20,30 +25,20 @@ const FMT_NUM = new Intl.NumberFormat("es-MX", {
 });
 
 type Escenario = {
-  nombre: "Conservador" | "Base" | "Optimista";
+  nombre: "Conservador" | "Optimista";
   ajuste_precios: number;
   ajuste_capex: number;
   ff: number;
-  variante: "conservador" | "base" | "optimista";
+  variante: "conservador" | "optimista";
 };
 
-// El escenario Base reproduce EXACTAMENTE la configuración del hero: sin
-// ajustes adicionales sobre precios, CAPEX ni potencia firme. Conservador
-// y Optimista aplican ajustes relativos al Base.
-const ESCENARIOS: readonly Escenario[] = [
+const ESCENARIOS_AJUSTABLES: readonly Escenario[] = [
   {
     nombre: "Conservador",
     ajuste_precios: 0.85,
     ajuste_capex: 1.10,
     ff: 0.75,
     variante: "conservador",
-  },
-  {
-    nombre: "Base",
-    ajuste_precios: 1.0,
-    ajuste_capex: 1.0,
-    ff: 1.0,
-    variante: "base",
   },
   {
     nombre: "Optimista",
@@ -54,14 +49,10 @@ const ESCENARIOS: readonly Escenario[] = [
   },
 ];
 
-export function SeccionSensibilidades({ entradas_base }: Props) {
-  const resultados = useMemo(() => {
-    return ESCENARIOS.map((esc) => {
-      // Aplica el escenario a las entradas: precios escalados, CAPEX
-      // escalado. El FF se aplica como factor escalar sobre la potencia
-      // firme proxy ya calculada (no re-dispatch, no recálculo del
-      // factor_credibilidad: el FF aquí es la "intensidad regulatoria"
-      // del escenario sobre el proxy ya descontado).
+export function SeccionSensibilidades({ entradas_base, flujos_base }: Props) {
+  // Conservador y Optimista: se recalculan con ajustes relativos.
+  const escenariosCalculados = useMemo(() => {
+    return ESCENARIOS_AJUSTABLES.map((esc) => {
       const entradas: EntradasProyeccion = {
         ...entradas_base,
         capex_mxn: entradas_base.capex_mxn * esc.ajuste_capex,
@@ -82,6 +73,16 @@ export function SeccionSensibilidades({ entradas_base }: Props) {
     });
   }, [entradas_base]);
 
+  // Base: reuse del array del hero. Identidad por construcción.
+  const baseResultado = useMemo(
+    () => ({
+      payback: calcularPaybackInterpolado(flujos_base),
+      tir: calcularTIR(flujos_base),
+      capex: entradas_base.capex_mxn,
+    }),
+    [flujos_base, entradas_base.capex_mxn]
+  );
+
   return (
     <section className="mb-8">
       <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
@@ -92,29 +93,45 @@ export function SeccionSensibilidades({ entradas_base }: Props) {
           Conservador · Base · Optimista
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Tres escenarios sobre la configuración actual. La card{" "}
-          <strong className="font-medium">Base</strong> reproduce
-          exactamente los valores del panel y debe coincidir con el payback
-          del hero. Conservador aplica precios −15%, CAPEX +10%, FF 0.75×
-          sobre el proxy actual. Optimista aplica precios +10%, CAPEX −5%,
-          FF 1.25×. El FF se aplica como factor escalar a la potencia firme
-          proxy; no se recorre el dispatch.
+          La card <strong className="font-medium">Base</strong> reusa el
+          mismo array de flujos del hero — son idénticas por construcción,
+          sin recálculo. Conservador aplica precios −15%, CAPEX +10%, FF
+          0.75× sobre el proxy actual. Optimista aplica precios +10%, CAPEX
+          −5%, FF 1.25×. El FF escala la potencia firme proxy; no se
+          recorre el dispatch.
         </p>
       </header>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {resultados.map(({ esc, payback, tir, capex }) => (
-          <Card
-            key={esc.nombre}
-            nombre={esc.nombre}
-            variante={esc.variante}
-            ajuste_precios={esc.ajuste_precios}
-            ajuste_capex={esc.ajuste_capex}
-            ff={esc.ff}
-            payback={payback}
-            tir={tir}
-            capex_mxn={capex}
-          />
-        ))}
+        <Card
+          nombre={ESCENARIOS_AJUSTABLES[0]!.nombre}
+          variante={ESCENARIOS_AJUSTABLES[0]!.variante}
+          ajuste_precios={ESCENARIOS_AJUSTABLES[0]!.ajuste_precios}
+          ajuste_capex={ESCENARIOS_AJUSTABLES[0]!.ajuste_capex}
+          ff={ESCENARIOS_AJUSTABLES[0]!.ff}
+          payback={escenariosCalculados[0]!.payback}
+          tir={escenariosCalculados[0]!.tir}
+          capex_mxn={escenariosCalculados[0]!.capex}
+        />
+        <Card
+          nombre="Base"
+          variante="base"
+          ajuste_precios={1.0}
+          ajuste_capex={1.0}
+          ff={1.0}
+          payback={baseResultado.payback}
+          tir={baseResultado.tir}
+          capex_mxn={baseResultado.capex}
+        />
+        <Card
+          nombre={ESCENARIOS_AJUSTABLES[1]!.nombre}
+          variante={ESCENARIOS_AJUSTABLES[1]!.variante}
+          ajuste_precios={ESCENARIOS_AJUSTABLES[1]!.ajuste_precios}
+          ajuste_capex={ESCENARIOS_AJUSTABLES[1]!.ajuste_capex}
+          ff={ESCENARIOS_AJUSTABLES[1]!.ff}
+          payback={escenariosCalculados[1]!.payback}
+          tir={escenariosCalculados[1]!.tir}
+          capex_mxn={escenariosCalculados[1]!.capex}
+        />
       </div>
     </section>
   );
@@ -148,14 +165,21 @@ function Card({
   return (
     <div className="overflow-hidden rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white">
       <div className={`px-4 py-3 ${colorBg}`}>
-        <p className="text-[14px] font-medium leading-tight">{nombre}</p>
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="text-[14px] font-medium leading-tight">{nombre}</p>
+          {variante === "base" ? (
+            <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium tracking-wide">
+              = hero
+            </span>
+          ) : null}
+        </div>
         <p className="text-[11px] opacity-90">
           Precios ×{ajuste_precios.toFixed(2)} · CAPEX ×{ajuste_capex.toFixed(2)} · FF {(ff * 100).toFixed(0)}%
         </p>
       </div>
       <div className="px-4 py-3">
         <Fila
-          label="Payback"
+          label="Payback BESS"
           valor={payback !== null ? `${FMT_NUM.format(payback)} años` : ">20 años"}
         />
         <Fila

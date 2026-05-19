@@ -138,16 +138,27 @@ export function MetodologiaFinanciero() {
         (d) no se modela inflación de precios PPA ni de OPEX; (e) la
         potencia firme proxy no sustituye la fórmula PAA regulatoria.
       </p>
-      <p>
+      <p className="mb-2">
         <strong className="font-medium text-[var(--color-text-primary)]">
           Pendientes de validación:
         </strong>{" "}
         confirmar con MHG los precios PPA para Tequila (actualmente proxy
         Estanzuela 2 marzo 2026), cerrar la fórmula PAA con Lalo y subir
         el factor de credibilidad si el reconocimiento real lo permite,
-        confirmar CAPEX/OPEX con Hyperstrong y CFO MHG, decidir si se
-        incorporan inflación, fade del SFV y estacionalidad LMP en
-        siguientes iteraciones.
+        confirmar CAPEX/OPEX con Hyperstrong y CFO MHG.
+      </p>
+      <p>
+        <strong className="font-medium text-[var(--color-text-primary)]">
+          Freeze funcional de esta versión:
+        </strong>{" "}
+        para mantener un modelo defendible y estable, esta iteración{" "}
+        <strong className="font-medium">no incluye</strong> inflación de
+        precios PPA u OPEX, financing/debt, NPV con estructura de capital,
+        degradación anual del SFV, ni curvas P50/P90 de generación.
+        Cualquiera de estos elementos se evaluará en una iteración
+        posterior ("v2 rigor financiero") con su propio PR. Esta versión
+        responde a la pregunta ejecutiva preliminar; la versión bancable
+        se desarrolla aparte.
       </p>
     </MetodologiaDetalles>
   );
