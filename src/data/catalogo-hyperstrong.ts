@@ -1,3 +1,5 @@
+import { CURVAS_SOH } from "./curvas-soh";
+
 export type ArquitecturaBess = "AC" | "DC" | "AC+DC";
 
 export type EquipoBess = {
@@ -27,6 +29,7 @@ export type EquipoBess = {
   certificaciones: string[];
   datasheetUrl: string;
   aplicableTequila: boolean;
+  curvaSoh: readonly number[];
 };
 
 export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
@@ -56,6 +59,7 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     certificaciones: ["IEC 62619", "IEC 63056", "UL9540A", "UN38.3"],
     datasheetUrl: "/datasheets/hypercube-plus.pdf",
     aplicableTequila: true,
+    curvaSoh: CURVAS_SOH.hyperstrong_lfp_standard,
   },
   {
     id: "cube-max",
@@ -83,6 +87,7 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     certificaciones: ["IEC 62619", "IEC 63056", "UL9540A", "UN38.3"],
     datasheetUrl: "/datasheets/hypercube-max.pdf",
     aplicableTequila: true,
+    curvaSoh: CURVAS_SOH.hyperstrong_lfp_standard,
   },
   {
     id: "block-iii",
@@ -118,5 +123,6 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     ],
     datasheetUrl: "/datasheets/hyperblock-iii.pdf",
     aplicableTequila: false,
+    curvaSoh: CURVAS_SOH.hyperstrong_lfp_standard,
   },
 ];
