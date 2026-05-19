@@ -2,6 +2,14 @@
 
 Cada entrada: fecha, decisión, razón, alternativas descartadas.
 
+## 2026-05-19 — Visualización de curva SOH vive en Tab BESS, no en SFV+BESS ni Financiero
+
+**Decisión:** La sección visual "Degradación del BESS a 20 años" (curva SOH, KPIs, tabla de hitos, narrativa de pendientes) vive en el Tab BESS, debajo de "Comparativa técnica" y arriba del accordion "Parámetros de operación y supuestos". El Tab SFV+BESS y el futuro Tab Análisis Financiero no muestran la curva como objeto visual propio: la consumen vía `equipo.curvaSoh` para sus cálculos (operación año tipo y erosión económica respectivamente), pero no replican la visualización.
+
+**Razón:** Cada tab responde a una pregunta distinta del cliente. Tab BESS responde "¿qué equipo es este?" — la curva SOH es una propiedad técnica declarada del producto y vive donde viven el resto de los datos técnicos del catálogo (energía, potencia, ciclos, certificaciones). Tab SFV+BESS responde "¿cómo opera durante un año típico?" — la curva entra como parámetro del despacho, no como objeto de discusión. Tab Análisis Financiero responde "¿cuánto vale a 20 años?" — la curva se traduce a MXN erosionados, no se reexhibe como porcentaje. Replicar la gráfica en los tres tabs dispersa la lectura técnica y duplica trabajo de mantenimiento cuando Hyperstrong publique curva revisada.
+
+**Alternativa descartada:** Visualizar la curva en Tab SFV+BESS junto a las gráficas de despacho horario. Habría mezclado capas conceptuales (propiedad técnica del equipo + comportamiento operativo del año + supuesto financiero implícito) en un mismo tab, dificultando que el cliente identifique qué dato proviene del datasheet y qué dato proviene del modelo. La separación por tab es la disciplina narrativa del producto desde el Módulo 2.
+
 ## 2026-05-19 — Curva SOH como propiedad del catálogo
 
 **Decisión:** Los 21 valores de la curva SOH estándar Hyperstrong viven en `src/data/curvas-soh.ts` como registro extensible `CURVAS_SOH` indexado por clave semántica (clave inicial: `hyperstrong_lfp_standard`). El tipo `EquipoBess` incluye campo `curvaSoh: readonly number[]`. Los 3 equipos del catálogo (Cube Plus, Cube Max, Block III) asignan la misma referencia (`CURVAS_SOH.hyperstrong_lfp_standard`) al campo `curvaSoh`, no copias del array. Los consumidores (motor potencia firme CNE 2026, futuro Tab Análisis Financiero, simulador 20 años, reporte LCOE) acceden la curva vía `equipo.curvaSoh`, no importan `CURVAS_SOH` directamente.
