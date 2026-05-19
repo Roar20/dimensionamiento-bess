@@ -30,6 +30,13 @@ export function SeccionComparativaEstrategias({
       <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
         {copy.seccionLabel}
       </p>
+      <p className="mb-3 text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
+        El dispatch operativo aquí mostrado habilita la monetización del
+        BESS. El componente económico dominante del proyecto, sin embargo,
+        no es el arbitraje energético sino la potencia firme proxy que el
+        almacenamiento permite ofrecer en horas críticas. El detalle
+        económico se cuantifica en Análisis financiero.
+      </p>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <CardEstrategia
           nombre={copy.greedy}

@@ -187,7 +187,7 @@ export function SeccionEvolucionEconomica({
         stack: "aporte",
       },
       {
-        label: "Captura de excedentes",
+        label: "Captura de excedentes (valor)",
         data: datos.captura,
         backgroundColor: `${COLOR_CAPTURA}${ALPHA_AREA}`,
         borderColor: COLOR_CAPTURA,
@@ -358,7 +358,7 @@ export function SeccionEvolucionEconomica({
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
           <Leyenda color={COLOR_PFIRME} texto="Potencia firme proxy" />
           <Leyenda color={COLOR_ARBITRAJE} texto="Arbitraje horario" />
-          <Leyenda color={COLOR_CAPTURA} texto="Captura de excedentes" />
+          <Leyenda color={COLOR_CAPTURA} texto="Captura de excedentes (valor)" />
           <Leyenda color={COLOR_SOH} dashed texto="SOH (%)" />
         </div>
         <div className="relative h-[340px] w-full">
