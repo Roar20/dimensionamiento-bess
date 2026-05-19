@@ -6,7 +6,7 @@ const NAV_ITEMS_FACTORY = (hayDatos: boolean): TabNavItem[] => [
   // Catálogo Hyperstrong independiente del estado de planta: siempre habilitada.
   { label: "BESS", ruta: "/bess", habilitado: true },
   { label: "SFV + BESS", ruta: "/sfv-bess", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
-  { label: "Análisis financiero", ruta: "/financiero", habilitado: false, tooltip: "Disponible en próxima versión" },
+  { label: "Análisis financiero", ruta: "/financiero", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
 ];
 
 interface Props {
