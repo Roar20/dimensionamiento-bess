@@ -27,26 +27,29 @@ type Escenario = {
   variante: "conservador" | "base" | "optimista";
 };
 
+// El escenario Base reproduce EXACTAMENTE la configuración del hero: sin
+// ajustes adicionales sobre precios, CAPEX ni potencia firme. Conservador
+// y Optimista aplican ajustes relativos al Base.
 const ESCENARIOS: readonly Escenario[] = [
   {
     nombre: "Conservador",
     ajuste_precios: 0.85,
     ajuste_capex: 1.10,
-    ff: 0.60,
+    ff: 0.75,
     variante: "conservador",
   },
   {
     nombre: "Base",
     ajuste_precios: 1.0,
     ajuste_capex: 1.0,
-    ff: 0.80,
+    ff: 1.0,
     variante: "base",
   },
   {
     nombre: "Optimista",
     ajuste_precios: 1.10,
     ajuste_capex: 0.95,
-    ff: 0.90,
+    ff: 1.25,
     variante: "optimista",
   },
 ];
@@ -89,11 +92,13 @@ export function SeccionSensibilidades({ entradas_base }: Props) {
           Conservador · Base · Optimista
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Tres escenarios sobre la configuración actual. Conservador aplica
-          precios −15%, CAPEX +10%, factor de potencia firme 60%. Base usa
-          los valores actuales del panel y FF 80%. Optimista aplica precios
-          +10%, CAPEX −5%, FF 90%. El FF se aplica como factor escalar a la
-          potencia firme proxy; no se recorre el dispatch.
+          Tres escenarios sobre la configuración actual. La card{" "}
+          <strong className="font-medium">Base</strong> reproduce
+          exactamente los valores del panel y debe coincidir con el payback
+          del hero. Conservador aplica precios −15%, CAPEX +10%, FF 0.75×
+          sobre el proxy actual. Optimista aplica precios +10%, CAPEX −5%,
+          FF 1.25×. El FF se aplica como factor escalar a la potencia firme
+          proxy; no se recorre el dispatch.
         </p>
       </header>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">

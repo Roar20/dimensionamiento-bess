@@ -221,11 +221,13 @@ export function TabFinanciero({ datos }: Props) {
             ? `${FMT_PCT.format(calculo.payback)} años`
             : ">20 años",
         sublabel: "Solo flujo incremental",
+        destacar: true,
       },
       {
-        label: "Incremental BESS · año 1",
+        label: "Aporte BESS · año 1",
         valor: formatMxnMillones(calculo.ingreso_incremental_bess_anio1),
         sublabel: "Captura + arbitraje + pfirme − OPEX",
+        destacar: true,
       },
       {
         label: "Acumulado BESS · 20 años",
@@ -233,9 +235,9 @@ export function TabFinanciero({ datos }: Props) {
         sublabel: "Con SOH aplicado",
       },
       {
-        label: "Ingreso proyecto · año 1",
+        label: "Proyecto total · año 1",
         valor: formatMxnMillones(calculo.ingreso_proyecto_anio1),
-        sublabel: "SFV existente + BESS",
+        sublabel: "SFV existente + aporte BESS",
       },
       {
         label: "Utilización BESS",

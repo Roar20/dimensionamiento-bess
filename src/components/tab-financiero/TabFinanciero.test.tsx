@@ -97,7 +97,7 @@ describe("TabFinanciero · render integration", () => {
       screen.getAllByText(/Acumulado BESS · 20 años/i).length
     ).toBeGreaterThanOrEqual(1);
     expect(
-      screen.getAllByText(/Ingreso proyecto · año 1/i).length
+      screen.getAllByText(/Proyecto total · año 1/i).length
     ).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Utilización BESS")).toBeInTheDocument();
     expect(screen.getAllByText(/CAPEX/i).length).toBeGreaterThanOrEqual(1);
@@ -118,9 +118,9 @@ describe("TabFinanciero · render integration", () => {
 
   it("renderiza las 3 cards de sensibilidades (Conservador/Base/Optimista)", () => {
     rend();
-    expect(screen.getByText("Conservador")).toBeInTheDocument();
-    expect(screen.getByText("Base")).toBeInTheDocument();
-    expect(screen.getByText("Optimista")).toBeInTheDocument();
+    expect(screen.getAllByText("Conservador").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Base").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Optimista").length).toBeGreaterThanOrEqual(1);
   });
 });
 

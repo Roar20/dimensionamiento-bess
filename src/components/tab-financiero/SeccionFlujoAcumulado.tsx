@@ -13,7 +13,10 @@ interface Props {
 }
 
 const COLOR_BESS = "#0F766E";
-const COLOR_SFV = "#B45309";
+// SFV: muy tenue, función narrativa de "ya generabas esto sin BESS"
+// pero sin competir visualmente con la línea incremental.
+const COLOR_SFV = "rgba(180, 83, 9, 0.22)";
+const COLOR_SFV_LEYENDA = "rgba(180, 83, 9, 0.55)";
 const COLOR_CAPEX = "#737373";
 const COLOR_PAYBACK = "#DC2626";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
@@ -61,7 +64,7 @@ export function SeccionFlujoAcumulado({
     labels,
     datasets: [
       {
-        label: "Incremental BESS · acumulado",
+        label: "Aporte BESS · acumulado",
         data: acumSfvBess,
         borderColor: COLOR_BESS,
         backgroundColor: "rgba(15, 118, 110, 0.10)",
@@ -83,12 +86,12 @@ export function SeccionFlujoAcumulado({
         label: "SFV existente · referencia",
         data: acumSfvSolo,
         borderColor: COLOR_SFV,
-        borderDash: [2, 2],
-        borderWidth: 1.5,
+        borderDash: [1, 4],
+        borderWidth: 1,
         pointRadius: 0,
         fill: false,
         tension: 0.15,
-        order: 2,
+        order: 4,
       },
       {
         label: "− CAPEX BESS",
@@ -152,8 +155,8 @@ export function SeccionFlujoAcumulado({
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_BESS} texto="Incremental BESS · acumulado" />
-          <Leyenda color={COLOR_SFV} dashed texto="SFV existente · referencia" />
+          <Leyenda color={COLOR_BESS} texto="Aporte BESS · acumulado" />
+          <Leyenda color={COLOR_SFV_LEYENDA} dashed texto="SFV existente · referencia tenue" />
           <Leyenda color={COLOR_CAPEX} dashed texto="−CAPEX BESS" />
           {payback !== null ? (
             <Leyenda

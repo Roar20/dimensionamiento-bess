@@ -14,7 +14,6 @@ interface Props {
 const COLOR_SFV_EXISTENTE = "#9CA3AF"; // gris: ya lo cobra sin BESS
 const COLOR_BESS_POSITIVO = "#0F766E"; // verde teal: aporte BESS
 const COLOR_NEGATIVO = "#B91C1C";
-const COLOR_TOTAL_PROYECTO = "#1F2937";
 const COLOR_TOTAL_BESS = "#065F46";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
 
@@ -46,13 +45,6 @@ export function SeccionWaterfall({
       { label: "+ Pot. firme proxy", delta: ingreso_potencia_firme_mxn, color: COLOR_BESS_POSITIVO },
       { label: "− OPEX BESS", delta: -opex_mxn, color: COLOR_NEGATIVO },
     ];
-    const total_proyecto =
-      ingreso_ppa_sfv_mxn +
-      ingreso_cels_sfv_mxn +
-      ingreso_captura_excedentes_mxn +
-      ingreso_arbitraje_mxn +
-      ingreso_potencia_firme_mxn -
-      opex_mxn;
     const total_incremental_bess =
       ingreso_captura_excedentes_mxn +
       ingreso_arbitraje_mxn +
@@ -76,13 +68,10 @@ export function SeccionWaterfall({
       }
       acum += c.delta;
     }
-    // Total proyecto (gris oscuro) — informativo.
-    labels.push("= Proyecto total");
-    bases.push(0);
-    valores.push(total_proyecto);
-    colores.push(COLOR_TOTAL_PROYECTO);
     // Total INCREMENTAL BESS (verde oscuro destacado) — el que paga el CAPEX.
-    labels.push("= Incremental BESS");
+    // Se omite intencionalmente la barra "Proyecto total"; el gráfico tiene
+    // como único objetivo explicar qué paga el CAPEX BESS.
+    labels.push("= Aporte BESS");
     bases.push(0);
     valores.push(total_incremental_bess);
     colores.push(COLOR_TOTAL_BESS);
@@ -155,21 +144,21 @@ export function SeccionWaterfall({
       </p>
       <header className="mb-3">
         <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          Anatomía del ingreso del año 1
+          Qué paga el CAPEX del BESS · año 1
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Las dos primeras barras (gris) son ingreso del SFV existente —
-          ya lo cobra sin BESS. Las tres siguientes (verde) son el aporte
-          incremental del BESS, lo único que paga el CAPEX. La última
-          barra (verde oscuro) es ese incremental neto de OPEX BESS.
+          Las dos primeras barras (gris) son ingreso del SFV existente
+          — ya lo cobra sin BESS, contexto narrativo. Las tres siguientes
+          (verde) son el aporte BESS. La barra final (verde oscuro) es ese
+          aporte neto de OPEX: el único flujo que repaga el CAPEX BESS.
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_SFV_EXISTENTE} texto="SFV existente (informativo)" />
+          <Leyenda color={COLOR_SFV_EXISTENTE} texto="SFV existente (contexto)" />
           <Leyenda color={COLOR_BESS_POSITIVO} texto="Aporte BESS" />
-          <Leyenda color={COLOR_NEGATIVO} texto="OPEX" />
-          <Leyenda color={COLOR_TOTAL_BESS} texto="Total incremental BESS" />
+          <Leyenda color={COLOR_NEGATIVO} texto="OPEX BESS" />
+          <Leyenda color={COLOR_TOTAL_BESS} texto="Aporte BESS neto" />
         </div>
         <div className="relative h-[320px] w-full">
           <Bar data={data} options={options} />
