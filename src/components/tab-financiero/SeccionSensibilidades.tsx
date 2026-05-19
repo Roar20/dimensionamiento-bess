@@ -1,6 +1,12 @@
 import { useMemo } from "react";
 
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   calcularPaybackInterpolado,
   calcularTIR,
   proyectar20Anios,
@@ -168,9 +174,19 @@ function Card({
         <div className="flex items-baseline justify-between gap-2">
           <p className="text-[14px] font-medium leading-tight">{nombre}</p>
           {variante === "base" ? (
-            <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium tracking-wide">
-              = hero
-            </span>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-help rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium tracking-wide">
+                    = hero
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[280px] leading-snug">
+                  Idéntico al escenario del Hero. Esta tarjeta reusa el mismo
+                  array de flujos por construcción, no recalcula.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           ) : null}
         </div>
         <p className="text-[11px] opacity-90">

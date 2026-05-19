@@ -143,16 +143,11 @@ export function PanelConfiguracion({
             onChange({ diferencial_lmp_pct: Math.max(0, n / 100) })
           }
         />
-        <CampoNumero
-          label="Factor credibilidad pot. firme (%)"
-          valor={params.factor_credibilidad_pfirme * 100}
-          min={0}
-          step={5}
-          sufijo="%"
-          ayuda="Proxy. Default 40% (conservador, pendiente Lalo). Rango 20-100%."
-          onChange={(n) =>
+        <CampoSliderCredibilidad
+          valor={params.factor_credibilidad_pfirme}
+          onChange={(pct) =>
             onChange({
-              factor_credibilidad_pfirme: Math.max(0, Math.min(1, n / 100)),
+              factor_credibilidad_pfirme: Math.max(0, Math.min(1, pct / 100)),
             })
           }
         />
@@ -330,6 +325,37 @@ function CampoSlider({
         <span>150%</span>
         <span>200% óptimo</span>
       </div>
+    </label>
+  );
+}
+
+function CampoSliderCredibilidad({
+  valor,
+  onChange,
+}: {
+  /** Valor entre 0 y 1. */
+  valor: number;
+  /** Recibe el porcentaje 0..100. */
+  onChange: (pct: number) => void;
+}) {
+  const pct = Math.round(valor * 100);
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
+        Factor credibilidad pot. firme
+      </span>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={5}
+        value={pct}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full"
+      />
+      <span className="text-[11px] text-[var(--color-text-secondary)]">
+        Factor de credibilidad potencia firme proxy: {pct}%
+      </span>
     </label>
   );
 }

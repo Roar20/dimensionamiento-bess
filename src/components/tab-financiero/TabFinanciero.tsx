@@ -228,7 +228,7 @@ export function TabFinanciero({ datos }: Props) {
         valor: formatMxnMillones(calculo.ingreso_incremental_bess_anio1),
         sublabel: "Captura + arbitraje + pfirme proxy − OPEX",
         destacar: true,
-        badge: "incl. pfirme proxy",
+        badge: "incluye potencia firme proxy",
       },
       {
         label: "Acumulado BESS · 20 años",

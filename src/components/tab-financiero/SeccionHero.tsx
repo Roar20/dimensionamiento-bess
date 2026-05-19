@@ -51,15 +51,13 @@ export function SeccionHero({ kpis }: Props) {
               key={kpi.label}
               className={`rounded-[12px] px-4 py-3.5 transition-shadow ${cardClase}`}
             >
-              <div className="flex items-start justify-between gap-1.5">
-                <p className={labelClase}>{kpi.label}</p>
-                {kpi.badge ? (
-                  <span className="inline-flex items-center rounded-full bg-[#FEF3C7] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-[#78350F]">
-                    {kpi.badge}
-                  </span>
-                ) : null}
-              </div>
+              <p className={labelClase}>{kpi.label}</p>
               <p className={valorClase}>{kpi.valor}</p>
+              {kpi.badge ? (
+                <p className="mt-1 inline-flex max-w-full items-center rounded-full bg-[#FEF3C7] px-2 py-0.5 text-[10px] font-medium text-[#78350F]">
+                  {kpi.badge}
+                </p>
+              ) : null}
               {kpi.sublabel ? (
                 <p
                   className={`mt-0.5 text-[11px] leading-snug ${
