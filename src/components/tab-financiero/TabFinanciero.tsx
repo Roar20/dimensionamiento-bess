@@ -22,11 +22,13 @@ import type {
 } from "@/types/bess";
 import type { DatosSFV } from "@/types/sfv";
 
+import { COPY_PROXY_PFIRME } from "./copy-proxy-pfirme";
 import { DisclaimerTransversal } from "./DisclaimerTransversal";
 import { MetodologiaFinanciero } from "./MetodologiaFinanciero";
 import { PanelConfiguracion } from "./PanelConfiguracion";
 import { SeccionBreakdownIngresos } from "./SeccionBreakdownIngresos";
 import { SeccionComparativa } from "./SeccionComparativa";
+import { SeccionEvolucionEconomica } from "./SeccionEvolucionEconomica";
 import { SeccionFlujoAcumulado } from "./SeccionFlujoAcumulado";
 import { SeccionGeneracionFactor } from "./SeccionGeneracionFactor";
 import { SeccionHero } from "./SeccionHero";
@@ -229,6 +231,7 @@ export function TabFinanciero({ datos }: Props) {
         sublabel: "Captura + arbitraje + pfirme proxy − OPEX",
         destacar: true,
         badge: "incluye potencia firme proxy",
+        badge_tooltip: COPY_PROXY_PFIRME,
       },
       {
         label: "Acumulado BESS · 20 años",
@@ -259,11 +262,12 @@ export function TabFinanciero({ datos }: Props) {
     <div>
       <header className="mb-6">
         <h1 className="text-[20px] font-medium text-[var(--color-text-primary)]">
-          Análisis Financiero · SFV + BESS
+          Valor incremental del BESS sobre un SFV existente
         </h1>
-        <p className="mt-1 text-[13px] text-[var(--color-text-secondary)]">
-          ¿Qué cambia económicamente cuando agrego BESS al SFV existente, y
-          cuánto mejora bajo distintos escenarios de producción?
+        <p className="mt-1 text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+          El SFV ya produce ingreso por sí mismo. Este modelo cuantifica
+          únicamente el valor incremental que el BESS suma, cómo evoluciona
+          bajo degradación SOH a 20 años, y cuándo se paga.
         </p>
       </header>
 
@@ -298,6 +302,12 @@ export function TabFinanciero({ datos }: Props) {
         payback={calculo.payback}
         ingreso_acumulado_sfv_solo={calculo.ingreso_sfv_solo_anio1 * 20}
         ingreso_acumulado_proyecto={calculo.ingreso_proyecto_acumulado}
+      />
+
+      <SeccionEvolucionEconomica
+        flujos_base={calculo.flujos}
+        curva_soh={calculo.equipo.curvaSoh}
+        payback={calculo.payback}
       />
 
       <SeccionWaterfall

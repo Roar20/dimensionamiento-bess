@@ -69,18 +69,22 @@ describe("TabFinanciero · render integration", () => {
     rend();
     expect(
       screen.getByRole("heading", {
-        name: /Análisis Financiero/i,
+        name: /Valor incremental del BESS sobre un SFV existente/i,
         level: 1,
       })
     ).toBeInTheDocument();
   });
 
-  it("renderiza el disclaimer transversal con la mención al PAA y a la proxy Estanzuela 2", () => {
+  it("comunica el modelo proxy de potencia firme + Estanzuela 2 como referencia de precios", () => {
     rend();
-    // El término aparece en disclaimer + metodología; ambos tienen que existir.
+    // El badge "incluye potencia firme proxy" del Hero está siempre
+    // visible y es el indicador canónico del proxy tras el cambio F
+    // (el disclaimer rojo separado se removió; el texto detallado vive
+    // ahora en tooltips contextuales).
     expect(
-      screen.getAllByText(/PAA del Manual de Mercado/i).length
+      screen.getAllByText(/incluye potencia firme proxy/i).length
     ).toBeGreaterThanOrEqual(1);
+    // El disclaimer ámbar superior mantiene la mención a Estanzuela 2.
     expect(
       screen.getAllByText(/Estanzuela 2/i).length
     ).toBeGreaterThanOrEqual(1);
@@ -114,6 +118,15 @@ describe("TabFinanciero · render integration", () => {
       (tr) => tr.querySelectorAll("td").length === 9
     );
     expect(filasAnual).toHaveLength(21);
+  });
+
+  it("renderiza la sección 'Evolución económica' (master chart) sin crash", () => {
+    rend();
+    expect(
+      screen.getByRole("heading", {
+        name: /Aporte incremental BESS · 20 años con SOH/i,
+      })
+    ).toBeInTheDocument();
   });
 
   it("renderiza las 3 cards de sensibilidades (Conservador/Base/Optimista)", () => {

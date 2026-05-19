@@ -1,3 +1,10 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 interface KPI {
   label: string;
   valor: string;
@@ -6,8 +13,10 @@ interface KPI {
   destacar?: boolean;
   /** KPI contextual: card más débil visualmente, sin border destacado. */
   secundaria?: boolean;
-  /** Etiqueta pequeña inline (ej. "incl. pfirme proxy"). */
+  /** Etiqueta pequeña inline (ej. "incluye potencia firme proxy"). */
   badge?: string;
+  /** Tooltip que aparece al hacer hover en el badge. */
+  badge_tooltip?: string;
 }
 
 interface Props {
@@ -54,9 +63,24 @@ export function SeccionHero({ kpis }: Props) {
               <p className={labelClase}>{kpi.label}</p>
               <p className={valorClase}>{kpi.valor}</p>
               {kpi.badge ? (
-                <p className="mt-1 inline-flex max-w-full items-center rounded-full bg-[#FEF3C7] px-2 py-0.5 text-[10px] font-medium text-[#78350F]">
-                  {kpi.badge}
-                </p>
+                kpi.badge_tooltip ? (
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="mt-1 inline-flex max-w-full cursor-help items-center rounded-full bg-[#FEF3C7] px-2 py-0.5 text-[10px] font-medium text-[#78350F]">
+                          {kpi.badge}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-[320px] leading-snug">
+                        {kpi.badge_tooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  <p className="mt-1 inline-flex max-w-full items-center rounded-full bg-[#FEF3C7] px-2 py-0.5 text-[10px] font-medium text-[#78350F]">
+                    {kpi.badge}
+                  </p>
+                )
               ) : null}
               {kpi.sublabel ? (
                 <p

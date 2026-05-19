@@ -1,5 +1,15 @@
+import { Info } from "lucide-react";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CATALOGO_HYPERSTRONG } from "@/data/catalogo-hyperstrong";
 import type { ParametrosFinancieros } from "@/hooks/useParametrosFinancieros";
+
+import { COPY_PROXY_PFIRME } from "./copy-proxy-pfirme";
 
 interface Props {
   params: ParametrosFinancieros;
@@ -341,8 +351,24 @@ function CampoSliderCredibilidad({
   const pct = Math.round(valor * 100);
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
         Factor credibilidad pot. firme
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label="Información sobre el factor de credibilidad de potencia firme"
+                className="inline-flex h-3.5 w-3.5 items-center justify-center text-[var(--color-text-tertiary)] outline-none transition-colors hover:text-[var(--color-text-secondary)]"
+              >
+                <Info className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[320px] leading-snug">
+              {COPY_PROXY_PFIRME}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </span>
       <input
         type="range"
