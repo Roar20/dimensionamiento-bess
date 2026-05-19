@@ -1,9 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { TabBessCatalogo } from "@/components/bess/TabBessCatalogo";
 import { limpiarTipoCambioPersistido } from "@/hooks/useTipoCambio";
+
+vi.mock("react-chartjs-2", () => ({
+  Line: ({ data }: { data: { datasets: { label: string }[] } }) => (
+    <div data-testid="chart-line" data-series={data.datasets.length} />
+  ),
+}));
 
 beforeEach(() => {
   limpiarTipoCambioPersistido();

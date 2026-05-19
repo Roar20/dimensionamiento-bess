@@ -10,6 +10,7 @@ import { ComparativaTecnica } from "./ComparativaTecnica";
 import { EquipoCard } from "./EquipoCard";
 import { FichaTecnicaModal } from "./FichaTecnicaModal";
 import { HeaderCatalogo } from "./HeaderCatalogo";
+import { SeccionDegradacionSOH } from "./SeccionDegradacionSOH";
 import { TipoCambioInput } from "./TipoCambioInput";
 
 const CHIPS_HEADER = [
@@ -55,6 +56,8 @@ export function TabBessCatalogo() {
 
       <ComparativaTecnica />
 
+      <SeccionDegradacionSOH />
+
       <MetodologiaDetalles titulo="Parámetros de operación y supuestos">
         <p className="mb-2">
           <strong className="font-medium text-[var(--color-text-primary)]">
@@ -70,15 +73,6 @@ export function TabBessCatalogo() {
           profundidad de descarga 95%, SoC mínimo 5%, SoC inicial 5%. La
           ventana operativa útil del banco es 5%–100% del nominal declarado por
           datasheet.
-        </p>
-        <p className="mb-2">
-          <strong className="font-medium text-[var(--color-text-primary)]">
-            Curva SOH a 20 años:
-          </strong>{" "}
-          según Hyperstrong, retención 99.4% en el año 0 con caída suave hasta
-          67.1% al año 20 (perfil LFP-314Ah, operación a 1C). Los cálculos
-          financieros de Tab SFV+BESS aplican esta curva en lugar de un
-          fade lineal.
         </p>
         <p className="mb-2">
           <strong className="font-medium text-[var(--color-text-primary)]">
