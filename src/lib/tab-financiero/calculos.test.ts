@@ -113,7 +113,7 @@ describe("sumarDescargadoEnPunta", () => {
 
 describe("proyectar20Anios", () => {
   const ENTRADAS_BASE: EntradasProyeccion = {
-    descargado_anio1_mwh: 100,
+    captura_excedentes_anio1_mwh: 50,
     descargado_anio1_punta_mwh: 50,
     generacion_anual_mwh: 913,
     potencia_firme_kw: 100,
@@ -142,16 +142,28 @@ describe("proyectar20Anios", () => {
     expect(f[0]!.opex_mxn).toBe(0);
   });
 
-  it("año 1: energía descargada = base, sin degradación relativa", () => {
+  it("año 1: ingreso captura y arbitraje = base sin degradación relativa", () => {
     const f = proyectar20Anios(ENTRADAS_BASE);
-    expect(f[1]!.energia_descargada_mwh).toBeCloseTo(100, 6);
     expect(f[1]!.energia_descargada_punta_mwh).toBeCloseTo(50, 6);
+    expect(f[1]!.ingreso_captura_excedentes_mxn).toBeCloseTo(50 * 1000, 4);
+    expect(f[1]!.ingreso_arbitraje_mxn).toBeCloseTo(50 * 360 * 0.30, 4);
   });
 
-  it("año 20: descargado = base × curva[20]/curva[1]", () => {
+  it("año 20: ingreso_captura = base × curva[20]/curva[1]", () => {
     const f = proyectar20Anios(ENTRADAS_BASE);
     const ratio = (CURVA_SOH_TEST[20] as number) / (CURVA_SOH_TEST[1] as number);
-    expect(f[20]!.energia_descargada_mwh).toBeCloseTo(100 * ratio, 4);
+    expect(f[20]!.ingreso_captura_excedentes_mxn).toBeCloseTo(
+      50 * 1000 * ratio,
+      2
+    );
+  });
+
+  it("ingreso_ppa_generacion = gen × precio_PPA constante en años 1..20", () => {
+    const f = proyectar20Anios(ENTRADAS_BASE);
+    const esperado = 913 * 1000;
+    for (let i = 1; i <= 20; i += 1) {
+      expect(f[i]!.ingreso_ppa_generacion_mxn).toBeCloseTo(esperado, 4);
+    }
   });
 
   it("CELs NO degradan con SOH (constantes año a año)", () => {
@@ -196,9 +208,9 @@ describe("calcularPaybackInterpolado", () => {
       return {
         anio: i,
         factor_soh: 1,
-        energia_descargada_mwh: 0,
         energia_descargada_punta_mwh: 0,
-        ingreso_energia_mxn: 0,
+        ingreso_ppa_generacion_mxn: 0,
+        ingreso_captura_excedentes_mxn: 0,
         ingreso_arbitraje_mxn: 0,
         ingreso_potencia_firme_mxn: 0,
         ingreso_cels_mxn: 0,
@@ -240,9 +252,9 @@ describe("calcularTIR y calcularVPN", () => {
       flujos.push({
         anio: i,
         factor_soh: 1,
-        energia_descargada_mwh: 0,
         energia_descargada_punta_mwh: 0,
-        ingreso_energia_mxn: 0,
+        ingreso_ppa_generacion_mxn: 0,
+        ingreso_captura_excedentes_mxn: 0,
         ingreso_arbitraje_mxn: 0,
         ingreso_potencia_firme_mxn: 0,
         ingreso_cels_mxn: 0,
@@ -268,9 +280,9 @@ describe("calcularTIR y calcularVPN", () => {
       flujos.push({
         anio: i,
         factor_soh: 1,
-        energia_descargada_mwh: 0,
         energia_descargada_punta_mwh: 0,
-        ingreso_energia_mxn: 0,
+        ingreso_ppa_generacion_mxn: 0,
+        ingreso_captura_excedentes_mxn: 0,
         ingreso_arbitraje_mxn: 0,
         ingreso_potencia_firme_mxn: 0,
         ingreso_cels_mxn: 0,

@@ -5,6 +5,7 @@ import { FooterEstandar } from "@/components/ui/FooterEstandar";
 import { CATALOGO_HYPERSTRONG } from "@/data/catalogo-hyperstrong";
 import {
   aplicarFactorProduccion,
+  calcularCapturaExcedentesAnio,
   calcularPaybackInterpolado,
   calcularPotenciaFirmeProxy,
   calcularTIR,
@@ -23,8 +24,11 @@ import type { DatosSFV } from "@/types/sfv";
 
 import { DisclaimerTransversal } from "./DisclaimerTransversal";
 import { PanelConfiguracion } from "./PanelConfiguracion";
+import { SeccionBreakdownIngresos } from "./SeccionBreakdownIngresos";
 import { SeccionComparativa } from "./SeccionComparativa";
+import { SeccionFlujoAcumulado } from "./SeccionFlujoAcumulado";
 import { SeccionHero } from "./SeccionHero";
+import { SeccionWaterfall } from "./SeccionWaterfall";
 
 interface Props {
   datos: DatosSFV;
@@ -111,8 +115,18 @@ export function TabFinanciero({ datos }: Props) {
       VENTANA_PUNTA
     );
 
+    // Captura de excedentes: energía que excede POI capturable por el BESS.
+    // Para factor_produccion = 1 con Tequila (pico 446.7 < POI 500) es ~0.
+    // Con factor > 1 emerge captura real.
+    const captura_excedentes_mwh = calcularCapturaExcedentesAnio(
+      registrosAjustados,
+      datos.config.capacidad_poi_kw,
+      config.p_kw,
+      config.rte
+    );
+
     const flujos = proyectar20Anios({
-      descargado_anio1_mwh: kpis.descargado_total_mwh,
+      captura_excedentes_anio1_mwh: captura_excedentes_mwh,
       descargado_anio1_punta_mwh: descargado_punta_mwh,
       generacion_anual_mwh,
       potencia_firme_kw,
@@ -141,6 +155,7 @@ export function TabFinanciero({ datos }: Props) {
         (params.precio_energia_mxn_mwh + params.precio_cel_mxn);
     const ingreso_sfv_bess_anio1 = flujos[1]?.ingreso_total_mxn ?? 0;
     const delta_vs_sfv_solo = ingreso_sfv_bess_anio1 - ingreso_sfv_solo_anio1;
+    const captura_excedentes_anio1_mwh = captura_excedentes_mwh;
 
     const horas_en_operacion = detalle.filter(
       (e) => e.descargado_kwh > 0 || e.cargado_kwh > 0
@@ -169,9 +184,10 @@ export function TabFinanciero({ datos }: Props) {
       ingreso_sfv_bess_anio1,
       delta_vs_sfv_solo,
       utilizacion_pct,
+      captura_excedentes_anio1_mwh,
       registros_ajustados: registrosAjustados,
     };
-  }, [registros, params, tipoCambio]);
+  }, [registros, params, tipoCambio, datos.config.capacidad_poi_kw]);
 
   const heroKpis = useMemo(
     () => [
@@ -245,6 +261,40 @@ export function TabFinanciero({ datos }: Props) {
         payback={calculo.payback}
         ingreso_acumulado_sfv_bess={calculo.ingreso_acumulado}
         ingreso_acumulado_sfv_solo={calculo.ingreso_sfv_solo_anio1 * 20}
+      />
+
+      <SeccionWaterfall
+        ingreso_sfv_base_mxn={calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0}
+        ingreso_captura_excedentes_mxn={
+          calculo.flujos[1]?.ingreso_captura_excedentes_mxn ?? 0
+        }
+        ingreso_arbitraje_mxn={calculo.flujos[1]?.ingreso_arbitraje_mxn ?? 0}
+        ingreso_potencia_firme_mxn={
+          calculo.flujos[1]?.ingreso_potencia_firme_mxn ?? 0
+        }
+        ingreso_cels_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
+        opex_mxn={calculo.flujos[1]?.opex_mxn ?? 0}
+      />
+
+      <SeccionFlujoAcumulado
+        flujos_sfv_bess={calculo.flujos}
+        ingreso_sfv_solo_anio={calculo.ingreso_sfv_solo_anio1}
+        capex_mxn={calculo.capex}
+        payback={calculo.payback}
+      />
+
+      <SeccionBreakdownIngresos
+        ingreso_energia_ppa_mxn={
+          calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0
+        }
+        ingreso_captura_excedentes_mxn={
+          calculo.flujos[1]?.ingreso_captura_excedentes_mxn ?? 0
+        }
+        ingreso_arbitraje_mxn={calculo.flujos[1]?.ingreso_arbitraje_mxn ?? 0}
+        ingreso_potencia_firme_mxn={
+          calculo.flujos[1]?.ingreso_potencia_firme_mxn ?? 0
+        }
+        ingreso_cels_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
       />
 
       <FooterEstandar fuente="Fuente: dispatch BESS sobre dataset Tequila 2025 · precios proxy Estanzuela 2 marzo 2026 · catálogo Hyperstrong" />

@@ -18,11 +18,25 @@ import type { RegistroHorario } from "@/types/sfv";
 export type FlujoAnual = {
   anio: number;
   factor_soh: number;
-  energia_descargada_mwh: number;
   energia_descargada_punta_mwh: number;
-  ingreso_energia_mxn: number;
+  /**
+   * Ingreso por venta de la generación SFV completa al precio PPA. Constante
+   * año a año (modelo proxy: el SFV no degrada por SOH BESS).
+   */
+  ingreso_ppa_generacion_mxn: number;
+  /**
+   * Uplift por captura de excedentes (energía que sin BESS se hubiera
+   * perdido por clipping POI). Escala con SOH.
+   */
+  ingreso_captura_excedentes_mxn: number;
+  /**
+   * Uplift de arbitraje hora-punta: diferencial LMP punta-valle por la
+   * energía descargada en ventana CFE 18-22h. Escala con SOH.
+   */
   ingreso_arbitraje_mxn: number;
+  /** Capacidad firme proxy × precio × 12 meses. Escala con SOH. */
   ingreso_potencia_firme_mxn: number;
+  /** CELs sobre la generación SFV. NO degrada con SOH BESS. */
   ingreso_cels_mxn: number;
   ingreso_total_mxn: number;
   opex_mxn: number;
@@ -31,11 +45,15 @@ export type FlujoAnual = {
 };
 
 export type EntradasProyeccion = {
-  /** Energía total descargada por el BESS en año 1, MWh. */
-  descargado_anio1_mwh: number;
+  /**
+   * Energía capturada por el BESS proveniente de excedentes SFV
+   * (gen_kw > POI), año 1, MWh. Es el "valor adicional" del BESS sobre
+   * lo que el SFV ya cobra al PPA.
+   */
+  captura_excedentes_anio1_mwh: number;
   /** Energía descargada en ventana hora-punta CFE año 1, MWh. */
   descargado_anio1_punta_mwh: number;
-  /** Generación anual del SFV (proxy CELs, no degrada con SOH). MWh. */
+  /** Generación anual del SFV. Base PPA y CELs. MWh. */
   generacion_anual_mwh: number;
   /** Potencia firme proxy año 1 (percentil 80 en hora-punta), kW. */
   potencia_firme_kw: number;
@@ -162,18 +180,21 @@ export function proyectar20Anios(e: EntradasProyeccion): FlujoAnual[] {
   const potencia_firme_mw = e.potencia_firme_kw / 1000;
   const ingreso_pfirme_anio1 =
     potencia_firme_mw * e.precio_potencia_firme_mxn_mw_mes * 12;
+  const ingreso_ppa_base = e.generacion_anual_mwh * e.precio_energia_mxn_mwh;
   const ingreso_cels_anio = e.generacion_anual_mwh * e.precio_cel_mxn;
+  const ingreso_captura_anio1 =
+    e.captura_excedentes_anio1_mwh * e.precio_energia_mxn_mwh;
   const diferencial_lmp_mxn_mwh = e.lmp_mxn_mwh * e.diferencial_lmp_pct;
 
   const flujos: FlujoAnual[] = [];
 
-  // Año 0: CAPEX único.
+  // Año 0: CAPEX único, sin ingresos ni opex.
   flujos.push({
     anio: 0,
     factor_soh: e.curva_soh[0] as number,
-    energia_descargada_mwh: 0,
     energia_descargada_punta_mwh: 0,
-    ingreso_energia_mxn: 0,
+    ingreso_ppa_generacion_mxn: 0,
+    ingreso_captura_excedentes_mxn: 0,
     ingreso_arbitraje_mxn: 0,
     ingreso_potencia_firme_mxn: 0,
     ingreso_cels_mxn: 0,
@@ -188,22 +209,24 @@ export function proyectar20Anios(e: EntradasProyeccion): FlujoAnual[] {
   for (let i = 1; i <= 20; i += 1) {
     const soh_i = e.curva_soh[i] as number;
     const ratio_soh = soh_i / soh_ref;
-    const e_desc = e.descargado_anio1_mwh * ratio_soh;
     const e_desc_punta = e.descargado_anio1_punta_mwh * ratio_soh;
-    const ingreso_energia = e_desc * e.precio_energia_mxn_mwh;
+    const ingreso_captura = ingreso_captura_anio1 * ratio_soh;
     const ingreso_arbitraje = e_desc_punta * diferencial_lmp_mxn_mwh;
-    // Potencia firme escala con SOH (capacidad del BESS degrada).
     const ingreso_pfirme = ingreso_pfirme_anio1 * ratio_soh;
     const ingreso_total =
-      ingreso_energia + ingreso_arbitraje + ingreso_pfirme + ingreso_cels_anio;
+      ingreso_ppa_base +
+      ingreso_captura +
+      ingreso_arbitraje +
+      ingreso_pfirme +
+      ingreso_cels_anio;
     const flujo_neto = ingreso_total - opex_anual;
     const prev = flujos[i - 1] as FlujoAnual;
     flujos.push({
       anio: i,
       factor_soh: soh_i,
-      energia_descargada_mwh: e_desc,
       energia_descargada_punta_mwh: e_desc_punta,
-      ingreso_energia_mxn: ingreso_energia,
+      ingreso_ppa_generacion_mxn: ingreso_ppa_base,
+      ingreso_captura_excedentes_mxn: ingreso_captura,
       ingreso_arbitraje_mxn: ingreso_arbitraje,
       ingreso_potencia_firme_mxn: ingreso_pfirme,
       ingreso_cels_mxn: ingreso_cels_anio,
@@ -215,6 +238,29 @@ export function proyectar20Anios(e: EntradasProyeccion): FlujoAnual[] {
   }
 
   return flujos;
+}
+
+/**
+ * Calcula la energía anual capturable de excedentes SFV (gen_kw > POI).
+ * Limita por la capacidad de carga horaria del BESS y aplica una
+ * eficiencia round-trip aproximada (RTE). Modelo proxy: sin BESS, estos
+ * MWh se perderían por curtailment al POI.
+ */
+export function calcularCapturaExcedentesAnio(
+  registros: readonly RegistroHorario[],
+  capacidad_poi_kw: number,
+  capacidad_carga_kw: number,
+  rte: number
+): number {
+  const sqrtRte = Math.sqrt(rte);
+  let totalKwh = 0;
+  for (const r of registros) {
+    const excedente_kw = Math.max(0, r.potencia_kw_prom - capacidad_poi_kw);
+    const capturable_kw = Math.min(excedente_kw, capacidad_carga_kw);
+    // Pérdidas simétricas: √RTE en carga × √RTE en descarga = RTE total.
+    totalKwh += capturable_kw * 1 * sqrtRte * sqrtRte;
+  }
+  return totalKwh / 1000;
 }
 
 /**
