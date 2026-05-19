@@ -22,6 +22,8 @@ import type {
 import type { DatosSFV } from "@/types/sfv";
 
 import { DisclaimerTransversal } from "./DisclaimerTransversal";
+import { PanelConfiguracion } from "./PanelConfiguracion";
+import { SeccionComparativa } from "./SeccionComparativa";
 import { SeccionHero } from "./SeccionHero";
 
 interface Props {
@@ -57,7 +59,7 @@ function formatMxnMillones(v: number): string {
 }
 
 export function TabFinanciero({ datos }: Props) {
-  const { params } = useParametrosFinancieros();
+  const { params, actualizar } = useParametrosFinancieros();
   const { tipoCambio } = useTipoCambio();
   const { registros } = datos;
 
@@ -228,6 +230,22 @@ export function TabFinanciero({ datos }: Props) {
       <DisclaimerTransversal />
 
       <SeccionHero kpis={heroKpis} />
+
+      <PanelConfiguracion
+        params={params}
+        capex_catalogo_mxn={calculo.capex_catalogo}
+        onChange={actualizar}
+        onResetCapex={() => actualizar({ capex_override_mxn: null })}
+      />
+
+      <SeccionComparativa
+        ingreso_sfv_solo_anio1={calculo.ingreso_sfv_solo_anio1}
+        ingreso_sfv_bess_anio1={calculo.ingreso_sfv_bess_anio1}
+        delta_anio1={calculo.delta_vs_sfv_solo}
+        payback={calculo.payback}
+        ingreso_acumulado_sfv_bess={calculo.ingreso_acumulado}
+        ingreso_acumulado_sfv_solo={calculo.ingreso_sfv_solo_anio1 * 20}
+      />
 
       <FooterEstandar fuente="Fuente: dispatch BESS sobre dataset Tequila 2025 · precios proxy Estanzuela 2 marzo 2026 · catálogo Hyperstrong" />
     </div>
