@@ -2,6 +2,16 @@
 
 Cada entrada: fecha, decisión, razón, alternativas descartadas.
 
+## 2026-05-19 — Curva SOH como propiedad del catálogo
+
+**Decisión:** Los 21 valores de la curva SOH estándar Hyperstrong viven en `src/data/curvas-soh.ts` como registro extensible `CURVAS_SOH` indexado por clave semántica (clave inicial: `hyperstrong_lfp_standard`). El tipo `EquipoBess` incluye campo `curvaSoh: readonly number[]`. Los 3 equipos del catálogo (Cube Plus, Cube Max, Block III) asignan la misma referencia (`CURVAS_SOH.hyperstrong_lfp_standard`) al campo `curvaSoh`, no copias del array. Los consumidores (motor potencia firme CNE 2026, futuro Tab Análisis Financiero, simulador 20 años, reporte LCOE) acceden la curva vía `equipo.curvaSoh`, no importan `CURVAS_SOH` directamente.
+
+**Razón:** Múltiples consumidores futuros leerán la curva SOH. Si vive como constante module-level que cada consumidor importa, el acoplamiento es directo: cambiar de proveedor de baterías (Hyperstrong → BYD → CATL) obliga a refactorizar cada consumidor. Como propiedad del catálogo, el consumidor recibe un `EquipoBess` y lee `equipo.curvaSoh` sin saber qué proveedor es. La identidad referencial compartida (no copia por equipo) garantiza que la curva es un dato del proveedor, no del equipo individual; si Hyperstrong publica curva revisada, el cambio es un solo punto. Un test defensivo con `toBe` (no `toEqual`) verifica que los 3 equipos comparten la misma referencia en memoria.
+
+**Alternativa descartada:** (1) Constante suelta `CURVA_SOH_HYPERSTRONG_STANDARD` exportada e importada por cada consumidor — acoplamiento directo a proveedor único. (2) Función `getCurvaSoh(proveedor, garantia)` que retorne arrays — rompe identidad referencial salvo memoización; memoizar dato estático es síntoma de que el dato debería ser estático en primer lugar.
+
+Agregar un nuevo proveedor (BYD, CATL, Sungrow) o garantía diferenciada del mismo proveedor es agregar una clave al registro `CURVAS_SOH`. No requiere refactor de consumidores ni del tipo `EquipoBess`.
+
 ## 2026-05-16 — Repo nuevo `dimensionamiento-bess`
 
 **Decisión:** Reescritura desde cero en lugar de cleanup de `curvas-bess`.
