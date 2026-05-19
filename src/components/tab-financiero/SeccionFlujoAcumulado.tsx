@@ -3,6 +3,7 @@ import type { ChartOptions } from "chart.js";
 import { Line } from "react-chartjs-2";
 
 import type { FlujoAnual } from "@/lib/tab-financiero/calculos";
+import { formatoCompacto, formatoEje } from "@/lib/tab-financiero/formato-monetario";
 
 interface Props {
   flujos_sfv_bess: readonly FlujoAnual[];
@@ -22,14 +23,6 @@ const COLOR_PAYBACK = "#DC2626";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
 const COLOR_ZERO = "rgba(0, 0, 0, 0.30)";
 
-const FMT_MXN_M = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 1,
-  minimumFractionDigits: 1,
-});
-
-function fmtMillones(v: number): string {
-  return `${FMT_MXN_M.format(v / 1_000_000)} M`;
-}
 
 export function SeccionFlujoAcumulado({
   flujos_sfv_bess,
@@ -115,7 +108,7 @@ export function SeccionFlujoAcumulado({
       tooltip: {
         callbacks: {
           label: (ctx) =>
-            `${ctx.dataset.label}: ${fmtMillones((ctx.parsed.y as number) ?? 0)}`,
+            `${ctx.dataset.label}: ${formatoCompacto((ctx.parsed.y as number) ?? 0)}`,
         },
       },
     },
@@ -130,7 +123,7 @@ export function SeccionFlujoAcumulado({
         ticks: {
           color: "#737373",
           font: { size: 11 },
-          callback: (v) => fmtMillones(Number(v)),
+          callback: (v) => formatoEje(Number(v)),
         },
       },
     },

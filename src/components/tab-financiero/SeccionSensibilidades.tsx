@@ -13,6 +13,7 @@ import {
   type EntradasProyeccion,
   type FlujoAnual,
 } from "@/lib/tab-financiero/calculos";
+import { formatoCompacto } from "@/lib/tab-financiero/formato-monetario";
 
 interface Props {
   /**
@@ -204,7 +205,7 @@ function Card({
         />
         <Fila
           label="CAPEX escenario"
-          valor={`${FMT_NUM.format(capex_mxn / 1_000_000)} M MXN`}
+          valor={formatoCompacto(capex_mxn)}
         />
       </div>
     </div>

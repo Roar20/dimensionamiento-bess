@@ -3,6 +3,7 @@ import type { ChartOptions, Plugin } from "chart.js";
 import { Line } from "react-chartjs-2";
 
 import type { FlujoAnual } from "@/lib/tab-financiero/calculos";
+import { formatoCompacto, formatoEje } from "@/lib/tab-financiero/formato-monetario";
 
 interface Props {
   flujos_base: readonly FlujoAnual[];
@@ -25,22 +26,10 @@ const COLOR_PAYBACK = "#0F766E";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
 const ALPHA_AREA = "e6"; // 90% — uniforme entre los 3 componentes
 
-const FMT_M = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 3,
-  minimumFractionDigits: 3,
-});
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 1,
   minimumFractionDigits: 1,
 });
-
-function fmtMillones(v: number): string {
-  return `$${FMT_M.format(v / 1_000_000)} M MXN`;
-}
-
-function fmtMillonesEje(v: number): string {
-  return `${(v / 1_000_000).toFixed(1)}M`;
-}
 
 /**
  * Plugin inline Chart.js para dibujar:
@@ -95,18 +84,22 @@ const paybackLinePlugin: Plugin<"line"> = {
       }
     }
 
-    // --- (b) Label "SOH XX% año 20" al final de la curva ---
+    // --- (b) Label "SOH XX% año 20" al extremo derecho de la curva ---
+    // Posicionado a la DERECHA del último punto (xLast + 6) con
+    // textAlign "left", dentro de la zona de padding reservada por
+    // layout.padding.right. Esto evita el clipping contra el borde
+    // derecho del chartArea.
     const sohAnio20 = opts?.soh_anio20_pct;
     if (sohAnio20 != null && y1Scale) {
-      const xLast = xScale.getPixelForValue(19); // índice del año 20
+      const xLast = xScale.getPixelForValue(19);
       const yLast = y1Scale.getPixelForValue(sohAnio20);
       ctx.save();
       ctx.font =
         "600 11px Inter, -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.fillStyle = COLOR_SOH;
-      ctx.textAlign = "right";
+      ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      ctx.fillText(`SOH ${Math.round(sohAnio20)}% año 20`, xLast - 4, yLast - 10);
+      ctx.fillText(`SOH ${Math.round(sohAnio20)}% año 20`, xLast + 6, yLast);
       ctx.restore();
     }
   },
@@ -173,7 +166,13 @@ export function SeccionEvolucionEconomica({
         data: datos.captura,
         backgroundColor: `${COLOR_CAPTURA}${ALPHA_AREA}`,
         borderColor: COLOR_CAPTURA,
-        borderWidth: 1,
+        // 2px global: garantiza perceptibilidad de la franja de
+        // captura que tiende a ser la más delgada del stack
+        // (componente "oportunista" — generalmente <10% del aporte
+        // total). Chart.js v4 no soporta border condicional por
+        // punto en datasets Area; el ancho global es aceptable
+        // porque el área del fill sigue representando el valor real.
+        borderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 4,
         fill: "-1" as const, // hacia arbitraje
@@ -218,7 +217,14 @@ export function SeccionEvolucionEconomica({
     // Padding superior reservado para que los labels del plugin
     // (payback + SOH año 20) tengan zona física propia, fuera del
     // chartArea de los datasets.
-    layout: { padding: { top: 28, right: 12 } },
+    // padding.top 28: zona reservada para label de payback.
+    // padding.right 48: zona reservada para label "SOH XX% año 20"
+    //   posicionado a la derecha del último punto del eje X (~75-85px
+    //   de label; 48 es suficiente porque parte del label puede caer
+    //   sobre el chart area sin problema, solo necesitamos garantizar
+    //   que no se clippee. Si visualmente se corta, subir a 56-64
+    //   sin pasar de 64 para no comprimir el slope de las áreas).
+    layout: { padding: { top: 28, right: 48 } },
     plugins: {
       legend: { display: false }, // leyenda custom arriba del gráfico
       tooltip: {
@@ -234,11 +240,11 @@ export function SeccionEvolucionEconomica({
             const total = p + a + c;
             const sohVal = datos.soh[i] ?? 0;
             return [
-              `Aporte BESS total:    ${fmtMillones(total)}`,
+              `Aporte BESS total:    ${formatoCompacto(total)}`,
               "",
-              `  Potencia firme proxy:  ${fmtMillones(p)}`,
-              `  Arbitraje horario:     ${fmtMillones(a)}`,
-              `  Captura excedentes:    ${fmtMillones(c)}`,
+              `  Potencia firme proxy:  ${formatoCompacto(p)}`,
+              `  Arbitraje horario:     ${formatoCompacto(a)}`,
+              `  Captura excedentes:    ${formatoCompacto(c)}`,
               "",
               `SOH aplicado:            ${FMT_PCT.format(sohVal)}%`,
             ];
@@ -272,7 +278,7 @@ export function SeccionEvolucionEconomica({
         ticks: {
           color: "#737373",
           font: { size: 11 },
-          callback: (v) => fmtMillonesEje(Number(v)),
+          callback: (v) => formatoEje(Number(v)),
         },
         title: {
           display: true,

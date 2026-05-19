@@ -3,6 +3,7 @@ import type { ChartOptions } from "chart.js";
 import { Line } from "react-chartjs-2";
 
 import type { FlujoAnual } from "@/lib/tab-financiero/calculos";
+import { formatoCompacto, formatoEje } from "@/lib/tab-financiero/formato-monetario";
 
 interface Props {
   flujos: readonly FlujoAnual[];
@@ -13,10 +14,6 @@ const COLOR_SOH = "#B45309";
 const COLOR_INGRESO = "#0F766E";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
 
-const FMT_M = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 1,
-  minimumFractionDigits: 1,
-});
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 1,
   minimumFractionDigits: 1,
@@ -75,7 +72,7 @@ export function SeccionSohErosion({ flujos, curva_soh }: Props) {
             if (ctx.dataset.yAxisID === "y1") {
               return `SOH: ${FMT_PCT.format((ctx.parsed.y as number) ?? 0)}%`;
             }
-            return `Incremental BESS: ${FMT_M.format(((ctx.parsed.y as number) ?? 0) / 1_000_000)} M MXN`;
+            return `Incremental BESS: ${formatoCompacto((ctx.parsed.y as number) ?? 0)}`;
           },
         },
       },
@@ -93,7 +90,7 @@ export function SeccionSohErosion({ flujos, curva_soh }: Props) {
         ticks: {
           color: COLOR_INGRESO,
           font: { size: 11 },
-          callback: (v) => `${(Number(v) / 1_000_000).toFixed(1)} M`,
+          callback: (v) => formatoEje(Number(v)),
         },
       },
       y1: {

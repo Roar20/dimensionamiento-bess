@@ -1,4 +1,5 @@
 import type { FlujoAnual } from "@/lib/tab-financiero/calculos";
+import { formatoCompleto } from "@/lib/tab-financiero/formato-monetario";
 
 interface Props {
   flujos: readonly FlujoAnual[];
@@ -12,9 +13,6 @@ const FMT_PCT = new Intl.NumberFormat("es-MX", {
 const FMT_MWH = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 1,
   minimumFractionDigits: 1,
-});
-const FMT_MXN = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 0,
 });
 
 export function TablaAnual21({ flujos, payback }: Props) {
@@ -74,24 +72,24 @@ export function TablaAnual21({ flujos, payback }: Props) {
                   <Td variante="informativo">
                     {f.anio === 0
                       ? "—"
-                      : FMT_MXN.format(f.ingreso_ppa_generacion_mxn)}
+                      : formatoCompleto(f.ingreso_ppa_generacion_mxn)}
                   </Td>
                   <Td variante="informativo">
-                    {f.anio === 0 ? "—" : FMT_MXN.format(f.ingreso_cels_mxn)}
+                    {f.anio === 0 ? "—" : formatoCompleto(f.ingreso_cels_mxn)}
                   </Td>
                   <Td emphasis={esPayback}>
                     {f.anio === 0
                       ? "—"
-                      : FMT_MXN.format(f.ingreso_incremental_bess_mxn)}
+                      : formatoCompleto(f.ingreso_incremental_bess_mxn)}
                   </Td>
                   <Td>
-                    {f.anio === 0 ? "—" : FMT_MXN.format(f.opex_mxn)}
+                    {f.anio === 0 ? "—" : formatoCompleto(f.opex_mxn)}
                   </Td>
                   <Td emphasis={esPayback}>
-                    {FMT_MXN.format(f.flujo_neto_mxn)}
+                    {formatoCompleto(f.flujo_neto_mxn)}
                   </Td>
                   <Td emphasis={esPayback}>
-                    {FMT_MXN.format(f.flujo_acumulado_mxn)}
+                    {formatoCompleto(f.flujo_acumulado_mxn)}
                   </Td>
                 </tr>
               );

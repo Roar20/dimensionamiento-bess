@@ -1,3 +1,5 @@
+import { formatoCompacto } from "@/lib/tab-financiero/formato-monetario";
+
 interface Props {
   ingreso_sfv_solo_anio1: number;
   ingreso_proyecto_anio1: number;
@@ -11,10 +13,6 @@ const FMT_NUM = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 1,
   minimumFractionDigits: 1,
 });
-
-function fmtMillones(v: number): string {
-  return `${FMT_NUM.format(v / 1_000_000)} M`;
-}
 
 export function SeccionComparativa({
   ingreso_sfv_solo_anio1,
@@ -46,8 +44,8 @@ export function SeccionComparativa({
           subtitulo="Sin almacenamiento, sin arbitraje, sin potencia firme"
           variante="base"
           metricas={[
-            { label: "Ingreso bruto año 1", valor: fmtMillones(ingreso_sfv_solo_anio1) },
-            { label: "Acumulado 20 años", valor: fmtMillones(ingreso_acumulado_sfv_solo) },
+            { label: "Ingreso bruto año 1", valor: formatoCompacto(ingreso_sfv_solo_anio1) },
+            { label: "Acumulado 20 años", valor: formatoCompacto(ingreso_acumulado_sfv_solo) },
             { label: "Payback BESS", valor: "n/a" },
           ]}
           capacidades={[
@@ -63,11 +61,11 @@ export function SeccionComparativa({
           subtitulo="Almacenamiento que mejora la calidad económica de la energía"
           variante="destacada"
           metricas={[
-            { label: "Ingreso proyecto año 1", valor: fmtMillones(ingreso_proyecto_anio1) },
-            { label: "Acumulado proyecto 20 años", valor: fmtMillones(ingreso_acumulado_proyecto) },
+            { label: "Ingreso proyecto año 1", valor: formatoCompacto(ingreso_proyecto_anio1) },
+            { label: "Acumulado proyecto 20 años", valor: formatoCompacto(ingreso_acumulado_proyecto) },
             {
               label: "Aporte incremental BESS · año 1",
-              valor: fmtMillones(ingreso_incremental_bess_anio1),
+              valor: formatoCompacto(ingreso_incremental_bess_anio1),
               destacar: true,
             },
             {

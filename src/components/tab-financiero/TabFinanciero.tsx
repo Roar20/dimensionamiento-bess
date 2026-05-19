@@ -13,6 +13,7 @@ import {
   proyectar20Anios,
   sumarDescargadoEnPunta,
 } from "@/lib/tab-financiero/calculos";
+import { formatoCompacto } from "@/lib/tab-financiero/formato-monetario";
 import { DOD_DEFAULT, simularUna } from "@/lib/core/bess";
 import { useParametrosFinancieros } from "@/hooks/useParametrosFinancieros";
 import { useTipoCambio } from "@/hooks/useTipoCambio";
@@ -54,23 +55,10 @@ const CATEGORIA_TODA_ENERGIA: CategoriaEnergia = {
   descripcion: "Universo total capturable; el modelo financiero no acota la energía cargable.",
 };
 
-const FMT_MXN_ENTERO = new Intl.NumberFormat("es-MX", {
-  style: "currency",
-  currency: "MXN",
-  maximumFractionDigits: 0,
-});
-const FMT_MXN_M = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 1,
-  minimumFractionDigits: 1,
-});
 const FMT_PCT = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 1,
   minimumFractionDigits: 1,
 });
-
-function formatMxnMillones(v: number): string {
-  return `${FMT_MXN_M.format(v / 1_000_000)} M`;
-}
 
 export function TabFinanciero({ datos }: Props) {
   const { params, actualizar } = useParametrosFinancieros();
@@ -230,7 +218,7 @@ export function TabFinanciero({ datos }: Props) {
       },
       {
         label: "Aporte BESS · año 1",
-        valor: formatMxnMillones(calculo.ingreso_incremental_bess_anio1),
+        valor: formatoCompacto(calculo.ingreso_incremental_bess_anio1),
         sublabel: "Captura + arbitraje + pfirme proxy − OPEX",
         destacar: true,
         badge: "incluye potencia firme proxy",
@@ -238,12 +226,12 @@ export function TabFinanciero({ datos }: Props) {
       },
       {
         label: "Acumulado BESS · 20 años",
-        valor: formatMxnMillones(calculo.ingreso_incremental_acumulado),
+        valor: formatoCompacto(calculo.ingreso_incremental_acumulado),
         sublabel: "Con SOH aplicado",
       },
       {
         label: "Proyecto total · año 1",
-        valor: formatMxnMillones(calculo.ingreso_proyecto_anio1),
+        valor: formatoCompacto(calculo.ingreso_proyecto_anio1),
         sublabel: "SFV existente + aporte BESS",
         secundaria: true,
       },
@@ -254,7 +242,7 @@ export function TabFinanciero({ datos }: Props) {
       },
       {
         label: "CAPEX BESS",
-        valor: FMT_MXN_ENTERO.format(calculo.capex),
+        valor: formatoCompacto(calculo.capex),
         sublabel: `${calculo.config.e_kwh.toFixed(0)} kWh totales`,
       },
     ],

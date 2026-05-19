@@ -9,6 +9,8 @@ import {
 import { CATALOGO_HYPERSTRONG } from "@/data/catalogo-hyperstrong";
 import type { ParametrosFinancieros } from "@/hooks/useParametrosFinancieros";
 
+import { formatoCompleto } from "@/lib/tab-financiero/formato-monetario";
+
 import { COPY_PROXY_PFIRME } from "./copy-proxy-pfirme";
 
 interface Props {
@@ -17,10 +19,6 @@ interface Props {
   onChange: (parcial: Partial<ParametrosFinancieros>) => void;
   onResetCapex: () => void;
 }
-
-const FMT_MXN_ENTERO = new Intl.NumberFormat("es-MX", {
-  maximumFractionDigits: 0,
-});
 
 export function PanelConfiguracion({
   params,
@@ -295,7 +293,7 @@ function CampoCapex({
       </div>
       {es_override ? (
         <span className="text-[11px] text-[var(--color-text-tertiary)]">
-          Catálogo: {FMT_MXN_ENTERO.format(capex_catalogo)} MXN
+          Catálogo: {formatoCompleto(capex_catalogo)}
         </span>
       ) : null}
     </label>
