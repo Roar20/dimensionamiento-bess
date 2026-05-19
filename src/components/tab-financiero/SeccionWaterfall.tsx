@@ -3,52 +3,60 @@ import type { ChartOptions } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
 interface Props {
-  ingreso_sfv_base_mxn: number;
+  ingreso_ppa_sfv_mxn: number;
+  ingreso_cels_sfv_mxn: number;
   ingreso_captura_excedentes_mxn: number;
   ingreso_arbitraje_mxn: number;
   ingreso_potencia_firme_mxn: number;
-  ingreso_cels_mxn: number;
   opex_mxn: number;
 }
 
-const COLOR_BASE = "#525252";
-const COLOR_POSITIVO = "#0F766E";
+const COLOR_SFV_EXISTENTE = "#9CA3AF"; // gris: ya lo cobra sin BESS
+const COLOR_BESS_POSITIVO = "#0F766E"; // verde teal: aporte BESS
 const COLOR_NEGATIVO = "#B91C1C";
-const COLOR_TOTAL = "#1F2937";
+const COLOR_TOTAL_PROYECTO = "#1F2937";
+const COLOR_TOTAL_BESS = "#065F46";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
 
-const FMT_MXN_M = new Intl.NumberFormat("es-MX", {
+const FMT_M = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 2,
   minimumFractionDigits: 2,
 });
 
 function fmtMillones(v: number): string {
-  return `${FMT_MXN_M.format(v / 1_000_000)} M`;
+  return `${FMT_M.format(v / 1_000_000)} M`;
 }
 
 export function SeccionWaterfall({
-  ingreso_sfv_base_mxn,
+  ingreso_ppa_sfv_mxn,
+  ingreso_cels_sfv_mxn,
   ingreso_captura_excedentes_mxn,
   ingreso_arbitraje_mxn,
   ingreso_potencia_firme_mxn,
-  ingreso_cels_mxn,
   opex_mxn,
 }: Props) {
   const { labels, valores, colores, bases } = useMemo(() => {
     const componentes: { label: string; delta: number; color: string }[] = [
-      { label: "SFV base", delta: ingreso_sfv_base_mxn, color: COLOR_BASE },
-      { label: "+ Captura BESS", delta: ingreso_captura_excedentes_mxn, color: COLOR_POSITIVO },
-      { label: "+ Arbitraje", delta: ingreso_arbitraje_mxn, color: COLOR_POSITIVO },
-      { label: "+ Potencia firme", delta: ingreso_potencia_firme_mxn, color: COLOR_POSITIVO },
-      { label: "+ CELs", delta: ingreso_cels_mxn, color: COLOR_POSITIVO },
-      { label: "− OPEX", delta: -opex_mxn, color: COLOR_NEGATIVO },
+      // Bloque SFV existente (gris): contexto narrativo, no incremental.
+      { label: "PPA SFV existente", delta: ingreso_ppa_sfv_mxn, color: COLOR_SFV_EXISTENTE },
+      { label: "+ CELs SFV", delta: ingreso_cels_sfv_mxn, color: COLOR_SFV_EXISTENTE },
+      // Bloque incremental BESS (verde): lo que el BESS agrega.
+      { label: "+ Captura BESS", delta: ingreso_captura_excedentes_mxn, color: COLOR_BESS_POSITIVO },
+      { label: "+ Arbitraje", delta: ingreso_arbitraje_mxn, color: COLOR_BESS_POSITIVO },
+      { label: "+ Pot. firme proxy", delta: ingreso_potencia_firme_mxn, color: COLOR_BESS_POSITIVO },
+      { label: "− OPEX BESS", delta: -opex_mxn, color: COLOR_NEGATIVO },
     ];
-    const total =
-      ingreso_sfv_base_mxn +
+    const total_proyecto =
+      ingreso_ppa_sfv_mxn +
+      ingreso_cels_sfv_mxn +
       ingreso_captura_excedentes_mxn +
       ingreso_arbitraje_mxn +
-      ingreso_potencia_firme_mxn +
-      ingreso_cels_mxn -
+      ingreso_potencia_firme_mxn -
+      opex_mxn;
+    const total_incremental_bess =
+      ingreso_captura_excedentes_mxn +
+      ingreso_arbitraje_mxn +
+      ingreso_potencia_firme_mxn -
       opex_mxn;
 
     const labels: string[] = [];
@@ -68,17 +76,23 @@ export function SeccionWaterfall({
       }
       acum += c.delta;
     }
-    labels.push("= SFV + BESS");
+    // Total proyecto (gris oscuro) — informativo.
+    labels.push("= Proyecto total");
     bases.push(0);
-    valores.push(total);
-    colores.push(COLOR_TOTAL);
+    valores.push(total_proyecto);
+    colores.push(COLOR_TOTAL_PROYECTO);
+    // Total INCREMENTAL BESS (verde oscuro destacado) — el que paga el CAPEX.
+    labels.push("= Incremental BESS");
+    bases.push(0);
+    valores.push(total_incremental_bess);
+    colores.push(COLOR_TOTAL_BESS);
     return { labels, valores, bases, colores };
   }, [
-    ingreso_sfv_base_mxn,
+    ingreso_ppa_sfv_mxn,
+    ingreso_cels_sfv_mxn,
     ingreso_captura_excedentes_mxn,
     ingreso_arbitraje_mxn,
     ingreso_potencia_firme_mxn,
-    ingreso_cels_mxn,
     opex_mxn,
   ]);
 
@@ -119,7 +133,7 @@ export function SeccionWaterfall({
       x: {
         stacked: true,
         grid: { display: false },
-        ticks: { color: "#737373", font: { size: 11 } },
+        ticks: { color: "#737373", font: { size: 10 } },
       },
       y: {
         stacked: true,
@@ -144,16 +158,35 @@ export function SeccionWaterfall({
           Anatomía del ingreso del año 1
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Componentes que suman al ingreso bruto del SFV+BESS partiendo de
-          la línea base SFV solo. La columna final es el ingreso neto
-          después de OPEX BESS.
+          Las dos primeras barras (gris) son ingreso del SFV existente —
+          ya lo cobra sin BESS. Las tres siguientes (verde) son el aporte
+          incremental del BESS, lo único que paga el CAPEX. La última
+          barra (verde oscuro) es ese incremental neto de OPEX BESS.
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
-        <div className="relative h-[300px] w-full">
+        <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
+          <Leyenda color={COLOR_SFV_EXISTENTE} texto="SFV existente (informativo)" />
+          <Leyenda color={COLOR_BESS_POSITIVO} texto="Aporte BESS" />
+          <Leyenda color={COLOR_NEGATIVO} texto="OPEX" />
+          <Leyenda color={COLOR_TOTAL_BESS} texto="Total incremental BESS" />
+        </div>
+        <div className="relative h-[320px] w-full">
           <Bar data={data} options={options} />
         </div>
       </div>
     </section>
+  );
+}
+
+function Leyenda({ color, texto }: { color: string; texto: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className="inline-block h-3 w-3 rounded-sm"
+        style={{ backgroundColor: color }}
+      />
+      {texto}
+    </span>
   );
 }

@@ -61,7 +61,7 @@ export function SeccionFlujoAcumulado({
     labels,
     datasets: [
       {
-        label: "SFV + BESS · flujo acumulado",
+        label: "Incremental BESS · acumulado",
         data: acumSfvBess,
         borderColor: COLOR_BESS,
         backgroundColor: "rgba(15, 118, 110, 0.10)",
@@ -80,7 +80,7 @@ export function SeccionFlujoAcumulado({
         order: 1,
       },
       {
-        label: "SFV solo · acumulado (referencia)",
+        label: "SFV existente · referencia",
         data: acumSfvSolo,
         borderColor: COLOR_SFV,
         borderDash: [2, 2],
@@ -91,7 +91,7 @@ export function SeccionFlujoAcumulado({
         order: 2,
       },
       {
-        label: "− CAPEX",
+        label: "− CAPEX BESS",
         data: capexLine,
         borderColor: COLOR_CAPEX,
         borderDash: [6, 4],
@@ -136,23 +136,25 @@ export function SeccionFlujoAcumulado({
   return (
     <section className="mb-8">
       <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
-        Flujo acumulado
+        Recuperación del CAPEX BESS
       </p>
       <header className="mb-3">
         <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          Flujo acumulado 20 años con SOH aplicado
+          Flujo acumulado del BESS · 20 años con SOH
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Acumulado anual del SFV + BESS frente al SFV solo. La curva del
-          BESS aplica el factor SOH del catálogo año por año. El cruce de
-          cero coincide por construcción con el KPI de payback.
+          La línea verde es el flujo acumulado del aporte incremental del BESS
+          (captura + arbitraje + potencia firme − OPEX), partiendo de
+          −CAPEX BESS en el año 0. Cruza cero en el año del payback. La línea
+          gris punteada es el SFV existente como referencia visual; no
+          contribuye al pago del CAPEX BESS.
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_BESS} texto="SFV + BESS · acumulado" />
-          <Leyenda color={COLOR_SFV} dashed texto="SFV solo · acumulado" />
-          <Leyenda color={COLOR_CAPEX} dashed texto="−CAPEX (línea base año 0)" />
+          <Leyenda color={COLOR_BESS} texto="Incremental BESS · acumulado" />
+          <Leyenda color={COLOR_SFV} dashed texto="SFV existente · referencia" />
+          <Leyenda color={COLOR_CAPEX} dashed texto="−CAPEX BESS" />
           {payback !== null ? (
             <Leyenda
               color={COLOR_PAYBACK}

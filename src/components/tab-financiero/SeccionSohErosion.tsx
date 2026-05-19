@@ -28,7 +28,7 @@ export function SeccionSohErosion({ flujos, curva_soh }: Props) {
     const sohPct = flujos.map(
       (_f, i) => ((curva_soh[i] as number) ?? 0) * 100
     );
-    const ingresoMxn = flujos.map((f) => f.ingreso_total_mxn);
+    const ingresoMxn = flujos.map((f) => f.ingreso_incremental_bess_mxn);
     return { labels, sohPct, ingresoMxn };
   }, [flujos, curva_soh]);
 
@@ -36,7 +36,7 @@ export function SeccionSohErosion({ flujos, curva_soh }: Props) {
     labels,
     datasets: [
       {
-        label: "Ingreso anual",
+        label: "Incremental BESS · MXN/año",
         data: ingresoMxn,
         borderColor: COLOR_INGRESO,
         backgroundColor: "rgba(15, 118, 110, 0.10)",
@@ -75,7 +75,7 @@ export function SeccionSohErosion({ flujos, curva_soh }: Props) {
             if (ctx.dataset.yAxisID === "y1") {
               return `SOH: ${FMT_PCT.format((ctx.parsed.y as number) ?? 0)}%`;
             }
-            return `Ingreso: ${FMT_M.format(((ctx.parsed.y as number) ?? 0) / 1_000_000)} M MXN`;
+            return `Incremental BESS: ${FMT_M.format(((ctx.parsed.y as number) ?? 0) / 1_000_000)} M MXN`;
           },
         },
       },
@@ -118,19 +118,21 @@ export function SeccionSohErosion({ flujos, curva_soh }: Props) {
       </p>
       <header className="mb-3">
         <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          Cómo la curva SOH erosiona el ingreso anual
+          Cómo la curva SOH erosiona el aporte incremental del BESS
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Eje izquierdo: ingreso bruto anual del SFV+BESS, en MXN. Eje
-          derecho: SOH del catálogo Hyperstrong, año a año. La curva SOH
-          procede de <code>equipo.curvaSoh</code>; el Tab Financiero no
-          replica la visualización canónica que vive en Tab BESS, solo
-          consume los valores numéricos.
+          Eje izquierdo: aporte incremental del BESS por año, en MXN. Eje
+          derecho: SOH del catálogo Hyperstrong año a año. Las CELs y el PPA
+          del SFV no aparecen aquí porque no degradan con el BESS; solo lo
+          que el BESS aporta se erosiona. La curva SOH procede de{" "}
+          <code>equipo.curvaSoh</code>; el Tab Financiero no replica la
+          visualización canónica que vive en Tab BESS, solo consume los
+          valores numéricos.
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_INGRESO} texto="Ingreso anual (MXN)" />
+          <Leyenda color={COLOR_INGRESO} texto="Incremental BESS · MXN/año" />
           <Leyenda color={COLOR_SOH} dashed texto="SOH (%)" />
         </div>
         <div className="relative h-[300px] w-full">

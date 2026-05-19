@@ -56,7 +56,9 @@ export function SeccionSensibilidades({ entradas_base }: Props) {
     return ESCENARIOS.map((esc) => {
       // Aplica el escenario a las entradas: precios escalados, CAPEX
       // escalado. El FF se aplica como factor escalar sobre la potencia
-      // firme proxy (no requiere re-dispatch).
+      // firme proxy ya calculada (no re-dispatch, no recálculo del
+      // factor_credibilidad: el FF aquí es la "intensidad regulatoria"
+      // del escenario sobre el proxy ya descontado).
       const entradas: EntradasProyeccion = {
         ...entradas_base,
         capex_mxn: entradas_base.capex_mxn * esc.ajuste_capex,

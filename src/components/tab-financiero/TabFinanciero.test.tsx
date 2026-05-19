@@ -89,10 +89,16 @@ describe("TabFinanciero · render integration", () => {
   it("renderiza los 6 KPIs del hero ejecutivo", () => {
     rend();
     // Varios de estos labels reaparecen en otras secciones; usamos getAllByText.
-    expect(screen.getAllByText("Payback").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Ingreso bruto año 1").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Ingreso acum. 20 años")).toBeInTheDocument();
-    expect(screen.getByText("Δ vs SFV solo")).toBeInTheDocument();
+    expect(screen.getAllByText("Payback BESS").length).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByText(/Incremental BESS · año 1/i).length
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByText(/Acumulado BESS · 20 años/i).length
+    ).toBeGreaterThanOrEqual(1);
+    expect(
+      screen.getAllByText(/Ingreso proyecto · año 1/i).length
+    ).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Utilización BESS")).toBeInTheDocument();
     expect(screen.getAllByText(/CAPEX/i).length).toBeGreaterThanOrEqual(1);
   });
@@ -102,10 +108,10 @@ describe("TabFinanciero · render integration", () => {
     const filas = document.querySelectorAll(
       "table tbody tr"
     );
-    // Hay 2 tablas: comparativa (sin tbody con 21 filas) y tabla anual (21 filas).
-    // Filtramos por número de columnas: TablaAnual21 tiene 7 columnas.
+    // TablaAnual21 ahora tiene 9 columnas (PPA SFV, CELs SFV separados +
+    // Incremental BESS + OPEX + Flujo neto + Flujo acumulado).
     const filasAnual = Array.from(filas).filter(
-      (tr) => tr.querySelectorAll("td").length === 7
+      (tr) => tr.querySelectorAll("td").length === 9
     );
     expect(filasAnual).toHaveLength(21);
   });

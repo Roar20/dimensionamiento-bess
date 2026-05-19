@@ -152,11 +152,17 @@ export function SeccionGeneracionFactor({
           Generación bajo factor {FMT_PCT.format(factor_produccion * 100)}% vs capacidad POI
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Curva promedio diaria de generación con factor de producción
-          aplicado. Línea POI define el techo de inyección directa. La zona
-          verde es el excedente que el BESS puede capturar (hasta su
-          potencia de carga); la zona roja es el excedente no capturable
-          en ese rango horario.
+          Curva promedio diaria de generación con el factor del slider
+          aplicado. La línea POI define el techo de inyección al PPA. La zona
+          verde es el excedente que el BESS puede capturar (limitado por su
+          potencia de carga); la zona roja es el excedente que excede la
+          capacidad del BESS y se perdería por curtailment.{" "}
+          <strong className="font-medium">
+            El factor modela sensibilidad operativa del perfil
+          </strong>{" "}
+          (tracker alineado, strings limpios, condiciones óptimas); no
+          modela ampliación de capacidad CFE ni overbuild adicional del SFV
+          (Wave 1: SFV existente, sin modificar capacidad CFE).
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">

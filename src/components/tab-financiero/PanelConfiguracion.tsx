@@ -138,8 +138,22 @@ export function PanelConfiguracion({
           min={0}
           step={1}
           sufijo="%"
+          ayuda="Proxy. Default 30%: spread observado GDMTH."
           onChange={(n) =>
             onChange({ diferencial_lmp_pct: Math.max(0, n / 100) })
+          }
+        />
+        <CampoNumero
+          label="Factor credibilidad pot. firme (%)"
+          valor={params.factor_credibilidad_pfirme * 100}
+          min={0}
+          step={5}
+          sufijo="%"
+          ayuda="Proxy. Default 40% (conservador, pendiente Lalo). Rango 20-100%."
+          onChange={(n) =>
+            onChange({
+              factor_credibilidad_pfirme: Math.max(0, Math.min(1, n / 100)),
+            })
           }
         />
       </div>
@@ -184,6 +198,7 @@ function CampoNumero({
   min,
   step,
   sufijo,
+  ayuda,
   onChange,
 }: {
   label: string;
@@ -191,6 +206,7 @@ function CampoNumero({
   min?: number;
   step?: number;
   sufijo?: string;
+  ayuda?: string;
   onChange: (n: number) => void;
 }) {
   return (
@@ -216,6 +232,11 @@ function CampoNumero({
           </span>
         ) : null}
       </div>
+      {ayuda ? (
+        <span className="text-[10px] text-[var(--color-text-tertiary)]">
+          {ayuda}
+        </span>
+      ) : null}
     </label>
   );
 }

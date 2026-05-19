@@ -1,10 +1,10 @@
 interface Props {
   ingreso_sfv_solo_anio1: number;
-  ingreso_sfv_bess_anio1: number;
-  delta_anio1: number;
+  ingreso_proyecto_anio1: number;
+  ingreso_incremental_bess_anio1: number;
   payback: number | null;
-  ingreso_acumulado_sfv_bess: number;
   ingreso_acumulado_sfv_solo: number;
+  ingreso_acumulado_proyecto: number;
 }
 
 const FMT_NUM = new Intl.NumberFormat("es-MX", {
@@ -18,11 +18,11 @@ function fmtMillones(v: number): string {
 
 export function SeccionComparativa({
   ingreso_sfv_solo_anio1,
-  ingreso_sfv_bess_anio1,
-  delta_anio1,
+  ingreso_proyecto_anio1,
+  ingreso_incremental_bess_anio1,
   payback,
-  ingreso_acumulado_sfv_bess,
   ingreso_acumulado_sfv_solo,
+  ingreso_acumulado_proyecto,
 }: Props) {
   return (
     <section className="mb-8">
@@ -34,9 +34,9 @@ export function SeccionComparativa({
           SFV solo vs SFV + BESS
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Línea base (energía PPA + CELs) y configuración con BESS lado a
-          lado. Los precios son los mismos en ambos escenarios; lo que cambia
-          son las capacidades que el BESS habilita.
+          El SFV existente ya genera valor base con su PPA y sus CELs. El BESS
+          añade tres mecanismos de monetización adicionales y se paga
+          únicamente con ese aporte incremental.
         </p>
       </header>
 
@@ -47,11 +47,11 @@ export function SeccionComparativa({
           variante="base"
           metricas={[
             { label: "Ingreso bruto año 1", valor: fmtMillones(ingreso_sfv_solo_anio1) },
-            { label: "Ingreso acumulado 20 años", valor: fmtMillones(ingreso_acumulado_sfv_solo) },
-            { label: "Payback", valor: "—" },
+            { label: "Acumulado 20 años", valor: fmtMillones(ingreso_acumulado_sfv_solo) },
+            { label: "Payback BESS", valor: "n/a" },
           ]}
           capacidades={[
-            { activa: true, texto: "Energía PPA (toda la generación al precio contratado)" },
+            { activa: true, texto: "Energía PPA (generación entregable al POI)" },
             { activa: true, texto: "CELs emitidos sobre la generación" },
             { activa: false, texto: "Captura de excedentes generados" },
             { activa: false, texto: "Arbitraje hora-punta CFE" },
@@ -60,20 +60,25 @@ export function SeccionComparativa({
         />
         <ColumnaEscenario
           titulo="SFV + BESS"
-          subtitulo="Almacenamiento que recompone la calidad económica de la energía"
+          subtitulo="Almacenamiento que mejora la calidad económica de la energía"
           variante="destacada"
           metricas={[
-            { label: "Ingreso bruto año 1", valor: fmtMillones(ingreso_sfv_bess_anio1) },
-            { label: "Ingreso acumulado 20 años", valor: fmtMillones(ingreso_acumulado_sfv_bess) },
-            { label: "Δ año 1 vs SFV solo", valor: fmtMillones(delta_anio1) },
+            { label: "Ingreso proyecto año 1", valor: fmtMillones(ingreso_proyecto_anio1) },
+            { label: "Acumulado proyecto 20 años", valor: fmtMillones(ingreso_acumulado_proyecto) },
             {
-              label: "Payback",
+              label: "Aporte incremental BESS · año 1",
+              valor: fmtMillones(ingreso_incremental_bess_anio1),
+              destacar: true,
+            },
+            {
+              label: "Payback BESS",
               valor:
                 payback !== null ? `${FMT_NUM.format(payback)} años` : ">20 años",
+              destacar: true,
             },
           ]}
           capacidades={[
-            { activa: true, texto: "Energía PPA (toda la generación al precio contratado)" },
+            { activa: true, texto: "Energía PPA (generación entregable al POI)" },
             { activa: true, texto: "CELs emitidos sobre la generación" },
             { activa: true, texto: "Captura de excedentes que sin BESS se perderían" },
             { activa: true, texto: "Arbitraje hora-punta CFE 18-22h" },
@@ -83,18 +88,19 @@ export function SeccionComparativa({
       </div>
 
       <p className="mt-3 text-[11px] leading-relaxed text-[var(--color-text-tertiary)]">
-        Los valores acumulados aplican la curva SOH del catálogo año por año
-        sobre los componentes que dependen del BESS (captura, arbitraje,
-        potencia firme). Los CELs no degradan: dependen de la generación del
-        SFV, no de la capacidad del BESS. El precio total bruto NO descuenta
-        OPEX ni CAPEX; esos pasos viven en el flujo neto del flujo
-        acumulado.
+        El payback BESS se calcula contra el aporte incremental (captura +
+        arbitraje + potencia firme − OPEX), no contra el ingreso del proyecto
+        completo. El ingreso PPA y CELs del SFV son ingresos que la planta ya
+        recibía sin BESS; mostrarlos como repago del CAPEX BESS sería
+        contabilizar el dinero del SFV existente como mérito del nuevo
+        equipo. El acumulado 20 años aplica curva SOH del catálogo sobre los
+        tres componentes incrementales; el SFV no degrada con SOH BESS.
       </p>
     </section>
   );
 }
 
-type Metrica = { label: string; valor: string };
+type Metrica = { label: string; valor: string; destacar?: boolean };
 type Capacidad = { activa: boolean; texto: string };
 
 function ColumnaEscenario({
@@ -124,12 +130,20 @@ function ColumnaEscenario({
         {metricas.map((m) => (
           <div
             key={m.label}
-            className="flex items-baseline justify-between border-t-[0.5px] border-[var(--color-border-light)] py-1.5 first:border-t-0"
+            className={`flex items-baseline justify-between border-t-[0.5px] border-[var(--color-border-light)] py-1.5 first:border-t-0 ${
+              m.destacar ? "bg-[#ECFDF5] px-2 -mx-2 rounded-[6px]" : ""
+            }`}
           >
             <span className="text-[12px] text-[var(--color-text-secondary)]">
               {m.label}
             </span>
-            <span className="text-[14px] font-medium tabular-nums text-[var(--color-text-primary)]">
+            <span
+              className={`tabular-nums ${
+                m.destacar
+                  ? "text-[15px] font-semibold text-[#065F46]"
+                  : "text-[14px] font-medium text-[var(--color-text-primary)]"
+              }`}
+            >
               {m.valor}
             </span>
           </div>

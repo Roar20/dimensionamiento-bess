@@ -97,7 +97,15 @@ export function TabFinanciero({ datos }: Props) {
       registros,
       params.factor_produccion
     );
-    const generacion_anual_mwh = registrosAjustados.reduce(
+    const POI_kw = datos.config.capacidad_poi_kw;
+    // Generación entregable al POI: lo que el SFV realmente vende al PPA.
+    // Con factor 1.0 y pico < POI, equivale al total generado. Con factor
+    // > 1, descuenta la fracción que excede POI (curtailment sin BESS).
+    const generacion_entregable_mwh = registrosAjustados.reduce(
+      (s, r) => s + Math.min(r.potencia_kw_prom, POI_kw) / 1000,
+      0
+    );
+    const generacion_total_mwh = registrosAjustados.reduce(
       (s, r) => s + r.energia_mwh,
       0
     );
@@ -113,7 +121,8 @@ export function TabFinanciero({ datos }: Props) {
 
     const potencia_firme_kw = calcularPotenciaFirmeProxy(
       detalle,
-      VENTANA_PUNTA
+      VENTANA_PUNTA,
+      params.factor_credibilidad_pfirme
     );
     const descargado_punta_mwh = sumarDescargadoEnPunta(
       detalle,
@@ -125,7 +134,7 @@ export function TabFinanciero({ datos }: Props) {
     // Con factor > 1 emerge captura real.
     const captura_excedentes_mwh = calcularCapturaExcedentesAnio(
       registrosAjustados,
-      datos.config.capacidad_poi_kw,
+      POI_kw,
       config.p_kw,
       config.rte
     );
@@ -133,7 +142,7 @@ export function TabFinanciero({ datos }: Props) {
     const flujos = proyectar20Anios({
       captura_excedentes_anio1_mwh: captura_excedentes_mwh,
       descargado_anio1_punta_mwh: descargado_punta_mwh,
-      generacion_anual_mwh,
+      generacion_anual_mwh: generacion_entregable_mwh,
       potencia_firme_kw,
       curva_soh: equipo.curvaSoh,
       capex_mxn: capex,
@@ -150,16 +159,21 @@ export function TabFinanciero({ datos }: Props) {
     const tir = calcularTIR(flujos);
     const vpn = calcularVPN(flujos, params.wacc_pct);
 
-    const ingreso_acumulado = flujos
-      .slice(1)
-      .reduce((s, f) => s + f.ingreso_total_mxn, 0);
-
-    // Escenario SFV solo: energía generada × precio_PPA + CELs (sin BESS).
+    // INFORMATIVOS para narrativa, NO para payback.
     const ingreso_sfv_solo_anio1 =
-      generacion_anual_mwh *
-        (params.precio_energia_mxn_mwh + params.precio_cel_mxn);
-    const ingreso_sfv_bess_anio1 = flujos[1]?.ingreso_total_mxn ?? 0;
-    const delta_vs_sfv_solo = ingreso_sfv_bess_anio1 - ingreso_sfv_solo_anio1;
+      (flujos[1]?.ingreso_ppa_generacion_mxn ?? 0) +
+      (flujos[1]?.ingreso_cels_mxn ?? 0);
+    const ingreso_incremental_bess_anio1 =
+      flujos[1]?.ingreso_incremental_bess_mxn ?? 0;
+    const ingreso_proyecto_anio1 =
+      flujos[1]?.ingreso_proyecto_total_mxn ?? 0;
+    // Acumulado del incremental BESS sobre 20 años (con SOH aplicado).
+    const ingreso_incremental_acumulado = flujos
+      .slice(1)
+      .reduce((s, f) => s + f.ingreso_incremental_bess_mxn, 0);
+    const ingreso_proyecto_acumulado = flujos
+      .slice(1)
+      .reduce((s, f) => s + f.ingreso_proyecto_total_mxn, 0);
     const captura_excedentes_anio1_mwh = captura_excedentes_mwh;
 
     const horas_en_operacion = detalle.filter(
@@ -175,7 +189,8 @@ export function TabFinanciero({ datos }: Props) {
       config,
       capex,
       capex_catalogo: capexCatalogo,
-      generacion_anual_mwh,
+      generacion_entregable_mwh,
+      generacion_total_mwh,
       kpis,
       detalle,
       potencia_firme_kw,
@@ -184,43 +199,43 @@ export function TabFinanciero({ datos }: Props) {
       payback,
       tir,
       vpn,
-      ingreso_acumulado,
       ingreso_sfv_solo_anio1,
-      ingreso_sfv_bess_anio1,
-      delta_vs_sfv_solo,
+      ingreso_incremental_bess_anio1,
+      ingreso_proyecto_anio1,
+      ingreso_incremental_acumulado,
+      ingreso_proyecto_acumulado,
       utilizacion_pct,
       captura_excedentes_anio1_mwh,
       registros_ajustados: registrosAjustados,
     };
   }, [registros, params, tipoCambio, datos.config.capacidad_poi_kw]);
 
+  // KPI hero. Hero limpio (6 cards). El distintivo "proyecto" vs "BESS
+  // incremental" se comunica con sublabel + agrupación visual, sin saturar.
   const heroKpis = useMemo(
     () => [
       {
-        label: "Payback",
+        label: "Payback BESS",
         valor:
           calculo.payback !== null
             ? `${FMT_PCT.format(calculo.payback)} años`
             : ">20 años",
-        sublabel:
-          calculo.payback !== null
-            ? "Cruce de flujo acumulado"
-            : "No recupera en horizonte",
+        sublabel: "Solo flujo incremental",
       },
       {
-        label: "Ingreso bruto año 1",
-        valor: formatMxnMillones(calculo.ingreso_sfv_bess_anio1),
-        sublabel: "SFV + BESS",
+        label: "Incremental BESS · año 1",
+        valor: formatMxnMillones(calculo.ingreso_incremental_bess_anio1),
+        sublabel: "Captura + arbitraje + pfirme − OPEX",
       },
       {
-        label: "Ingreso acum. 20 años",
-        valor: formatMxnMillones(calculo.ingreso_acumulado),
+        label: "Acumulado BESS · 20 años",
+        valor: formatMxnMillones(calculo.ingreso_incremental_acumulado),
         sublabel: "Con SOH aplicado",
       },
       {
-        label: "Δ vs SFV solo",
-        valor: formatMxnMillones(calculo.delta_vs_sfv_solo),
-        sublabel: "Año 1",
+        label: "Ingreso proyecto · año 1",
+        valor: formatMxnMillones(calculo.ingreso_proyecto_anio1),
+        sublabel: "SFV existente + BESS",
       },
       {
         label: "Utilización BESS",
@@ -228,7 +243,7 @@ export function TabFinanciero({ datos }: Props) {
         sublabel: "Horas/año en operación",
       },
       {
-        label: "CAPEX",
+        label: "CAPEX BESS",
         valor: FMT_MXN_ENTERO.format(calculo.capex),
         sublabel: `${calculo.config.e_kwh.toFixed(0)} kWh totales`,
       },
@@ -259,17 +274,31 @@ export function TabFinanciero({ datos }: Props) {
         onResetCapex={() => actualizar({ capex_override_mxn: null })}
       />
 
+      {params.factor_produccion > 1 ? (
+        <div className="mb-6 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
+          <strong className="font-medium text-[var(--color-text-primary)]">
+            Sensibilidad operativa del perfil:
+          </strong>{" "}
+          el factor {(params.factor_produccion * 100).toFixed(0)}% modela
+          condiciones operativas óptimas sobre el perfil horario (tracker
+          alineado, strings limpios, irradiancia favorable). No representa
+          ampliación de capacidad CFE ni overbuild adicional del SFV; la
+          generación que excede POI sin BESS se perdería por curtailment.
+        </div>
+      ) : null}
+
       <SeccionComparativa
         ingreso_sfv_solo_anio1={calculo.ingreso_sfv_solo_anio1}
-        ingreso_sfv_bess_anio1={calculo.ingreso_sfv_bess_anio1}
-        delta_anio1={calculo.delta_vs_sfv_solo}
+        ingreso_proyecto_anio1={calculo.ingreso_proyecto_anio1}
+        ingreso_incremental_bess_anio1={calculo.ingreso_incremental_bess_anio1}
         payback={calculo.payback}
-        ingreso_acumulado_sfv_bess={calculo.ingreso_acumulado}
         ingreso_acumulado_sfv_solo={calculo.ingreso_sfv_solo_anio1 * 20}
+        ingreso_acumulado_proyecto={calculo.ingreso_proyecto_acumulado}
       />
 
       <SeccionWaterfall
-        ingreso_sfv_base_mxn={calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0}
+        ingreso_ppa_sfv_mxn={calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0}
+        ingreso_cels_sfv_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
         ingreso_captura_excedentes_mxn={
           calculo.flujos[1]?.ingreso_captura_excedentes_mxn ?? 0
         }
@@ -277,7 +306,6 @@ export function TabFinanciero({ datos }: Props) {
         ingreso_potencia_firme_mxn={
           calculo.flujos[1]?.ingreso_potencia_firme_mxn ?? 0
         }
-        ingreso_cels_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
         opex_mxn={calculo.flujos[1]?.opex_mxn ?? 0}
       />
 
@@ -289,9 +317,10 @@ export function TabFinanciero({ datos }: Props) {
       />
 
       <SeccionBreakdownIngresos
-        ingreso_energia_ppa_mxn={
+        ingreso_ppa_sfv_mxn={
           calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0
         }
+        ingreso_cels_sfv_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
         ingreso_captura_excedentes_mxn={
           calculo.flujos[1]?.ingreso_captura_excedentes_mxn ?? 0
         }
@@ -299,7 +328,6 @@ export function TabFinanciero({ datos }: Props) {
         ingreso_potencia_firme_mxn={
           calculo.flujos[1]?.ingreso_potencia_firme_mxn ?? 0
         }
-        ingreso_cels_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
       />
 
       <SeccionSohErosion
@@ -318,7 +346,7 @@ export function TabFinanciero({ datos }: Props) {
         entradas_base={{
           captura_excedentes_anio1_mwh: calculo.captura_excedentes_anio1_mwh,
           descargado_anio1_punta_mwh: calculo.descargado_punta_mwh,
-          generacion_anual_mwh: calculo.generacion_anual_mwh,
+          generacion_anual_mwh: calculo.generacion_entregable_mwh,
           potencia_firme_kw: calculo.potencia_firme_kw,
           curva_soh: calculo.equipo.curvaSoh,
           capex_mxn: calculo.capex,

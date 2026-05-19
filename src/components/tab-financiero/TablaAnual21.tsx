@@ -42,10 +42,12 @@ export function TablaAnual21({ flujos, payback }: Props) {
               <Th align="left">Año</Th>
               <Th>SOH (%)</Th>
               <Th>Desc. en punta (MWh)</Th>
-              <Th>Ingreso (MXN)</Th>
+              <Th variante="informativo">PPA SFV (MXN)</Th>
+              <Th variante="informativo">CELs SFV (MXN)</Th>
+              <Th>Incremental BESS (MXN)</Th>
               <Th>OPEX (MXN)</Th>
-              <Th>Flujo neto (MXN)</Th>
-              <Th>Flujo acumulado (MXN)</Th>
+              <Th>Flujo neto BESS (MXN)</Th>
+              <Th>Flujo acumulado BESS (MXN)</Th>
             </tr>
           </thead>
           <tbody>
@@ -67,26 +69,35 @@ export function TablaAnual21({ flujos, payback }: Props) {
                       ? "—"
                       : FMT_MWH.format(f.energia_descargada_punta_mwh)}
                   </Td>
+                  <Td variante="informativo">
+                    {f.anio === 0
+                      ? "—"
+                      : FMT_MXN.format(f.ingreso_ppa_generacion_mxn)}
+                  </Td>
+                  <Td variante="informativo">
+                    {f.anio === 0 ? "—" : FMT_MXN.format(f.ingreso_cels_mxn)}
+                  </Td>
                   <Td>
                     {f.anio === 0
                       ? "—"
-                      : FMT_MXN.format(f.ingreso_total_mxn)}
+                      : FMT_MXN.format(f.ingreso_incremental_bess_mxn)}
                   </Td>
                   <Td>
                     {f.anio === 0 ? "—" : FMT_MXN.format(f.opex_mxn)}
                   </Td>
-                  <Td>
-                    {FMT_MXN.format(f.flujo_neto_mxn)}
-                  </Td>
-                  <Td>
-                    {FMT_MXN.format(f.flujo_acumulado_mxn)}
-                  </Td>
+                  <Td>{FMT_MXN.format(f.flujo_neto_mxn)}</Td>
+                  <Td>{FMT_MXN.format(f.flujo_acumulado_mxn)}</Td>
                 </tr>
               );
             })}
           </tbody>
         </table>
       </div>
+      <p className="mt-2 text-[11px] leading-relaxed text-[var(--color-text-tertiary)]">
+        Las columnas PPA SFV y CELs SFV son informativas (gris claro): ya las
+        recibía la planta sin BESS. El flujo neto BESS y el acumulado solo
+        usan el incremental BESS menos OPEX.
+      </p>
     </section>
   );
 }
@@ -94,13 +105,19 @@ export function TablaAnual21({ flujos, payback }: Props) {
 function Th({
   children,
   align = "right",
+  variante,
 }: {
   children: React.ReactNode;
   align?: "left" | "right";
+  variante?: "informativo";
 }) {
+  const color =
+    variante === "informativo"
+      ? "text-[var(--color-text-tertiary)]"
+      : "text-[var(--color-text-secondary)]";
   return (
     <th
-      className={`px-3.5 py-3 text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-secondary)] ${
+      className={`px-3 py-3 text-[10px] font-medium uppercase tracking-[0.3px] ${color} ${
         align === "left" ? "text-left" : "text-right"
       }`}
     >
@@ -113,16 +130,23 @@ function Td({
   children,
   align = "right",
   emphasis = false,
+  variante,
 }: {
   children: React.ReactNode;
   align?: "left" | "right";
   emphasis?: boolean;
+  variante?: "informativo";
 }) {
+  const color = emphasis
+    ? "font-medium text-[var(--color-text-primary)]"
+    : variante === "informativo"
+      ? "text-[var(--color-text-tertiary)]"
+      : "text-[var(--color-text-secondary)]";
   return (
     <td
-      className={`px-3.5 py-2 tabular-nums ${
+      className={`px-3 py-2 tabular-nums ${
         align === "left" ? "text-left" : "text-right"
-      } ${emphasis ? "font-medium text-[var(--color-text-primary)]" : "text-[var(--color-text-secondary)]"}`}
+      } ${color}`}
     >
       {children}
     </td>
