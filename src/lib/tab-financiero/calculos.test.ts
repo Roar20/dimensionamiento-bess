@@ -86,17 +86,41 @@ describe("filtrarHoraPunta", () => {
 });
 
 describe("calcularPotenciaFirmeProxy", () => {
-  it("percentil 80 sobre las descargas en ventana hora-punta", () => {
+  it("mediana de descargas activas en ventana × factor_credibilidad", () => {
     const estados: EstadoHorario[] = [];
     for (let h = 17; h <= 21; h += 1) estados.push(estadoEn(h, h * 10));
-    // En ventana: descargas 170, 180, 190, 200, 210.
-    const p80 = calcularPotenciaFirmeProxy(estados, [18, 22]);
-    expect(p80).toBeCloseTo(202, 0);
+    // En ventana: descargas 170, 180, 190, 200, 210. P50 = 190.
+    // × 0.5 = 95.
+    const p = calcularPotenciaFirmeProxy(estados, [18, 22], 0.5);
+    expect(p).toBeCloseTo(95, 1);
   });
 
-  it("sin horas en punta → 0", () => {
+  it("filtra horas con descarga = 0 antes del percentil", () => {
+    // Tres ceros + tres positivos; mediana de los positivos = 200.
+    const estados: EstadoHorario[] = [
+      estadoEn(17, 0),
+      estadoEn(18, 0),
+      estadoEn(19, 0),
+      estadoEn(20, 100),
+      estadoEn(21, 200),
+      estadoEn(22 - 22, 300), // hora 0, fuera de punta, no cuenta
+    ];
+    // Estados que caen en [18,22] hora-ending: 17 ending 18 (0), 18 ending 19 (0),
+    // 19 ending 20 (0), 20 ending 21 (100), 21 ending 22 (200). Ceros filtrados,
+    // mediana sobre {100, 200} = 150. × 1.0 = 150.
+    const p = calcularPotenciaFirmeProxy(estados, [18, 22], 1.0);
+    expect(p).toBeCloseTo(150, 1);
+  });
+
+  it("factor_credibilidad = 0 → 0", () => {
+    const estados: EstadoHorario[] = [];
+    for (let h = 17; h <= 21; h += 1) estados.push(estadoEn(h, h * 10));
+    expect(calcularPotenciaFirmeProxy(estados, [18, 22], 0)).toBe(0);
+  });
+
+  it("sin horas con descarga → 0", () => {
     const estados = [estadoEn(10, 100), estadoEn(11, 200)];
-    expect(calcularPotenciaFirmeProxy(estados, [18, 22])).toBe(0);
+    expect(calcularPotenciaFirmeProxy(estados, [18, 22], 0.4)).toBe(0);
   });
 });
 
@@ -138,8 +162,33 @@ describe("proyectar20Anios", () => {
     const f = proyectar20Anios(ENTRADAS_BASE);
     expect(f[0]!.flujo_neto_mxn).toBe(-1_000_000);
     expect(f[0]!.flujo_acumulado_mxn).toBe(-1_000_000);
-    expect(f[0]!.ingreso_total_mxn).toBe(0);
+    expect(f[0]!.ingreso_incremental_bess_mxn).toBe(0);
+    expect(f[0]!.ingreso_proyecto_total_mxn).toBe(0);
     expect(f[0]!.opex_mxn).toBe(0);
+  });
+
+  it("flujo_neto[i>=1] = incremental BESS − opex (NO incluye PPA SFV ni CELs SFV)", () => {
+    const f = proyectar20Anios(ENTRADAS_BASE);
+    for (let i = 1; i <= 20; i += 1) {
+      const incremental = f[i]!.ingreso_incremental_bess_mxn;
+      const opex = f[i]!.opex_mxn;
+      expect(f[i]!.flujo_neto_mxn).toBeCloseTo(incremental - opex, 4);
+      // El flujo neto NO debe contener el PPA ni los CELs del SFV.
+      expect(f[i]!.flujo_neto_mxn).toBeLessThan(
+        f[i]!.ingreso_proyecto_total_mxn
+      );
+    }
+  });
+
+  it("ingreso_proyecto_total = PPA SFV + CELs SFV + incremental BESS", () => {
+    const f = proyectar20Anios(ENTRADAS_BASE);
+    for (let i = 1; i <= 20; i += 1) {
+      const expected =
+        f[i]!.ingreso_ppa_generacion_mxn +
+        f[i]!.ingreso_cels_mxn +
+        f[i]!.ingreso_incremental_bess_mxn;
+      expect(f[i]!.ingreso_proyecto_total_mxn).toBeCloseTo(expected, 4);
+    }
   });
 
   it("año 1: ingreso captura y arbitraje = base sin degradación relativa", () => {
@@ -214,7 +263,8 @@ describe("calcularPaybackInterpolado", () => {
         ingreso_arbitraje_mxn: 0,
         ingreso_potencia_firme_mxn: 0,
         ingreso_cels_mxn: 0,
-        ingreso_total_mxn: 0,
+        ingreso_incremental_bess_mxn: 0,
+        ingreso_proyecto_total_mxn: 0,
         opex_mxn: 0,
         flujo_neto_mxn: n,
         flujo_acumulado_mxn: acum,
@@ -258,7 +308,8 @@ describe("calcularTIR y calcularVPN", () => {
         ingreso_arbitraje_mxn: 0,
         ingreso_potencia_firme_mxn: 0,
         ingreso_cels_mxn: 0,
-        ingreso_total_mxn: 0,
+        ingreso_incremental_bess_mxn: 0,
+        ingreso_proyecto_total_mxn: 0,
         opex_mxn: 0,
         flujo_neto_mxn: neto,
         flujo_acumulado_mxn: acum,
@@ -286,7 +337,8 @@ describe("calcularTIR y calcularVPN", () => {
         ingreso_arbitraje_mxn: 0,
         ingreso_potencia_firme_mxn: 0,
         ingreso_cels_mxn: 0,
-        ingreso_total_mxn: 0,
+        ingreso_incremental_bess_mxn: 0,
+        ingreso_proyecto_total_mxn: 0,
         opex_mxn: 0,
         flujo_neto_mxn: neto,
         flujo_acumulado_mxn: acum,

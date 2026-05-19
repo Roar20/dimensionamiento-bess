@@ -19,6 +19,7 @@ describe("useParametrosFinancieros", () => {
     expect(result.current.params.precio_potencia_firme_mxn_mw_mes).toBe(333_334);
     expect(result.current.params.lmp_mxn_mwh).toBe(360);
     expect(result.current.params.factor_produccion).toBe(1.0);
+    expect(result.current.params.factor_credibilidad_pfirme).toBe(0.40);
   });
 
   it("actualizar persiste el cambio y mezcla con el estado previo", () => {

@@ -26,6 +26,12 @@ export type ParametrosFinancieros = {
   precio_potencia_firme_mxn_mw_mes: number;
   lmp_mxn_mwh: number;
   diferencial_lmp_pct: number;
+  /**
+   * Factor de credibilidad sobre la mediana de descargas en hora-punta para
+   * el proxy de potencia firme. Default 0.40 (conservador, pendiente Lalo).
+   * Rango razonable 0.20–1.00.
+   */
+  factor_credibilidad_pfirme: number;
 };
 
 export const PARAMETROS_FINANCIEROS_DEFAULT: ParametrosFinancieros = {
@@ -40,6 +46,7 @@ export const PARAMETROS_FINANCIEROS_DEFAULT: ParametrosFinancieros = {
   precio_potencia_firme_mxn_mw_mes: 333_334,
   lmp_mxn_mwh: 360,
   diferencial_lmp_pct: 0.30,
+  factor_credibilidad_pfirme: 0.40,
 };
 
 function esValido(p: Partial<ParametrosFinancieros>): p is ParametrosFinancieros {
@@ -57,7 +64,10 @@ function esValido(p: Partial<ParametrosFinancieros>): p is ParametrosFinancieros
     typeof p.precio_cel_mxn === "number" &&
     typeof p.precio_potencia_firme_mxn_mw_mes === "number" &&
     typeof p.lmp_mxn_mwh === "number" &&
-    typeof p.diferencial_lmp_pct === "number"
+    typeof p.diferencial_lmp_pct === "number" &&
+    typeof p.factor_credibilidad_pfirme === "number" &&
+    p.factor_credibilidad_pfirme >= 0 &&
+    p.factor_credibilidad_pfirme <= 1
   );
 }
 

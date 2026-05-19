@@ -20,26 +20,44 @@ export type FlujoAnual = {
   factor_soh: number;
   energia_descargada_punta_mwh: number;
   /**
-   * Ingreso por venta de la generación SFV completa al precio PPA. Constante
-   * año a año (modelo proxy: el SFV no degrada por SOH BESS).
+   * INFORMATIVO. Ingreso por venta de la generación SFV (acotada al POI) al
+   * precio PPA. Constante año a año. NO entra al flujo neto del BESS porque
+   * el SFV ya lo cobra sin BESS.
    */
   ingreso_ppa_generacion_mxn: number;
   /**
-   * Uplift por captura de excedentes (energía que sin BESS se hubiera
-   * perdido por clipping POI). Escala con SOH.
+   * INFORMATIVO. CELs sobre la generación SFV (acotada al POI). Constante
+   * año a año. NO entra al flujo neto del BESS.
+   */
+  ingreso_cels_mxn: number;
+  /**
+   * Incremental BESS. Energía que excede POI capturada por el BESS y luego
+   * monetizada al precio PPA. Escala con SOH.
    */
   ingreso_captura_excedentes_mxn: number;
   /**
-   * Uplift de arbitraje hora-punta: diferencial LMP punta-valle por la
-   * energía descargada en ventana CFE 18-22h. Escala con SOH.
+   * Incremental BESS. Uplift de arbitraje hora-punta: diferencial LMP
+   * punta-valle por la energía descargada en ventana CFE 18-22h. Escala con SOH.
    */
   ingreso_arbitraje_mxn: number;
-  /** Capacidad firme proxy × precio × 12 meses. Escala con SOH. */
+  /**
+   * Incremental BESS. Capacidad firme proxy × precio × 12 meses. Escala con SOH.
+   */
   ingreso_potencia_firme_mxn: number;
-  /** CELs sobre la generación SFV. NO degrada con SOH BESS. */
-  ingreso_cels_mxn: number;
-  ingreso_total_mxn: number;
+  /**
+   * Suma de los 3 componentes incrementales del BESS. Es lo que paga el CAPEX.
+   */
+  ingreso_incremental_bess_mxn: number;
+  /**
+   * INFORMATIVO. Suma del ingreso del SFV existente + el incremental del BESS.
+   * Útil para narrativa "ingreso del proyecto"; NO se usa para payback.
+   */
+  ingreso_proyecto_total_mxn: number;
   opex_mxn: number;
+  /**
+   * Flujo neto SOLO del BESS = ingreso_incremental_bess − opex.
+   * Año 0 = −CAPEX_BESS.
+   */
   flujo_neto_mxn: number;
   flujo_acumulado_mxn: number;
 };
@@ -129,22 +147,32 @@ export function filtrarHoraPunta<T extends { timestamp: Date }>(
 }
 
 /**
- * Potencia firme proxy: percentil 80 de la potencia entregada por el BESS
- * en kW durante la ventana hora-punta CFE a lo largo del año.
+ * Potencia firme proxy: mediana (percentil 50) de la potencia entregada por
+ * el BESS en horas de la ventana hora-punta CFE donde efectivamente hay
+ * descarga (filtra las horas con descarga = 0 para no penalizar la mediana
+ * cuando el BESS no opera todas las horas de la ventana). El resultado se
+ * multiplica por `factor_credibilidad`, descuento regulatorio editable que
+ * refleja qué fracción del proxy es aceptable como capacidad firme.
  *
  * Esta NO es la fórmula PAA regulatoria. Es un proxy preliminar pendiente
- * de validar con la DACG DOF 3-abr-2026.
+ * de validar con la DACG DOF 3-abr-2026. El default 0.40 es conservador:
+ * el cliente puede subirlo o bajarlo desde el panel.
  */
 export function calcularPotenciaFirmeProxy(
   detalle: readonly EstadoHorario[],
-  ventana_hora_ending: readonly [number, number]
+  ventana_hora_ending: readonly [number, number],
+  factor_credibilidad: number
 ): number {
   const enPunta = filtrarHoraPunta(detalle, ventana_hora_ending);
-  if (enPunta.length === 0) return 0;
-  // `descargado_kwh` es energía descargada en la hora; como cada bin es
-  // 1 hora, equivale numéricamente a la potencia promedio en kW.
-  const potencias_kw = enPunta.map((e) => e.descargado_kwh);
-  return calcularPercentil(potencias_kw, 0.8);
+  // `descargado_kwh` ≡ potencia promedio en kW (bin de 1 h). Filtramos
+  // horas sin descarga para que la mediana refleje la potencia típica
+  // entregada cuando el BESS está activo en ventana punta.
+  const descargas_activas = enPunta
+    .map((e) => e.descargado_kwh)
+    .filter((kw) => kw > 0);
+  if (descargas_activas.length === 0) return 0;
+  const p50 = calcularPercentil(descargas_activas, 0.5);
+  return p50 * factor_credibilidad;
 }
 
 /**
@@ -180,25 +208,28 @@ export function proyectar20Anios(e: EntradasProyeccion): FlujoAnual[] {
   const potencia_firme_mw = e.potencia_firme_kw / 1000;
   const ingreso_pfirme_anio1 =
     potencia_firme_mw * e.precio_potencia_firme_mxn_mw_mes * 12;
-  const ingreso_ppa_base = e.generacion_anual_mwh * e.precio_energia_mxn_mwh;
-  const ingreso_cels_anio = e.generacion_anual_mwh * e.precio_cel_mxn;
+  // INFORMATIVOS (SFV solo, constantes año a año, NO entran a flujo neto BESS).
+  const ingreso_ppa_sfv = e.generacion_anual_mwh * e.precio_energia_mxn_mwh;
+  const ingreso_cels_sfv = e.generacion_anual_mwh * e.precio_cel_mxn;
+  // INCREMENTAL BESS año 1.
   const ingreso_captura_anio1 =
     e.captura_excedentes_anio1_mwh * e.precio_energia_mxn_mwh;
   const diferencial_lmp_mxn_mwh = e.lmp_mxn_mwh * e.diferencial_lmp_pct;
 
   const flujos: FlujoAnual[] = [];
 
-  // Año 0: CAPEX único, sin ingresos ni opex.
+  // Año 0: CAPEX único del BESS, sin ingresos ni opex.
   flujos.push({
     anio: 0,
     factor_soh: e.curva_soh[0] as number,
     energia_descargada_punta_mwh: 0,
     ingreso_ppa_generacion_mxn: 0,
+    ingreso_cels_mxn: 0,
     ingreso_captura_excedentes_mxn: 0,
     ingreso_arbitraje_mxn: 0,
     ingreso_potencia_firme_mxn: 0,
-    ingreso_cels_mxn: 0,
-    ingreso_total_mxn: 0,
+    ingreso_incremental_bess_mxn: 0,
+    ingreso_proyecto_total_mxn: 0,
     opex_mxn: 0,
     flujo_neto_mxn: -e.capex_mxn,
     flujo_acumulado_mxn: -e.capex_mxn,
@@ -213,24 +244,25 @@ export function proyectar20Anios(e: EntradasProyeccion): FlujoAnual[] {
     const ingreso_captura = ingreso_captura_anio1 * ratio_soh;
     const ingreso_arbitraje = e_desc_punta * diferencial_lmp_mxn_mwh;
     const ingreso_pfirme = ingreso_pfirme_anio1 * ratio_soh;
-    const ingreso_total =
-      ingreso_ppa_base +
-      ingreso_captura +
-      ingreso_arbitraje +
-      ingreso_pfirme +
-      ingreso_cels_anio;
-    const flujo_neto = ingreso_total - opex_anual;
+    const ingreso_incremental =
+      ingreso_captura + ingreso_arbitraje + ingreso_pfirme;
+    const ingreso_proyecto =
+      ingreso_ppa_sfv + ingreso_cels_sfv + ingreso_incremental;
+    // FLUJO NETO BESS: solo el incremental menos OPEX BESS. El PPA y CELs
+    // del SFV existente no entran porque el SFV los cobraba sin BESS.
+    const flujo_neto = ingreso_incremental - opex_anual;
     const prev = flujos[i - 1] as FlujoAnual;
     flujos.push({
       anio: i,
       factor_soh: soh_i,
       energia_descargada_punta_mwh: e_desc_punta,
-      ingreso_ppa_generacion_mxn: ingreso_ppa_base,
+      ingreso_ppa_generacion_mxn: ingreso_ppa_sfv,
+      ingreso_cels_mxn: ingreso_cels_sfv,
       ingreso_captura_excedentes_mxn: ingreso_captura,
       ingreso_arbitraje_mxn: ingreso_arbitraje,
       ingreso_potencia_firme_mxn: ingreso_pfirme,
-      ingreso_cels_mxn: ingreso_cels_anio,
-      ingreso_total_mxn: ingreso_total,
+      ingreso_incremental_bess_mxn: ingreso_incremental,
+      ingreso_proyecto_total_mxn: ingreso_proyecto,
       opex_mxn: opex_anual,
       flujo_neto_mxn: flujo_neto,
       flujo_acumulado_mxn: prev.flujo_acumulado_mxn + flujo_neto,
