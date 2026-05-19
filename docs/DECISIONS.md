@@ -2,6 +2,16 @@
 
 Cada entrada: fecha, decisión, razón, alternativas descartadas.
 
+## 2026-05-19 — Tab Análisis Financiero: modelo proxy con dispatch año 1 + proyección SOH 20 años
+
+**Decisión:** El Tab Análisis Financiero implementa un modelo financiero preliminar en modo proxy. La arquitectura separa explícitamente: (a) cálculo operativo año 1 que reutiliza el motor de despacho existente, (b) proyección a 20 años que aplica `equipo.curvaSoh` año por año sobre los KPIs del año 1, (c) cálculo de potencia firme vía proxy (percentil 80 de potencia entregada en hora-punta CFE 18-22h), (d) sensibilidad operativa de producción 100-200% como factor multiplicativo sobre el perfil horario antes del dispatch. CAPEX, OPEX, WACC y precios PPA se cargan desde catálogo o defaults editables, no hardcoded.
+
+**Razón:** El motor de potencia firme oficial (PAA del Manual de Mercado para el Balance de Potencia, DACG DOF 3-abr-2026) requiere inputs CENACE (100 horas críticas, FIF) y validación regulatoria con Lalo que aún no están confirmados. El modelo proxy permite avanzar con análisis económico defendible mientras se cierra esa validación. Separar el cálculo operativo año 1 del proyección 20 años evita el antipatrón de multiplicar año 1 × 20 (que ignora la degradación SOH y sobreestima el flujo acumulado).
+
+**Alternativa descartada:** (1) Esperar a tener la fórmula PAA confirmada antes de implementar Tab Financiero — bloquea entregable demo y no aporta a la conversación con Lalo. (2) Hardcodear el modelo financiero con números ficticios — rompe el principio de "nada hardcoded si ya existe data, fórmula o catálogo" del proyecto. (3) Calcular flujo 20 años con fórmula simplificada año1 × 20 — ignora SOH y produce números no defendibles.
+
+La sensibilidad de producción 100-200% modela overbuild razonable bajo condiciones operativas óptimas, no ampliación masiva de SFV. Copy cliente-facing usa "sensibilidad operativa" y "factor de producción", no los términos prohibidos por la decisión Wave 1/Wave 2.
+
 ## 2026-05-19 — Visualización de curva SOH vive en Tab BESS, no en SFV+BESS ni Financiero
 
 **Decisión:** La sección visual "Degradación del BESS a 20 años" (curva SOH, KPIs, tabla de hitos, narrativa de pendientes) vive en el Tab BESS, debajo de "Comparativa técnica" y arriba del accordion "Parámetros de operación y supuestos". El Tab SFV+BESS y el futuro Tab Análisis Financiero no muestran la curva como objeto visual propio: la consumen vía `equipo.curvaSoh` para sus cálculos (operación año tipo y erosión económica respectivamente), pero no replican la visualización.
