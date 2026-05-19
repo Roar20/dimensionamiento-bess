@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/shell/AppShell";
 import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 import { BESS } from "@/pages/BESS";
@@ -18,6 +18,8 @@ export function App() {
             <Route path="/bess" element={<BESS />} />
             <Route path="/sfv-bess" element={<SFVBess />} />
             <Route path="/financiero" element={<Financiero />} />
+            <Route path="/onboarding" element={<Home />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AppShell>
       </BrowserRouter>
