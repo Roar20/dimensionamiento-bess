@@ -219,7 +219,7 @@ export function TabFinanciero({ datos }: Props) {
       {
         label: "Aporte BESS · año 1",
         valor: formatoCompacto(calculo.ingreso_incremental_bess_anio1),
-        sublabel: "Captura + arbitraje + pfirme proxy − OPEX",
+        sublabel: "Captura + arbitraje + pfirme proxy (antes de OPEX)",
         destacar: true,
         badge: "incluye potencia firme proxy",
         badge_tooltip: COPY_PROXY_PFIRME,
