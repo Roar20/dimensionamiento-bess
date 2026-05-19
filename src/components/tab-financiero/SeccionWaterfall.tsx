@@ -3,15 +3,12 @@ import type { ChartOptions } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
 interface Props {
-  ingreso_ppa_sfv_mxn: number;
-  ingreso_cels_sfv_mxn: number;
   ingreso_captura_excedentes_mxn: number;
   ingreso_arbitraje_mxn: number;
   ingreso_potencia_firme_mxn: number;
   opex_mxn: number;
 }
 
-const COLOR_SFV_EXISTENTE = "#9CA3AF"; // gris: ya lo cobra sin BESS
 const COLOR_BESS_POSITIVO = "#0F766E"; // verde teal: aporte BESS
 const COLOR_NEGATIVO = "#B91C1C";
 const COLOR_TOTAL_BESS = "#065F46";
@@ -27,19 +24,16 @@ function fmtMillones(v: number): string {
 }
 
 export function SeccionWaterfall({
-  ingreso_ppa_sfv_mxn,
-  ingreso_cels_sfv_mxn,
   ingreso_captura_excedentes_mxn,
   ingreso_arbitraje_mxn,
   ingreso_potencia_firme_mxn,
   opex_mxn,
 }: Props) {
   const { labels, valores, colores, bases } = useMemo(() => {
+    // Solo bloque incremental BESS: el waterfall responde exclusivamente
+    // a "qué paga el CAPEX BESS". PPA SFV y CELs SFV son contexto que
+    // vive en la comparativa SFV vs SFV+BESS y la tabla anual.
     const componentes: { label: string; delta: number; color: string }[] = [
-      // Bloque SFV existente (gris): contexto narrativo, no incremental.
-      { label: "PPA SFV existente", delta: ingreso_ppa_sfv_mxn, color: COLOR_SFV_EXISTENTE },
-      { label: "+ CELs SFV", delta: ingreso_cels_sfv_mxn, color: COLOR_SFV_EXISTENTE },
-      // Bloque incremental BESS (verde): lo que el BESS agrega.
       { label: "+ Captura BESS", delta: ingreso_captura_excedentes_mxn, color: COLOR_BESS_POSITIVO },
       { label: "+ Arbitraje", delta: ingreso_arbitraje_mxn, color: COLOR_BESS_POSITIVO },
       { label: "+ Pfirme proxy⚑", delta: ingreso_potencia_firme_mxn, color: COLOR_BESS_POSITIVO },
@@ -77,8 +71,6 @@ export function SeccionWaterfall({
     colores.push(COLOR_TOTAL_BESS);
     return { labels, valores, bases, colores };
   }, [
-    ingreso_ppa_sfv_mxn,
-    ingreso_cels_sfv_mxn,
     ingreso_captura_excedentes_mxn,
     ingreso_arbitraje_mxn,
     ingreso_potencia_firme_mxn,
@@ -147,15 +139,13 @@ export function SeccionWaterfall({
           Qué paga el CAPEX del BESS · año 1
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Las dos primeras barras (gris) son ingreso del SFV existente
-          — ya lo cobra sin BESS, contexto narrativo. Las tres siguientes
-          (verde) son el aporte BESS. La barra final (verde oscuro) es ese
-          aporte neto de OPEX: el único flujo que repaga el CAPEX BESS.
+          El waterfall muestra únicamente el flujo incremental
+          atribuible al BESS. El PPA y los CELs del SFV existente son
+          contexto, pero no pagan el CAPEX BESS.
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_SFV_EXISTENTE} texto="SFV existente (contexto)" />
           <Leyenda color={COLOR_BESS_POSITIVO} texto="Aporte BESS" />
           <Leyenda color={COLOR_NEGATIVO} texto="OPEX BESS" />
           <Leyenda color={COLOR_TOTAL_BESS} texto="Aporte BESS neto" />

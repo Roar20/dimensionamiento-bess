@@ -10,15 +10,20 @@ interface Props {
   payback: number | null;
 }
 
-// Verde apilado de fondo a frente: oscuro = base estructural, claro = oportunista.
-const COLOR_PFIRME = "#047857";
-const COLOR_ARBITRAJE = "#34D399";
-const COLOR_CAPTURA = "#6EE7B7";
+// Paleta cromática separada (no tres verdes): teal / azul / lima.
+// Opacidad uniforme 90% en backgroundColor (alpha "e6"), stroke al 100%.
+// Razón: los tres componentes son del mismo aporte BESS — ninguno es
+// "menos importante"; el salto cromático real entrega lectura inmediata
+// de composición.
+const COLOR_PFIRME = "#0F766E";
+const COLOR_ARBITRAJE = "#3B82F6";
+const COLOR_CAPTURA = "#84CC16";
 // Naranja del SOH, idéntico al de la sección Erosión SOH (consistencia visual).
 const COLOR_SOH = "#B45309";
-// Teal del payback, idéntico al borde del KPI canónico del Hero.
+// Teal del payback. Idéntico al borde del KPI canónico del Hero.
 const COLOR_PAYBACK = "#0F766E";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
+const ALPHA_AREA = "e6"; // 90% — uniforme entre los 3 componentes
 
 const FMT_M = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 3,
@@ -38,43 +43,72 @@ function fmtMillonesEje(v: number): string {
 }
 
 /**
- * Plugin inline Chart.js para dibujar la línea vertical de payback
- * directamente sobre el canvas (sin chartjs-plugin-annotation, que no
- * está instalado). Lee `payback` desde options.plugins.paybackLine.
+ * Plugin inline Chart.js para dibujar:
+ *  (a) la línea vertical de payback con su label arriba, y
+ *  (b) el label "SOH XX% año 20" al extremo derecho de la curva SOH.
+ *
+ * Usa `afterDraw` (no `afterDatasetsDraw`) para escapar del clipping
+ * path de datasets, y dibuja en la zona de `chart.chartArea.top`
+ * que tiene padding reservado vía `layout.padding.top: 28` en options.
+ *
+ * Sin chartjs-plugin-annotation (no instalado): plugin custom dentro
+ * del componente, con `ctx.save()` / `ctx.restore()` envolviendo todo.
  */
 const paybackLinePlugin: Plugin<"line"> = {
   id: "paybackLine",
-  afterDatasetsDraw(chart, _args, opts: { payback?: number | null }) {
-    const payback = opts?.payback;
-    if (payback == null) return;
+  afterDraw(chart, _args, opts: { payback?: number | null; soh_anio20_pct?: number | null }) {
+    const ctx = chart.ctx;
     const xScale = chart.scales.x;
     const yScale = chart.scales.y;
+    const y1Scale = chart.scales.y1;
     if (!xScale || !yScale) return;
-    // Eje X categórico Año 1..Año 20: índice = round(payback) - 1.
-    const idx = Math.round(payback) - 1;
-    if (idx < 0 || idx > 19) return;
-    const x = xScale.getPixelForValue(idx);
-    const ctx = chart.ctx;
-    ctx.save();
-    ctx.beginPath();
-    ctx.setLineDash([4, 4]);
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = COLOR_PAYBACK;
-    ctx.moveTo(x, yScale.top);
-    ctx.lineTo(x, yScale.bottom);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    // Label arriba.
-    ctx.font = "600 12px Inter, -apple-system, BlinkMacSystemFont, sans-serif";
-    ctx.fillStyle = COLOR_PAYBACK;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.fillText(
-      `payback ≈ ${payback.toFixed(1)} años`,
-      x,
-      yScale.top - 6
-    );
-    ctx.restore();
+
+    // --- (a) Línea vertical + label de payback ---
+    const payback = opts?.payback;
+    if (payback != null) {
+      const idx = Math.round(payback) - 1;
+      if (idx >= 0 && idx <= 19) {
+        const x = xScale.getPixelForValue(idx);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = COLOR_PAYBACK;
+        ctx.moveTo(x, yScale.top);
+        ctx.lineTo(x, yScale.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Label arriba de la línea, dentro del padding reservado.
+        // `chart.chartArea.top - 6` queda en zona libre de clip
+        // gracias a layout.padding.top: 28 (espacio físico reservado).
+        ctx.font =
+          "600 12px Inter, -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.fillStyle = COLOR_PAYBACK;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(
+          `payback ≈ ${payback.toFixed(1)} años`,
+          x,
+          chart.chartArea.top - 6
+        );
+        ctx.restore();
+      }
+    }
+
+    // --- (b) Label "SOH XX% año 20" al final de la curva ---
+    const sohAnio20 = opts?.soh_anio20_pct;
+    if (sohAnio20 != null && y1Scale) {
+      const xLast = xScale.getPixelForValue(19); // índice del año 20
+      const yLast = y1Scale.getPixelForValue(sohAnio20);
+      ctx.save();
+      ctx.font =
+        "600 11px Inter, -apple-system, BlinkMacSystemFont, sans-serif";
+      ctx.fillStyle = COLOR_SOH;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText(`SOH ${Math.round(sohAnio20)}% año 20`, xLast - 4, yLast - 10);
+      ctx.restore();
+    }
   },
 };
 
@@ -109,7 +143,7 @@ export function SeccionEvolucionEconomica({
       {
         label: "Potencia firme proxy",
         data: datos.pfirme,
-        backgroundColor: `${COLOR_PFIRME}cc`, // 80% alpha
+        backgroundColor: `${COLOR_PFIRME}${ALPHA_AREA}`,
         borderColor: COLOR_PFIRME,
         borderWidth: 1,
         pointRadius: 0,
@@ -123,7 +157,7 @@ export function SeccionEvolucionEconomica({
       {
         label: "Arbitraje horario",
         data: datos.arbitraje,
-        backgroundColor: `${COLOR_ARBITRAJE}cc`,
+        backgroundColor: `${COLOR_ARBITRAJE}${ALPHA_AREA}`,
         borderColor: COLOR_ARBITRAJE,
         borderWidth: 1,
         pointRadius: 0,
@@ -137,7 +171,7 @@ export function SeccionEvolucionEconomica({
       {
         label: "Captura de excedentes",
         data: datos.captura,
-        backgroundColor: `${COLOR_CAPTURA}cc`,
+        backgroundColor: `${COLOR_CAPTURA}${ALPHA_AREA}`,
         borderColor: COLOR_CAPTURA,
         borderWidth: 1,
         pointRadius: 0,
@@ -153,7 +187,7 @@ export function SeccionEvolucionEconomica({
         data: datos.soh,
         borderColor: COLOR_SOH,
         backgroundColor: "transparent",
-        borderWidth: 2,
+        borderWidth: 2.5,
         borderDash: [5, 5],
         pointRadius: 0,
         pointHoverRadius: 4,
@@ -171,9 +205,20 @@ export function SeccionEvolucionEconomica({
     return f1 ? f1.ingreso_incremental_bess_mxn : 0;
   }, [flujos_base]);
 
+  // Último valor SOH (año 20) en %, leído del dato. Pasa al plugin
+  // para el label "SOH XX% año 20" en el extremo derecho de la curva.
+  const sohAnio20Pct = useMemo(() => {
+    const last = curva_soh[20];
+    return typeof last === "number" ? last * 100 : null;
+  }, [curva_soh]);
+
   const options: ChartOptions<"line"> = {
     responsive: true,
     maintainAspectRatio: false,
+    // Padding superior reservado para que los labels del plugin
+    // (payback + SOH año 20) tengan zona física propia, fuera del
+    // chartArea de los datasets.
+    layout: { padding: { top: 28, right: 12 } },
     plugins: {
       legend: { display: false }, // leyenda custom arriba del gráfico
       tooltip: {
@@ -204,7 +249,7 @@ export function SeccionEvolucionEconomica({
         titleFont: { weight: "bold" as const, size: 12 },
       },
       // @ts-expect-error opciones del plugin custom inline
-      paybackLine: { payback },
+      paybackLine: { payback, soh_anio20_pct: sohAnio20Pct },
     },
     interaction: { mode: "index", intersect: false },
     scales: {

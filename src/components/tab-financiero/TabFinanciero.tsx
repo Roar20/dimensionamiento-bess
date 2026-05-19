@@ -26,7 +26,10 @@ import { COPY_PROXY_PFIRME } from "./copy-proxy-pfirme";
 import { DisclaimerTransversal } from "./DisclaimerTransversal";
 import { MetodologiaFinanciero } from "./MetodologiaFinanciero";
 import { PanelConfiguracion } from "./PanelConfiguracion";
-import { SeccionBreakdownIngresos } from "./SeccionBreakdownIngresos";
+// SeccionBreakdownIngresos: removida del render por redundancia con el
+// master chart, el waterfall simplificado, la comparativa y la tabla
+// anual. El archivo se conserva en el filesystem por si fuera necesario
+// restaurarla.
 import { SeccionComparativa } from "./SeccionComparativa";
 import { SeccionEvolucionEconomica } from "./SeccionEvolucionEconomica";
 import { SeccionFlujoAcumulado } from "./SeccionFlujoAcumulado";
@@ -311,8 +314,6 @@ export function TabFinanciero({ datos }: Props) {
       />
 
       <SeccionWaterfall
-        ingreso_ppa_sfv_mxn={calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0}
-        ingreso_cels_sfv_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
         ingreso_captura_excedentes_mxn={
           calculo.flujos[1]?.ingreso_captura_excedentes_mxn ?? 0
         }
@@ -328,20 +329,6 @@ export function TabFinanciero({ datos }: Props) {
         ingreso_sfv_solo_anio={calculo.ingreso_sfv_solo_anio1}
         capex_mxn={calculo.capex}
         payback={calculo.payback}
-      />
-
-      <SeccionBreakdownIngresos
-        ingreso_ppa_sfv_mxn={
-          calculo.flujos[1]?.ingreso_ppa_generacion_mxn ?? 0
-        }
-        ingreso_cels_sfv_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
-        ingreso_captura_excedentes_mxn={
-          calculo.flujos[1]?.ingreso_captura_excedentes_mxn ?? 0
-        }
-        ingreso_arbitraje_mxn={calculo.flujos[1]?.ingreso_arbitraje_mxn ?? 0}
-        ingreso_potencia_firme_mxn={
-          calculo.flujos[1]?.ingreso_potencia_firme_mxn ?? 0
-        }
       />
 
       <SeccionSohErosion
