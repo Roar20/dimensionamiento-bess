@@ -132,6 +132,33 @@ export function SeccionEvolucionEconomica({
 
   const data = {
     labels: datos.labels,
+    // IMPORTANTE — NO agregar el campo `order` a los datasets de área
+    // (pfirme, arbitraje, captura).
+    //
+    // En Chart.js v4 el campo `order` controla TRES cosas simultáneamente:
+    //   1. El orden de stacking visual (qué dataset queda abajo).
+    //   2. El z-index de drawing (qué dataset se dibuja encima).
+    //   3. El orden de la leyenda y tooltip.
+    //
+    // Sin embargo, el campo `fill: "-1"` sigue el ORDEN DEL ARRAY, no el
+    // campo `order`. Cuando los dos están desalineados, el fill apunta
+    // al dataset equivocado y se genera un bug visual donde las áreas
+    // se rellenan contra una línea que no corresponde a su posición real
+    // en el stack (caso real ocurrido en D-FIN-14: pfirme con order 3
+    // quedaba al top del stack pero su fill "origin" llenaba de 0 a Y
+    // stacked = total, cubriendo arbitraje y haciendo que la banda azul
+    // pareciera dominar visualmente el 95% del campo, aunque su valor
+    // real fuera $18k de $384k).
+    //
+    // Para mantener consistencia entre stacking, `fill: "-1"` y la
+    // narrativa visual del spec D-FIN-07 (pfirme abajo como base
+    // estructural, arbitraje en medio, captura arriba), el ARRAY ORDER
+    // es la fuente única de verdad. NO agregar `order` aunque parezca
+    // "solo z-index" — afecta también el stacking.
+    //
+    // Para SOH (yAxisID "y1", fuera del stack `aporte`) sí se mantiene
+    // `order: 0` porque ahí sí actúa como z-index puro, sin afectar
+    // stacking (el dataset no participa de él).
     datasets: [
       {
         label: "Potencia firme proxy",
@@ -145,7 +172,6 @@ export function SeccionEvolucionEconomica({
         tension: 0.15,
         yAxisID: "y",
         stack: "aporte",
-        order: 3,
       },
       {
         label: "Arbitraje horario",
@@ -159,7 +185,6 @@ export function SeccionEvolucionEconomica({
         tension: 0.15,
         yAxisID: "y",
         stack: "aporte",
-        order: 2,
       },
       {
         label: "Captura de excedentes",
@@ -179,7 +204,6 @@ export function SeccionEvolucionEconomica({
         tension: 0.15,
         yAxisID: "y",
         stack: "aporte",
-        order: 1,
       },
       {
         label: "SOH (%)",
@@ -193,6 +217,10 @@ export function SeccionEvolucionEconomica({
         fill: false,
         tension: 0.15,
         yAxisID: "y1",
+        // SOH fuera del stack `aporte` (yAxisID "y1"): `order: 0`
+        // funciona como z-index puro sin afectar stacking. Mantenido
+        // explícitamente para que la línea SOH se dibuje al fondo y
+        // las áreas verdes no la corten visualmente.
         order: 0,
       },
     ],
