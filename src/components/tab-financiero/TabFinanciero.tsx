@@ -23,12 +23,17 @@ import type {
 import type { DatosSFV } from "@/types/sfv";
 
 import { DisclaimerTransversal } from "./DisclaimerTransversal";
+import { MetodologiaFinanciero } from "./MetodologiaFinanciero";
 import { PanelConfiguracion } from "./PanelConfiguracion";
 import { SeccionBreakdownIngresos } from "./SeccionBreakdownIngresos";
 import { SeccionComparativa } from "./SeccionComparativa";
 import { SeccionFlujoAcumulado } from "./SeccionFlujoAcumulado";
+import { SeccionGeneracionFactor } from "./SeccionGeneracionFactor";
 import { SeccionHero } from "./SeccionHero";
+import { SeccionSensibilidades } from "./SeccionSensibilidades";
+import { SeccionSohErosion } from "./SeccionSohErosion";
 import { SeccionWaterfall } from "./SeccionWaterfall";
+import { TablaAnual21 } from "./TablaAnual21";
 
 interface Props {
   datos: DatosSFV;
@@ -296,6 +301,40 @@ export function TabFinanciero({ datos }: Props) {
         }
         ingreso_cels_mxn={calculo.flujos[1]?.ingreso_cels_mxn ?? 0}
       />
+
+      <SeccionSohErosion
+        flujos={calculo.flujos}
+        curva_soh={calculo.equipo.curvaSoh}
+      />
+
+      <SeccionGeneracionFactor
+        registros_ajustados={calculo.registros_ajustados}
+        capacidad_poi_kw={datos.config.capacidad_poi_kw}
+        capacidad_carga_bess_kw={calculo.config.p_kw}
+        factor_produccion={params.factor_produccion}
+      />
+
+      <SeccionSensibilidades
+        entradas_base={{
+          captura_excedentes_anio1_mwh: calculo.captura_excedentes_anio1_mwh,
+          descargado_anio1_punta_mwh: calculo.descargado_punta_mwh,
+          generacion_anual_mwh: calculo.generacion_anual_mwh,
+          potencia_firme_kw: calculo.potencia_firme_kw,
+          curva_soh: calculo.equipo.curvaSoh,
+          capex_mxn: calculo.capex,
+          opex_tasa_anual: params.opex_tasa_anual,
+          precio_energia_mxn_mwh: params.precio_energia_mxn_mwh,
+          precio_cel_mxn: params.precio_cel_mxn,
+          precio_potencia_firme_mxn_mw_mes:
+            params.precio_potencia_firme_mxn_mw_mes,
+          lmp_mxn_mwh: params.lmp_mxn_mwh,
+          diferencial_lmp_pct: params.diferencial_lmp_pct,
+        }}
+      />
+
+      <TablaAnual21 flujos={calculo.flujos} payback={calculo.payback} />
+
+      <MetodologiaFinanciero />
 
       <FooterEstandar fuente="Fuente: dispatch BESS sobre dataset Tequila 2025 · precios proxy Estanzuela 2 marzo 2026 · catálogo Hyperstrong" />
     </div>
