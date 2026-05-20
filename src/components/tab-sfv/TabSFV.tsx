@@ -11,10 +11,11 @@ import {
 import { agregarPorMes } from "@/lib/tab-sfv/agregaciones-mensuales";
 import type { DatosSFV } from "@/types/sfv";
 
+import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
+
 import { BandaKpis } from "./BandaKpis";
 import { ChartExcedentesMensuales } from "./ChartExcedentesMensuales";
 import { ChartPerfilHorario } from "./ChartPerfilHorario";
-import { HeaderDossier } from "./HeaderDossier";
 import { MetodologiaSFV } from "./MetodologiaSFV";
 import { MiniKpisExcedentesDiarios } from "./MiniKpisExcedentesDiarios";
 import { TablaResumenMensual } from "./TablaResumenMensual";
@@ -148,12 +149,18 @@ export function TabSFV({ datos }: Props) {
 
   return (
     <div>
-      <HeaderDossier
-        nombrePlanta={config.nombre || null}
-        anio={meta.anio}
-        totalRegistros={meta.total_horas}
-        poiKw={config.capacidad_poi_kw}
-        zonaLmp={config.zona_lmp}
+      <ProjectContextHeader
+        titulo={
+          config.nombre
+            ? `Análisis de la curva de generación del SFV — ${config.nombre}`
+            : "Análisis de la curva de generación del SFV"
+        }
+        meta={{
+          anio: meta.anio,
+          totalRegistros: meta.total_horas,
+          poiKw: config.capacidad_poi_kw,
+          zonaLmp: config.zona_lmp,
+        }}
       />
 
       <BandaKpis

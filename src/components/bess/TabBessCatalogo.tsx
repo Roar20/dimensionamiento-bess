@@ -1,23 +1,18 @@
 import { useState } from "react";
 
+import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 import { FooterEstandar } from "@/components/ui/FooterEstandar";
 import { LecturaEjecutiva } from "@/components/ui/LecturaEjecutiva";
 import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
+import { useDatosSFV } from "@/hooks/useDatosSFV";
 import { useTipoCambio } from "@/hooks/useTipoCambio";
 import { CATALOGO_HYPERSTRONG, type EquipoBess } from "@/data/catalogo-hyperstrong";
 
 import { ComparativaTecnica } from "./ComparativaTecnica";
 import { EquipoCard } from "./EquipoCard";
 import { FichaTecnicaModal } from "./FichaTecnicaModal";
-import { HeaderCatalogo } from "./HeaderCatalogo";
 import { SeccionDegradacionSOH } from "./SeccionDegradacionSOH";
 import { TipoCambioInput } from "./TipoCambioInput";
-
-const CHIPS_HEADER = [
-  { icono: "ti-square-rotated", texto: "LFP-314Ah" },
-  { icono: "ti-snowflake", texto: "Refrigeración líquida" },
-  { icono: "ti-shield-check", texto: "UL9540A · IEC 62619" },
-];
 
 const LECTURA_EJECUTIVA =
   "Tres plataformas Hyperstrong disponibles cubriendo el rango de 125 kW a 2,500 kW por unidad. Para el portafolio de Soluciones MHG (POI ≤ 500 kW por planta), Cube Plus y Cube Max son las opciones aplicables; Block III queda fuera de escala para este caso de uso.";
@@ -25,12 +20,22 @@ const LECTURA_EJECUTIVA =
 export function TabBessCatalogo() {
   const [equipoFicha, setEquipoFicha] = useState<EquipoBess | null>(null);
   const { tipoCambio, setTipoCambio } = useTipoCambio();
+  const { datos } = useDatosSFV();
+
+  const metaPlanta = datos
+    ? {
+        anio: datos.meta.anio,
+        totalRegistros: datos.meta.total_horas,
+        poiKw: datos.config.capacidad_poi_kw,
+        zonaLmp: datos.config.zona_lmp,
+      }
+    : undefined;
 
   return (
     <div>
-      <HeaderCatalogo
+      <ProjectContextHeader
         titulo="Catálogo de almacenamiento — Hyperstrong"
-        chips={CHIPS_HEADER}
+        meta={metaPlanta}
         slotFinal={
           <TipoCambioInput valor={tipoCambio} onChange={setTipoCambio} />
         }

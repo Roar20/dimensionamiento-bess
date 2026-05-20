@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { FooterEstandar } from "@/components/ui/FooterEstandar";
-import { HeaderDossier } from "@/components/tab-sfv/HeaderDossier";
+import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 import { ensureChartJsRegistered } from "@/components/tab-sfv/chart-setup";
 import { CATALOGO_HYPERSTRONG as CATALOGO_VIEJO } from "@/lib/bess/catalogo-hyperstrong";
 import {
@@ -142,13 +142,18 @@ export function TabSFVBess({ datos }: Props) {
 
   return (
     <div>
-      <HeaderDossier
-        nombrePlanta={config.nombre || null}
-        anio={meta.anio}
-        totalRegistros={meta.total_horas}
-        poiKw={config.capacidad_poi_kw}
-        zonaLmp={config.zona_lmp}
-        tituloBase="Análisis del SFV + BESS"
+      <ProjectContextHeader
+        titulo={
+          config.nombre
+            ? `Análisis del SFV + BESS — ${config.nombre}`
+            : "Análisis del SFV + BESS"
+        }
+        meta={{
+          anio: meta.anio,
+          totalRegistros: meta.total_horas,
+          poiKw: config.capacidad_poi_kw,
+          zonaLmp: config.zona_lmp,
+        }}
       />
 
       <PanelPreciosEditables

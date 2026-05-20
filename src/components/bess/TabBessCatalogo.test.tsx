@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 
 import { TabBessCatalogo } from "@/components/bess/TabBessCatalogo";
+import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 
 vi.mock("react-chartjs-2", () => ({
   Line: ({ data }: { data: { datasets: { label: string }[] } }) => (
@@ -11,7 +13,13 @@ vi.mock("react-chartjs-2", () => ({
 
 describe("TabBessCatalogo", () => {
   it("renderiza la sección 'Degradación del BESS a 20 años'", () => {
-    render(<TabBessCatalogo />);
+    render(
+      <MemoryRouter>
+        <DatosSFVProvider>
+          <TabBessCatalogo />
+        </DatosSFVProvider>
+      </MemoryRouter>
+    );
     expect(
       screen.getByRole("heading", { name: /Degradación del BESS a 20 años/i })
     ).toBeInTheDocument();
