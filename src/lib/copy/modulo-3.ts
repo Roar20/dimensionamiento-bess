@@ -178,4 +178,101 @@ export const COPY_M3 = {
       comercial: "Comercial",
     },
   },
+  /**
+   * Strings de la sección de Costo Unitario (PR P5). Ver docs/COPY.md
+   * sección "Tab BESS — Costo Unitario" para el espejo editorial.
+   */
+  costoUnitario: {
+    eyebrow: "Costo de capacidad",
+    titulo: "Costo unitario por kWh nominal",
+    subtitulo:
+      "USD por kWh de capacidad nominal declarada · equipos aplicables a Tequila.",
+    headline: "El Cube Max cuesta 17% menos por kWh que el Cube Plus.",
+    chipBase: "Base: capacidad nominal",
+    chipSensibilidad: "Sensibilidad DoD 95% en tooltip y metodología",
+    tooltipBarra: (nominal: number, util: number) =>
+      `Nominal $${nominal} · con DoD 95% ≈ $${util}`,
+    blockIII: {
+      titulo: "$113 USD/kWh",
+      mensaje: "Escala utility — no compite para POI 500 kW",
+      tag: "Fuera de escala",
+    },
+    metodologia: {
+      titulo: "Metodología del costo unitario",
+      parrafoBase:
+        "El costo base reportado es USD ÷ capacidad nominal declarada por datasheet, sin descontar profundidad de descarga (DoD) ni eficiencia round-trip (RTE). Es la métrica comparativa directa entre equipos.",
+      parrafoSensibilidad:
+        "La sensibilidad con DoD 95% — consistente con los supuestos de operación del catálogo — divide entre capacidad útil (capacidad × 0.95). Cube Plus pasa de $214 a ≈$225 USD/kWh útil; Cube Max pasa de $177 a ≈$186. El ranking no cambia.",
+      parrafoBlockIII:
+        "Block III queda fuera de la comparación por escala: 5 MWh por unidad es 6× la capacidad del Cube Max. Su precio por kWh es competitivo, pero no aplica para POI ≤ 500 kW del portafolio actual.",
+    },
+  },
+  /**
+   * Strings de la sección de Degradación SOH (PR P5). Ver docs/COPY.md
+   * sección "Tab BESS — Degradación SOH" para el espejo editorial.
+   */
+  degradacionSoh: {
+    eyebrow: "Vida útil del equipo",
+    titulo: "Degradación del BESS a 20 años",
+    subtitulo:
+      "Retención de capacidad (SOH, State of Health) según la curva declarada por Hyperstrong para la familia LFP-314Ah, en condiciones nominales del datasheet.",
+    headline:
+      "La batería mantiene más del 80% de su capacidad hasta cerca del año 9.",
+    lineaAsimetria:
+      "La pérdida se concentra en los primeros años y se atenúa después.",
+    tooltipHeadline:
+      "El umbral del 80% es la convención de fin de vida útil de referencia para baterías estacionarias. El umbral del 70% corresponde a la garantía contractual típica del fabricante. Son dos conceptos distintos.",
+    cardEntrega: { label: "SOH año 0", sublabel: "Entrega" },
+    cardFinHorizonte: {
+      label: "SOH año 20",
+      sublabel: "Fin del horizonte modelado",
+    },
+    legend: {
+      soh: "SOH (%) por año",
+      umbralFinVida: "Fin de vida útil de referencia (80%)",
+      umbralGarantia: "Umbral de garantía contractual típico (70%)",
+    },
+    callout: {
+      titulo: "Fin de vida útil de referencia",
+      sub: "Año 9 · 80% capacidad",
+    },
+    narrativa: {
+      primeraDecada: {
+        titulo: "Primera década",
+        texto: (ppPorAno: string) =>
+          `Pérdida promedio de ${ppPorAno} pp/año entre el año 1 y el año 10. Es la fase donde la química LFP entrega su perfil más exigente: estabilización del SEI, primer ciclo profundo y ajuste del balance celda-celda. Al cierre de esta década el banco se aproxima al fin de vida útil de referencia (80%, ≈ año 9).`,
+      },
+      segundaDecada: {
+        titulo: "Segunda década",
+        texto: (ppPorAno: string) =>
+          `Pérdida promedio de ${ppPorAno} pp/año entre el año 10 y el año 20. La curva se aplana; la energía útil sigue cayendo pero a ritmo menor. El cruce del umbral de garantía contractual típico (70%) ocurre dentro de esta ventana, en línea con la vida útil declarada del equipo.`,
+      },
+    },
+    tabla: {
+      headers: {
+        ano: "Año",
+        soh: "SOH (%)",
+        delta: "Δ vs año anterior (pp)",
+        hito: "Hito",
+      },
+      hitos: {
+        ano0: "Entrega",
+        ano9: "Fin de vida útil de referencia (80%)",
+        ano12: "Vida útil declarada Cube Max (>12 años)",
+        ano15: "Vida útil declarada Cube Plus (>15 años)",
+        ano16: "Umbral de garantía contractual (70%)",
+        ano20: "Fin del horizonte modelado",
+      },
+    },
+    disclaimer: {
+      titulo: "Disclaimer y condiciones del dato:",
+      cuerpo:
+        "Los 21 valores graficados provienen de la curva SOH publicada por Hyperstrong para la plataforma LFP-314Ah en condiciones nominales del datasheet. La curva refleja un perfil declarado por el fabricante, no una garantía contractual: la carta formal de garantía de capacidad mínima vinculante está pendiente de confirmación con Hyperstrong. Las desviaciones operativas (temperaturas sostenidas fuera de rango, ciclado profundo continuo, sobre-corriente, tasa de carga/descarga exigente) aceleran la degradación más allá de lo modelado aquí.",
+    },
+    metodologia: {
+      titulo: "Metodología y procedencia de la curva SOH",
+      origen:
+        "21 puntos anuales (año 0 al año 20) entregados por Hyperstrong para la plataforma LFP-314Ah, en condiciones nominales del datasheet. La curva es la misma para Cube Plus, Cube Max y Block III; el atributo distintivo entre equipos es la vida útil declarada, no la forma de la curva.",
+    },
+  },
 } as const;
