@@ -7,7 +7,6 @@ import { fileURLToPath } from "node:url";
 
 import { TabFinanciero } from "@/components/tab-financiero/TabFinanciero";
 import { DatosSFVProvider } from "@/hooks/useDatosSFV";
-import { limpiarParametrosFinancierosPersistidos } from "@/hooks/useParametrosFinancieros";
 import { limpiarTipoCambioPersistido } from "@/hooks/useTipoCambio";
 import { generarDiaPlano, sumarDias } from "@/test/fixtures/sfv-fixtures";
 import type { DatosSFV } from "@/types/sfv";
@@ -17,14 +16,10 @@ vi.mock("react-chartjs-2", () => ({
   Bar: () => <div data-testid="chart-bar" />,
 }));
 
-beforeEach(() => {
-  limpiarParametrosFinancierosPersistidos();
-  limpiarTipoCambioPersistido();
-});
-afterEach(() => {
-  limpiarParametrosFinancierosPersistidos();
-  limpiarTipoCambioPersistido();
-});
+// tipo-cambio sigue persistido (preferencia macro del usuario);
+// las demás claves son stateless y no requieren limpieza entre tests.
+beforeEach(() => limpiarTipoCambioPersistido());
+afterEach(() => limpiarTipoCambioPersistido());
 
 function datosFixture(): DatosSFV {
   const registros = [];

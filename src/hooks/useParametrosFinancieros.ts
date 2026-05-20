@@ -1,16 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import type { EquipoBess } from "@/data/catalogo-hyperstrong";
 
-const STORAGE_KEY = "dimensionamiento-bess:parametros-financieros";
-
 /**
- * Parámetros del Tab Análisis Financiero. Capa local con overrides del Tab;
- * NO toca `usePreciosProxy` ni `PRECIOS_DEFAULT` (decisión confirmada por
- * el consultor para mantener aislamiento del Tab Financiero).
- *
- * Precios default reflejan validación marzo 2026 Estanzuela 2 (proxy para
- * Tequila pendiente confirmar con MHG).
+ * Parámetros del Tab Análisis Financiero. Stateless: viven solo en
+ * memoria React. Sin persistencia. Cualquier remount restablece los
+ * defaults validados marzo 2026 Estanzuela 2.
  */
 export type ParametrosFinancieros = {
   equipo_id: EquipoBess["id"];
@@ -49,64 +44,10 @@ export const PARAMETROS_FINANCIEROS_DEFAULT: ParametrosFinancieros = {
   factor_credibilidad_pfirme: 0.40,
 };
 
-function esValido(p: Partial<ParametrosFinancieros>): p is ParametrosFinancieros {
-  return (
-    typeof p.equipo_id === "string" &&
-    typeof p.numero_unidades === "number" &&
-    p.numero_unidades > 0 &&
-    (p.capex_override_mxn === null || typeof p.capex_override_mxn === "number") &&
-    typeof p.opex_tasa_anual === "number" &&
-    typeof p.wacc_pct === "number" &&
-    typeof p.factor_produccion === "number" &&
-    p.factor_produccion >= 1 &&
-    p.factor_produccion <= 2 &&
-    typeof p.precio_energia_mxn_mwh === "number" &&
-    typeof p.precio_cel_mxn === "number" &&
-    typeof p.precio_potencia_firme_mxn_mw_mes === "number" &&
-    typeof p.lmp_mxn_mwh === "number" &&
-    typeof p.diferencial_lmp_pct === "number" &&
-    typeof p.factor_credibilidad_pfirme === "number" &&
-    p.factor_credibilidad_pfirme >= 0 &&
-    p.factor_credibilidad_pfirme <= 1
-  );
-}
-
-function leerPersistido(): ParametrosFinancieros | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<ParametrosFinancieros>;
-    if (!esValido(parsed)) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function escribirPersistido(p: ParametrosFinancieros) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
-  } catch {
-    // ignore
-  }
-}
-
-export function limpiarParametrosFinancierosPersistidos() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
-}
-
 export function useParametrosFinancieros() {
   const [params, setParams] = useState<ParametrosFinancieros>(
-    () => leerPersistido() ?? PARAMETROS_FINANCIEROS_DEFAULT
+    PARAMETROS_FINANCIEROS_DEFAULT
   );
-
-  useEffect(() => {
-    escribirPersistido(params);
-  }, [params]);
 
   const actualizar = useCallback(
     (parcial: Partial<ParametrosFinancieros>) => {

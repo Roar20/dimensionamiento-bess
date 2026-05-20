@@ -7,42 +7,8 @@ import {
   calcularPromedioMensualSFV,
 } from "@/lib/core/bess";
 
-const STORAGE_KEY = "dimensionamiento-bess:parametros-ppa";
-
-function leerPersistido(): ParametrosPPA | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as ParametrosPPA;
-    if (
-      typeof parsed.compromiso_mensual_mwh !== "number" ||
-      typeof parsed.capacidad_poi_kw !== "number" ||
-      !Array.isArray(parsed.ventana_punta_cfe) ||
-      parsed.ventana_punta_cfe.length !== 2
-    ) {
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function escribirPersistido(p: ParametrosPPA) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
-  } catch {
-    // ignore
-  }
-}
-
-export function limpiarParametrosPPAPersistidos() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
-}
+// Stateless: parámetros PPA viven solo en memoria React.
+// Sin persistencia en localStorage.
 
 export function useParametrosPPA(datos: DatosSFV | null) {
   const promedioMensualSFV = useMemo(
@@ -66,23 +32,19 @@ export function useParametrosPPA(datos: DatosSFV | null) {
       setParams(null);
       return;
     }
-    const persistido = leerPersistido();
-    setParams(persistido ?? defaults);
+    setParams(defaults);
   }, [datos, defaults]);
 
   const actualizar = useCallback((parcial: Partial<ParametrosPPA>) => {
     setParams((prev) => {
       if (!prev) return prev;
-      const nuevo: ParametrosPPA = { ...prev, ...parcial };
-      escribirPersistido(nuevo);
-      return nuevo;
+      return { ...prev, ...parcial };
     });
   }, []);
 
   const resetearADefaults = useCallback(() => {
     if (!defaults) return;
     setParams(defaults);
-    escribirPersistido(defaults);
   }, [defaults]);
 
   return {

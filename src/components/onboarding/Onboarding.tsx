@@ -1,14 +1,7 @@
 import { useState } from "react";
+import { Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { COPY_M1A } from "@/lib/copy/modulo-1a";
 import type { ConfiguracionPlanta } from "@/types/sfv";
 import { ErrorFormatoArchivo } from "@/types/sfv";
@@ -37,25 +30,14 @@ const ESTADO_INICIAL: EstadoFormulario = {
 };
 
 interface Props {
-  hayDatosPersistidos: boolean;
   cargando: boolean;
   error: ErrorFormatoArchivo | null;
   cargar: (file: File, config: ConfiguracionPlanta) => Promise<void>;
-  onRehidratar: () => void;
-  onBorrar: () => void;
 }
 
-export function Onboarding({
-  hayDatosPersistidos,
-  cargando,
-  error,
-  cargar,
-  onRehidratar,
-  onBorrar,
-}: Props) {
+export function Onboarding({ cargando, error, cargar }: Props) {
   const [estado, setEstado] = useState<EstadoFormulario>(ESTADO_INICIAL);
   const [archivo, setArchivo] = useState<File | null>(null);
-  const [confirmarBorrar, setConfirmarBorrar] = useState(false);
 
   const actualizar = (parcial: Partial<EstadoFormulario>) => {
     setEstado((prev) => ({ ...prev, ...parcial }));
@@ -107,6 +89,17 @@ export function Onboarding({
         </h1>
       </header>
 
+      <div
+        className="flex items-start gap-2 rounded-[8px] border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2 text-[12px] leading-relaxed text-[#1E40AF]"
+        role="status"
+      >
+        <Info className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+        <span>
+          El análisis vive solo durante esta sesión. Si refrescas o abres
+          una nueva pestaña, deberás cargar el archivo nuevamente.
+        </span>
+      </div>
+
       <div className="space-y-5">
         <SeccionDatosCliente
           nombre={estado.nombre}
@@ -140,54 +133,8 @@ export function Onboarding({
               ? COPY_M1A.acciones.procesando
               : COPY_M1A.acciones.procesar}
           </Button>
-          {hayDatosPersistidos ? (
-            <>
-              <Button type="button" variant="ghost" onClick={onRehidratar}>
-                {COPY_M1A.acciones.cargarAnterior}
-              </Button>
-              <button
-                type="button"
-                onClick={() => setConfirmarBorrar(true)}
-                className="text-sm text-ink-helper underline-offset-4 hover:underline"
-              >
-                {COPY_M1A.acciones.borrar}
-              </button>
-            </>
-          ) : null}
         </div>
       </div>
-
-      <Dialog open={confirmarBorrar} onOpenChange={setConfirmarBorrar}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {COPY_M1A.acciones.confirmarBorrar.titulo}
-            </DialogTitle>
-            <DialogDescription>
-              {COPY_M1A.acciones.confirmarBorrar.descripcion}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setConfirmarBorrar(false)}
-            >
-              {COPY_M1A.acciones.confirmarBorrar.cancelar}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => {
-                onBorrar();
-                setConfirmarBorrar(false);
-              }}
-            >
-              {COPY_M1A.acciones.confirmarBorrar.confirmar}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
