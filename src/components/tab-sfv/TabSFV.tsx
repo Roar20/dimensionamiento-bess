@@ -14,6 +14,7 @@ import type { DatosSFV } from "@/types/sfv";
 import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 
 import { BandaKpis } from "./BandaKpis";
+import { BoxplotGeneracionDiaria } from "./BoxplotGeneracionDiaria";
 import { ChartExcedentesMensuales } from "./ChartExcedentesMensuales";
 import { ChartPerfilHorario } from "./ChartPerfilHorario";
 import { HeatmapExcedente } from "./HeatmapExcedente";
@@ -204,6 +205,8 @@ export function TabSFV({ datos }: Props) {
       ) : (
         <MiniKpisExcedentesDiarios stats={excedentesDiarios} />
       )}
+
+      <BoxplotGeneracionDiaria registros={registros} />
 
       <TablaResumenMensual
         resumen={resumenMensual}

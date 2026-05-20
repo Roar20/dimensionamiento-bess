@@ -169,9 +169,11 @@ describe("TabSFV — rama sin excedentes (excedente_anual < 1 MWh)", () => {
     ).toBeInTheDocument();
     const cta = screen.getByRole("link", { name: /ver tab sfv \+ bess/i });
     expect(cta).toHaveAttribute("href", "/sfv-bess");
-    // Mini-KPIs deben estar ocultos.
-    expect(screen.queryByText("Mediana")).not.toBeInTheDocument();
+    // Mini-KPIs deben estar ocultos. "Mediana" sigue apareciendo en el
+    // header del Boxplot (componente independiente del excedente), así
+    // que verificamos labels únicos de los mini-KPIs.
     expect(screen.queryByText("Día crítico")).not.toBeInTheDocument();
+    expect(screen.queryByText("P90")).not.toBeInTheDocument();
   });
 
   it("muestra placeholder en lugar del chart de excedentes mensuales", () => {
@@ -195,7 +197,7 @@ describe("TabSFV — rama sin excedentes (excedente_anual < 1 MWh)", () => {
 
   it("columna Excedente muestra em-dash en lugar de 0.0 MWh", () => {
     rend(datosSinExcedentes());
-    const tabla = screen.getByRole("table");
+    const tabla = tablaResumenMensual();
     const filas = tabla.querySelectorAll("tbody tr");
     expect(filas.length).toBeGreaterThan(0);
     for (const fila of filas) {
@@ -207,7 +209,7 @@ describe("TabSFV — rama sin excedentes (excedente_anual < 1 MWh)", () => {
 
   it("columna Mejor día muestra generación en kWh, no 0", () => {
     rend(datosSinExcedentes());
-    const tabla = screen.getByRole("table");
+    const tabla = tablaResumenMensual();
     const filas = tabla.querySelectorAll("tbody tr");
     for (const fila of filas) {
       const tds = fila.querySelectorAll("td");
@@ -225,7 +227,9 @@ describe("TabSFV — rama sin excedentes (excedente_anual < 1 MWh)", () => {
 describe("TabSFV — rama con excedentes (excedente_anual >= 1 MWh)", () => {
   it("renderiza fila de 4 mini-KPIs y oculta HallazgoEjecutivo", () => {
     rend(datosConExcedentes());
-    expect(screen.getByText("Mediana")).toBeInTheDocument();
+    // "Mediana" también aparece en el header del Boxplot — verificamos
+    // que esté >=1 vez (al menos la del mini-KPI).
+    expect(screen.getAllByText("Mediana").length).toBeGreaterThan(0);
     expect(screen.getByText("Promedio")).toBeInTheDocument();
     expect(screen.getByText("P90")).toBeInTheDocument();
     expect(screen.getByText("Día crítico")).toBeInTheDocument();
@@ -248,7 +252,7 @@ describe("TabSFV — rama con excedentes (excedente_anual >= 1 MWh)", () => {
 describe("TabSFV — tabla resumen mensual headers", () => {
   it("expone los 6 headers consultor en orden", () => {
     rend(datosSinExcedentes());
-    const tabla = screen.getByRole("table");
+    const tabla = tablaResumenMensual();
     const headers = Array.from(tabla.querySelectorAll("th")).map(
       (h) => h.textContent
     );
@@ -262,3 +266,20 @@ describe("TabSFV — tabla resumen mensual headers", () => {
     ]);
   });
 });
+
+/**
+ * Localiza la tabla del Resumen Mensual entre las múltiples tablas que
+ * pueden coexistir en el Tab SFV (Resumen Mensual + Boxplot details +
+ * Heatmap top 10 + Panel Calidad anomalías). La identificamos por el
+ * header único "Días activos".
+ */
+function tablaResumenMensual(): HTMLTableElement {
+  const tablas = screen.getAllByRole("table") as HTMLTableElement[];
+  const match = tablas.find((t) =>
+    Array.from(t.querySelectorAll("th")).some(
+      (th) => th.textContent === "Días activos"
+    )
+  );
+  if (!match) throw new Error("Tabla Resumen Mensual no encontrada");
+  return match;
+}
