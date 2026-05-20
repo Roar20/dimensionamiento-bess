@@ -47,7 +47,7 @@ describe("Onboarding — validación del formulario", () => {
     const { container } = renderOnboarding();
 
     await user.type(screen.getByLabelText(/nombre de la planta/i), "Tequila 1");
-    await user.type(screen.getByLabelText(/capacidad cfe/i), "500");
+    await user.type(screen.getByLabelText(/capacidad sfv \(kw\)/i), "500");
     await user.type(screen.getByLabelText(/capacidad sfv instalada/i), "500");
     await user.upload(getFileInput(container), fakeXlsx());
 
@@ -60,7 +60,7 @@ describe("Onboarding — validación del formulario", () => {
 
     const nombre = screen.getByLabelText(/nombre de la planta/i);
     await user.type(nombre, "Tequila 1");
-    await user.type(screen.getByLabelText(/capacidad cfe/i), "500");
+    await user.type(screen.getByLabelText(/capacidad sfv \(kw\)/i), "500");
     await user.type(screen.getByLabelText(/capacidad sfv instalada/i), "500");
     await user.upload(getFileInput(container), fakeXlsx());
     expect(botonProcesar()).toBeEnabled();
@@ -82,7 +82,7 @@ describe("Onboarding — Precio PPA opcional", () => {
     const { container, cargar } = renderOnboarding();
 
     await user.type(screen.getByLabelText(/nombre de la planta/i), "Tequila 1");
-    await user.type(screen.getByLabelText(/capacidad cfe/i), "500");
+    await user.type(screen.getByLabelText(/capacidad sfv \(kw\)/i), "500");
     await user.type(screen.getByLabelText(/capacidad sfv instalada/i), "500");
     await user.upload(getFileInput(container), fakeXlsx());
 
@@ -101,7 +101,7 @@ describe("Onboarding — Precio PPA opcional", () => {
     const { container } = renderOnboarding();
 
     await user.type(screen.getByLabelText(/nombre de la planta/i), "Tequila 1");
-    await user.type(screen.getByLabelText(/capacidad cfe/i), "500");
+    await user.type(screen.getByLabelText(/capacidad sfv \(kw\)/i), "500");
     await user.type(screen.getByLabelText(/capacidad sfv instalada/i), "500");
     await user.upload(getFileInput(container), fakeXlsx());
     expect(botonProcesar()).toBeEnabled();
@@ -119,7 +119,7 @@ describe("Onboarding — Precio PPA opcional", () => {
     const { container, cargar } = renderOnboarding();
 
     await user.type(screen.getByLabelText(/nombre de la planta/i), "Tequila 1");
-    await user.type(screen.getByLabelText(/capacidad cfe/i), "500");
+    await user.type(screen.getByLabelText(/capacidad sfv \(kw\)/i), "500");
     await user.type(screen.getByLabelText(/capacidad sfv instalada/i), "500");
     await user.type(screen.getByLabelText(/precio ppa/i), "1010.80");
     await user.upload(getFileInput(container), fakeXlsx());

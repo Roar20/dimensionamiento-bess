@@ -60,7 +60,7 @@ export function ProjectContextHeader({ titulo, meta, slotFinal }: Props) {
                   texto={`POI ${FORMATO_ENTERO.format(meta.poiKw)} kW`}
                 />
                 {meta.zonaLmp ? (
-                  <Chip icono="ti-map-pin" texto={`Zona LMP ${meta.zonaLmp}`} />
+                  <Chip icono="ti-map-pin" texto={`Zona Nodal ${meta.zonaLmp}`} />
                 ) : null}
               </>
             ) : null}

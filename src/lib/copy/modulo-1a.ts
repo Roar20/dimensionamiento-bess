@@ -26,7 +26,7 @@ export const COPY_M1A = {
       titulo: "Parámetros contractuales",
       campos: {
         poi: {
-          label: "Capacidad CFE (kW)",
+          label: "Capacidad SFV (kW)",
           placeholder: "Ej. 500",
         },
         instalada: {
@@ -34,7 +34,7 @@ export const COPY_M1A = {
           placeholder: "Ej. 500",
         },
         zonaLmp: {
-          label: "Zona LMP",
+          label: "Zona Nodal",
           placeholder: "Ej. MINAS",
         },
         precioPpa: {
