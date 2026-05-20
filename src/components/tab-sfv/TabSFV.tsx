@@ -14,8 +14,10 @@ import type { DatosSFV } from "@/types/sfv";
 import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 
 import { BandaKpis } from "./BandaKpis";
+import { BoxplotGeneracionDiaria } from "./BoxplotGeneracionDiaria";
 import { ChartExcedentesMensuales } from "./ChartExcedentesMensuales";
 import { ChartPerfilHorario } from "./ChartPerfilHorario";
+import { HeatmapExcedente } from "./HeatmapExcedente";
 import { MetodologiaSFV } from "./MetodologiaSFV";
 import { PanelCalidadDataset } from "./PanelCalidadDataset";
 import { MiniKpisExcedentesDiarios } from "./MiniKpisExcedentesDiarios";
@@ -182,6 +184,8 @@ export function TabSFV({ datos }: Props) {
 
       <ChartPerfilHorario registros={registros} />
 
+      <HeatmapExcedente registros={registros} poiKw={config.capacidad_poi_kw} />
+
       {sinExcedentes ? (
         <PlaceholderExcedentesMensuales />
       ) : (
@@ -201,6 +205,8 @@ export function TabSFV({ datos }: Props) {
       ) : (
         <MiniKpisExcedentesDiarios stats={excedentesDiarios} />
       )}
+
+      <BoxplotGeneracionDiaria registros={registros} />
 
       <TablaResumenMensual
         resumen={resumenMensual}
@@ -235,19 +241,19 @@ const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
 function construirLecturaEjecutiva(args: {
   factor_capacidad_pct: number;
   pico_vs_poi_pct: number;
+  // TODO: deprecar tras introducir cálculo dinámico de ventana útil (PR futura).
   ventana_diurna_horas: number;
   hora_pico: number;
   excedente_promedio_kwh: number;
   sin_excedentes: boolean;
 }): string {
   const fc = FORMATO_1DEC.format(args.factor_capacidad_pct);
-  const ventana = args.ventana_diurna_horas > 0 ? args.ventana_diurna_horas : 0;
 
   if (args.sin_excedentes) {
     const horaPicoStr = String(args.hora_pico).padStart(2, "0");
     return (
       `El SFV opera consistentemente por debajo del POI con un factor de capacidad de ${fc}%. ` +
-      `La generación se concentra en una ventana diurna de ${ventana} horas con pico promedio cerca de las ${horaPicoStr}:00 y sin excedentes físicos capturables ` +
+      `La generación útil se concentra entre las 09:00 y las 16:00 con pico promedio cerca de las ${horaPicoStr}:00 y sin excedentes físicos capturables ` +
       `— la oportunidad de almacenamiento se evalúa por arbitraje horario y potencia firme bajo régimen CNE 2026.`
     );
   }
@@ -258,7 +264,7 @@ function construirLecturaEjecutiva(args: {
       : `El SFV opera consistentemente por debajo del POI`;
   return (
     `${apertura} con un factor de capacidad de ${fc}%. ` +
-    `La generación se concentra en una ventana diurna de ~${ventana} horas con excedentes diarios promedio de ${FORMATO_ENTERO.format(args.excedente_promedio_kwh)} kWh, ` +
+    `La generación útil se concentra entre las 09:00 y las 16:00 con excedentes diarios promedio de ${FORMATO_ENTERO.format(args.excedente_promedio_kwh)} kWh, ` +
     `definiendo el potencial técnico de captura para almacenamiento.`
   );
 }

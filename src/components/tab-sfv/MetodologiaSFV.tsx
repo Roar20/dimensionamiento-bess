@@ -33,9 +33,9 @@ export function MetodologiaSFV({
           Horas con generación:
         </strong>{" "}
         Una hora se considera activa cuando la potencia promedio horaria
-        supera 50 kW. Las horas con generación menor a este umbral sí
-        contribuyen al total anual de energía, pero no al conteo de horas
-        activas.
+        alcanza o supera 50 kW. Las horas con generación menor a este
+        umbral sí contribuyen al total anual de energía, pero no al
+        conteo de horas activas.
       </p>
       <p className="mb-2">
         <strong className="font-medium text-[var(--color-text-primary)]">
@@ -44,6 +44,40 @@ export function MetodologiaSFV({
         energía generada por encima del techo de inyección al POI (
         {FORMATO_ENTERO.format(poiKw)} kW), agregada por hora como{" "}
         max(0, gen_h − POI_kWh).
+      </p>
+      <p className="mb-2">
+        <strong className="font-medium text-[var(--color-text-primary)]">
+          Heatmap de excedente:
+        </strong>{" "}
+        cada celda es el promedio del excedente sobre POI en esa hora
+        del día, considerando solo los días del mes correspondiente. El
+        cálculo se mantiene como Σ max(0, potencia_h − POI) por hora.
+      </p>
+      <p className="mb-2">
+        <strong className="font-medium text-[var(--color-text-primary)]">
+          Ventana P80 del excedente:
+        </strong>{" "}
+        rango horario que concentra el 80% del excedente anual total,
+        calculado por expansión simétrica desde la hora de mayor
+        excedente. Define la ventana de captura del BESS.
+      </p>
+      <p className="mb-2">
+        <strong className="font-medium text-[var(--color-text-primary)]">
+          Hora fin de descarga:
+        </strong>{" "}
+        la duración mínima de almacenamiento sugerida asume descarga
+        hasta las 22:00, correspondiente al horario punta CFE GDMTH
+        estándar (18–22 h) aplicable al portafolio actual. Para
+        offtakers con TOU distinto, el parámetro <code>horaFinDescarga</code>{" "}
+        se ajusta en la firma del cálculo sin tocar la lógica.
+      </p>
+      <p className="mb-2">
+        <strong className="font-medium text-[var(--color-text-primary)]">
+          Boxplot diario:
+        </strong>{" "}
+        P25, mediana y P75 calculados sobre la energía total diaria en
+        kWh por día calendario. Días con energía total nula se excluyen
+        del cálculo.
       </p>
       <p className="mb-2">
         <strong className="font-medium text-[var(--color-text-primary)]">

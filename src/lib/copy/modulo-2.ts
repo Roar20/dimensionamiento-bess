@@ -217,4 +217,44 @@ export const COPY_M2 = {
       leyenda: "Ventana hora-punta CFE",
     },
   },
+  heatmap: {
+    sectionLabel: "Distribución del excedente sobre POI",
+    title: "Excedente por hora del día y mes",
+    subtitle:
+      "Energía generada por encima del POI — cada celda es el promedio de esa hora durante ese mes",
+    unidad: "kWh",
+    legendMin: "0 kWh",
+    legendMax: "≥ 250 kWh",
+    lecturaTemplate: (h1: number, h2: number, n: number, dur: number, horaFinDescarga: number) =>
+      `el excedente se concentra entre las ${h1}h y ${h2}h. Esta ventana de ${n} horas debe almacenarse para descargar después en horario punta CFE (18–${horaFinDescarga}h), implicando un BESS con duración mínima de aproximadamente ${dur} horas para cubrir el desfase.`,
+    detalleToggle: "Ver top 10 horas-mes con mayor excedente",
+    tablaHeader: {
+      mes: "Mes",
+      hora: "Hora",
+      excedente: "Excedente promedio",
+    },
+    sinExcedentes: {
+      titulo: "Sin excedentes físicos en el año base",
+      cuerpo:
+        "El SFV opera consistentemente por debajo del POI. No hay energía solar perdida por restricción de inyección.",
+      cta: "Ver Tab SFV + BESS",
+    },
+  },
+  boxplot: {
+    sectionLabel: "Variabilidad de la generación diaria",
+    title: "Dispersión de generación diaria por mes",
+    subtitle:
+      "Caja = rango entre P25 y P75. Bigotes = mínimo y máximo del mes. Línea = mediana.",
+    unidad: "kWh / día",
+    lecturaTemplate: (mejor: string, peor: string) =>
+      `${mejor} concentra la generación más alta y consistente. ${peor} muestra el rango más bajo. La dispersión intra-mensual sustenta dimensionar potencia firme sobre percentil 80 en lugar de promedios.`,
+    detalleToggle: "Ver días extremos por mes",
+    tablaHeader: {
+      mes: "Mes",
+      mejorDiaFecha: "Mejor día",
+      mejorDiaKwh: "Mejor día (kWh)",
+      peorDiaFecha: "Peor día",
+      peorDiaKwh: "Peor día (kWh)",
+    },
+  },
 } as const;
