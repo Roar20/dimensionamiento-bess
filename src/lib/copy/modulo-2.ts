@@ -194,6 +194,14 @@ export const COPY_M2 = {
       sinAnomalias: "Sin anomalías detectadas",
       listaConExceso: (mostradas: string, restantes: number) =>
         `${mostradas} · +${restantes} más`,
+      detalleToggle: (n: number) =>
+        n === 1 ? "Ver detalle de la 1 fecha" : `Ver detalle de las ${n} fechas`,
+      tablaHeader: {
+        fecha: "Fecha",
+        energiaDia: "Generación diaria",
+        baseline: "Promedio 7d",
+        variacion: "Variación",
+      },
     },
     granularidad: {
       label: "Granularidad",

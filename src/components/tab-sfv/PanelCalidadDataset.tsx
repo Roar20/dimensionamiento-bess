@@ -93,8 +93,78 @@ export function PanelCalidadDataset({ registros, anio }: Props) {
             }
           />
         </div>
+        {anomalias.total > 0 ? (
+          <TablaAnomalias lista={anomalias.lista} total={anomalias.total} />
+        ) : null}
       </div>
     </section>
+  );
+}
+
+interface TablaAnomaliasProps {
+  lista: CalidadDataset["anomalias"]["lista"];
+  total: number;
+}
+
+function TablaAnomalias({ lista, total }: TablaAnomaliasProps) {
+  const COPY = COPY_M2.calidadDataset.anomalias;
+  const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
+    maximumFractionDigits: 0,
+  });
+  return (
+    <details className="mt-4 border-t-[0.5px] border-[var(--color-border-light)] pt-1 text-[13px]">
+      <summary className="cursor-pointer list-none py-2 text-[12px] font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] [&::-webkit-details-marker]:hidden">
+        <span aria-hidden="true" className="mr-1.5 inline-block text-[10px]">
+          ▸
+        </span>
+        {COPY.detalleToggle(total)}
+      </summary>
+      <div className="overflow-x-auto pb-2 pt-1">
+        <table className="w-full text-left text-[12px] tabular-nums">
+          <thead>
+            <tr className="text-[10px] uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+              <th className="py-1.5 pr-3 font-medium">
+                {COPY.tablaHeader.fecha}
+              </th>
+              <th className="py-1.5 pr-3 text-right font-medium">
+                {COPY.tablaHeader.energiaDia}
+              </th>
+              <th className="py-1.5 pr-3 text-right font-medium">
+                {COPY.tablaHeader.baseline}
+              </th>
+              <th className="py-1.5 text-right font-medium">
+                {COPY.tablaHeader.variacion}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {lista.map((a) => {
+              const energiaKwh = a.energia_dia_mwh * 1000;
+              const baselineKwh = a.esperado_mwh * 1000;
+              return (
+                <tr
+                  key={a.fecha}
+                  className="border-t-[0.5px] border-[var(--color-border-light)]"
+                >
+                  <td className="py-1.5 pr-3 text-[var(--color-text-secondary)]">
+                    {formatearFechaCorta(a.fecha)}
+                  </td>
+                  <td className="py-1.5 pr-3 text-right text-[var(--color-text-primary)]">
+                    {FORMATO_ENTERO.format(energiaKwh)} kWh
+                  </td>
+                  <td className="py-1.5 pr-3 text-right text-[var(--color-text-secondary)]">
+                    {FORMATO_ENTERO.format(baselineKwh)} kWh
+                  </td>
+                  <td className="py-1.5 text-right font-medium text-[var(--color-warning)]">
+                    −{a.caida_pct.toFixed(1)}%
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </details>
   );
 }
 

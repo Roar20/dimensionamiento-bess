@@ -49,7 +49,44 @@ describe("PanelCalidadDataset", () => {
     }
     render(<PanelCalidadDataset registros={registros} anio={2025} />);
     // `Intl.DateTimeFormat` con `month: "short"` rinde "31 ene" en browser
-    // y "31-ene" en jsdom. Aceptamos ambas separaciones.
-    expect(screen.getByText(/31[\s-]ene/i)).toBeInTheDocument();
+    // y "31-ene" en jsdom. Aceptamos ambas separaciones. La fecha aparece
+    // dos veces: en la nota del indicador y en la fila de la tabla.
+    expect(screen.getAllByText(/31[\s-]ene/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("dataset sin anomalías NO renderiza el toggle de detalle", () => {
+    const registros = generarAnio("2025-01-01", 60, 250);
+    render(<PanelCalidadDataset registros={registros} anio={2025} />);
+    expect(screen.queryByText(/ver detalle de/i)).not.toBeInTheDocument();
+  });
+
+  it("dataset con anomalías muestra toggle y tabla con headers", () => {
+    const registros = [];
+    for (let d = 0; d < 60; d += 1) {
+      const pico = d === 30 ? 80 : 250;
+      registros.push(...generarDiaPlano(sumarDias("2025-01-01", d), pico, 8, 17));
+    }
+    render(<PanelCalidadDataset registros={registros} anio={2025} />);
+    expect(
+      screen.getByText(/ver detalle de la 1 fecha/i)
+    ).toBeInTheDocument();
+    // Headers de tabla presentes en el DOM (la tabla se renderiza aunque
+    // <details> esté cerrado; lo que el browser oculta visualmente).
+    expect(screen.getByText(/^fecha$/i)).toBeInTheDocument();
+    expect(screen.getByText(/generación diaria/i)).toBeInTheDocument();
+    expect(screen.getByText(/promedio 7d/i)).toBeInTheDocument();
+    expect(screen.getByText(/^variación$/i)).toBeInTheDocument();
+    // Una fila con la fecha y la variación negativa.
+    expect(screen.getByText(/−\d+\.\d%/)).toBeInTheDocument();
+  });
+
+  it("toggle plural se ajusta correctamente cuando N > 1", () => {
+    const registros = [];
+    for (let d = 0; d < 60; d += 1) {
+      const pico = d === 20 || d === 40 ? 80 : 250;
+      registros.push(...generarDiaPlano(sumarDias("2025-01-01", d), pico, 8, 17));
+    }
+    render(<PanelCalidadDataset registros={registros} anio={2025} />);
+    expect(screen.getByText(/ver detalle de las 2 fechas/i)).toBeInTheDocument();
   });
 });
