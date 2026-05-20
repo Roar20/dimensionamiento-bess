@@ -16,6 +16,7 @@ import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 import { BandaKpis } from "./BandaKpis";
 import { ChartExcedentesMensuales } from "./ChartExcedentesMensuales";
 import { ChartPerfilHorario } from "./ChartPerfilHorario";
+import { HeatmapExcedente } from "./HeatmapExcedente";
 import { MetodologiaSFV } from "./MetodologiaSFV";
 import { PanelCalidadDataset } from "./PanelCalidadDataset";
 import { MiniKpisExcedentesDiarios } from "./MiniKpisExcedentesDiarios";
@@ -181,6 +182,8 @@ export function TabSFV({ datos }: Props) {
       <LecturaEjecutiva texto={lecturaEjecutiva} />
 
       <ChartPerfilHorario registros={registros} />
+
+      <HeatmapExcedente registros={registros} poiKw={config.capacidad_poi_kw} />
 
       {sinExcedentes ? (
         <PlaceholderExcedentesMensuales />
