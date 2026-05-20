@@ -4,7 +4,6 @@ import { MemoryRouter } from "react-router-dom";
 
 import { TabSFVBess } from "@/components/tab-sfv-bess/TabSFVBess";
 import { DatosSFVProvider } from "@/hooks/useDatosSFV";
-import { limpiarPreciosProxyPersistidos } from "@/hooks/usePreciosProxy";
 import { limpiarTipoCambioPersistido } from "@/hooks/useTipoCambio";
 import { generarDiaPlano, sumarDias } from "@/test/fixtures/sfv-fixtures";
 import type { DatosSFV } from "@/types/sfv";
@@ -14,14 +13,9 @@ vi.mock("react-chartjs-2", () => ({
   Bar: () => <div data-testid="chart-bar" />,
 }));
 
-beforeEach(() => {
-  limpiarPreciosProxyPersistidos();
-  limpiarTipoCambioPersistido();
-});
-afterEach(() => {
-  limpiarPreciosProxyPersistidos();
-  limpiarTipoCambioPersistido();
-});
+// Solo tipo-cambio persiste; las demás claves son stateless.
+beforeEach(() => limpiarTipoCambioPersistido());
+afterEach(() => limpiarTipoCambioPersistido());
 
 function datosFixture(): DatosSFV {
   const registros = [];

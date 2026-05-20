@@ -2,15 +2,14 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useDatosSFV } from "@/hooks/useDatosSFV";
-import { limpiarPeriodoActivoPersistido } from "@/hooks/usePeriodoActivo";
-import { limpiarParametrosPPAPersistidos } from "@/hooks/useParametrosPPA";
-import { limpiarConfiguracionBESSPersistida } from "@/hooks/useConfiguracionBESS";
-import { limpiarParametrosFinancierosPersistidos } from "@/hooks/useParametrosFinancieros";
 
 /**
- * Fuente única de la lógica "Cambiar planta": limpia los datos
- * persistidos (SFV + periodo + PPA + BESS + financieros) y navega al
- * onboarding.
+ * Fuente única de la lógica "Cambiar planta": resetea el estado en
+ * memoria (sin persistencia que limpiar, modo stateless) y navega al
+ * onboarding. Los demás hooks (configuracion-bess, parametros-ppa,
+ * periodo-activo, parametros-financieros, precios-proxy) viven en
+ * memoria atada a `datos` o se inicializan solos con defaults; al
+ * resetear `datos`, cascadean a su estado inicial automáticamente.
  */
 export function useCambiarPlanta() {
   const { limpiar } = useDatosSFV();
@@ -18,10 +17,6 @@ export function useCambiarPlanta() {
 
   return useCallback(() => {
     limpiar();
-    limpiarPeriodoActivoPersistido();
-    limpiarParametrosPPAPersistidos();
-    limpiarConfiguracionBESSPersistida();
-    limpiarParametrosFinancierosPersistidos();
     navigate("/");
   }, [limpiar, navigate]);
 }

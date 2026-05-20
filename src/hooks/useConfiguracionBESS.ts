@@ -18,47 +18,12 @@ import type {
   SeleccionCategoria,
 } from "@/types/bess";
 
-const STORAGE_KEY = "dimensionamiento-bess:configuracion-bess";
+// Stateless: configuración del BESS vive solo en memoria React.
+// Sin persistencia en localStorage. Al cambiar planta o refrescar,
+// vuelve a defaults / recomendación.
 const MULTIPLICADOR_MIN = 1;
 const MULTIPLICADOR_MAX = 20;
-
-type Persistido = {
-  equipoId: string;
-  multiplicador: number;
-};
-
-function leerPersistido(): Persistido | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as Persistido;
-    if (
-      typeof parsed.equipoId !== "string" ||
-      typeof parsed.multiplicador !== "number"
-    ) {
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function escribirPersistido(p: Persistido) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
-  } catch {
-    // ignore
-  }
-}
-
-export function limpiarConfiguracionBESSPersistida() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
-}
+const EQUIPO_DEFAULT_ID = "hypercube-max";
 
 export function useConfiguracionBESS(
   datos: DatosSFV | null,
@@ -87,24 +52,17 @@ export function useConfiguracionBESS(
     return r.equipo_recomendado;
   }, [datos, resumenes, seleccionCategoria]);
 
-  const [equipoId, setEquipoIdState] = useState<string>(
-    () => leerPersistido()?.equipoId ?? "hypercube-max"
-  );
-  const [multiplicador, setMultiplicadorState] = useState<number>(
-    () => leerPersistido()?.multiplicador ?? 1
-  );
+  const [equipoId, setEquipoIdState] = useState<string>(EQUIPO_DEFAULT_ID);
+  const [multiplicador, setMultiplicadorState] = useState<number>(1);
 
-  // Si llega un recomendado y no había nada persistido, sugiere el recomendado.
+  // Si llega un recomendado, sugiere el recomendado. Sin persistencia
+  // que evite el set: cada vez que cambia equipoRecomendado, se aplica.
   useEffect(() => {
-    if (equipoRecomendado && !leerPersistido()) {
+    if (equipoRecomendado) {
       setEquipoIdState(equipoRecomendado.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [equipoRecomendado?.id]);
-
-  useEffect(() => {
-    escribirPersistido({ equipoId, multiplicador });
-  }, [equipoId, multiplicador]);
 
   const equipoSeleccionado =
     CATALOGO_HYPERSTRONG.find((e) => e.id === equipoId) ??

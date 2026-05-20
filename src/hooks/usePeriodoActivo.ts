@@ -13,51 +13,8 @@ import {
   type PeriodoActivo,
 } from "@/lib/tab-sfv/filtrar-por-periodo";
 
-const STORAGE_KEY = "dimensionamiento-bess:periodo-activo";
-
-type EstadoPersistido = {
-  granularidad: Granularidad;
-  indice: number;
-};
-
-const GRANULARIDADES_VALIDAS: ReadonlySet<Granularidad> = new Set([
-  "anual",
-  "semestral",
-  "trimestral",
-  "mensual",
-  "semanal",
-  "diario",
-]);
-
-function leerEstadoPersistido(): EstadoPersistido | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as EstadoPersistido;
-    if (GRANULARIDADES_VALIDAS.has(parsed.granularidad)) {
-      return parsed;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-function escribirEstadoPersistido(estado: EstadoPersistido) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
-  } catch {
-    // ignore
-  }
-}
-
-export function limpiarPeriodoActivoPersistido() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
-}
+// Stateless: granularidad y período seleccionado viven solo en memoria.
+// Sin persistencia en localStorage.
 
 export type UsePeriodoActivoResult = {
   periodo: PeriodoActivo | null;
@@ -75,11 +32,9 @@ export type UsePeriodoActivoResult = {
 export function usePeriodoActivo(
   datos: DatosSFV | null
 ): UsePeriodoActivoResult {
-  const inicial = leerEstadoPersistido();
-  const [granularidad, setGranularidadState] = useState<Granularidad>(
-    inicial?.granularidad ?? "anual"
-  );
-  const [indice, setIndice] = useState<number>(inicial?.indice ?? 0);
+  const [granularidad, setGranularidadState] =
+    useState<Granularidad>("anual");
+  const [indice, setIndice] = useState<number>(0);
 
   const periodosDisponibles = useMemo<PeriodoActivo[]>(() => {
     if (!datos) return [];
@@ -95,10 +50,6 @@ export function usePeriodoActivo(
       setIndice(periodosDisponibles.length - 1);
     }
   }, [periodosDisponibles, indice]);
-
-  useEffect(() => {
-    escribirEstadoPersistido({ granularidad, indice });
-  }, [granularidad, indice]);
 
   const periodo = periodosDisponibles[indice] ?? null;
 

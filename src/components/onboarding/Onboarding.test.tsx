@@ -8,19 +8,14 @@ type MockProps = Parameters<typeof Onboarding>[0];
 
 function renderOnboarding(overrides: Partial<MockProps> = {}) {
   const cargar = vi.fn().mockResolvedValue(undefined);
-  const onRehidratar = vi.fn();
-  const onBorrar = vi.fn();
   const props: MockProps = {
-    hayDatosPersistidos: false,
     cargando: false,
     error: null,
     cargar,
-    onRehidratar,
-    onBorrar,
     ...overrides,
   };
   const utils = render(<Onboarding {...props} />);
-  return { ...utils, cargar, onRehidratar, onBorrar };
+  return { ...utils, cargar };
 }
 
 function fakeXlsx(name = "test.xlsx") {
