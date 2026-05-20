@@ -135,7 +135,7 @@ export function SeccionDegradacionSOH() {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={datos}
-              margin={{ top: 12, right: 56, bottom: 4, left: 4 }}
+              margin={{ top: 12, right: 32, bottom: 4, left: 4 }}
             >
               <CartesianGrid stroke={COLOR_GRID} vertical={false} />
               <XAxis
@@ -153,15 +153,19 @@ export function SeccionDegradacionSOH() {
               <ReferenceArea y1={80} y2={100} fill={COLOR_BANDA_VERDE} />
               <ReferenceArea y1={70} y2={80} fill={COLOR_BANDA_AMBAR} />
               <ReferenceArea y1={60} y2={70} fill={COLOR_BANDA_GRIS} />
+              {/* Etiquetas cortas en la línea (solo el número con color);
+                  el texto completo de cada umbral vive en la leyenda
+                  arriba del chart, evita truncar en el margen derecho. */}
               <ReferenceLine
                 y={UMBRAL_FIN_VIDA_UTIL}
                 stroke={COLOR_UMBRAL_FIN_VIDA}
                 strokeDasharray="4 4"
                 label={{
-                  value: "80% — fin de vida útil de referencia",
+                  value: "80%",
                   position: "right",
                   fill: COLOR_UMBRAL_FIN_VIDA,
-                  fontSize: 10,
+                  fontSize: 11,
+                  fontWeight: 500,
                 }}
               />
               <ReferenceLine
@@ -169,10 +173,11 @@ export function SeccionDegradacionSOH() {
                 stroke={COLOR_UMBRAL_GARANTIA}
                 strokeDasharray="4 4"
                 label={{
-                  value: "70% — garantía contractual",
+                  value: "70%",
                   position: "right",
                   fill: COLOR_UMBRAL_GARANTIA,
-                  fontSize: 10,
+                  fontSize: 11,
+                  fontWeight: 500,
                 }}
               />
               <Line
