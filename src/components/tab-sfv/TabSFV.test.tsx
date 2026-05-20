@@ -96,7 +96,7 @@ describe("TabSFV — estructura ejecutiva", () => {
       screen.getByText(/^[\d,]+ registros horarios$/)
     ).toBeInTheDocument();
     expect(screen.getByText(/^poi 500 kw$/i)).toBeInTheDocument();
-    expect(screen.getByText(/zona lmp minas/i)).toBeInTheDocument();
+    expect(screen.getByText(/zona nodal minas/i)).toBeInTheDocument();
   });
 
   it("muestra botón 'Cambiar planta' en el header dossier", () => {
