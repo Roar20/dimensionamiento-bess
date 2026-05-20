@@ -33,9 +33,9 @@ export function MetodologiaSFV({
           Horas con generación:
         </strong>{" "}
         Una hora se considera activa cuando la potencia promedio horaria
-        supera 50 kW. Las horas con generación menor a este umbral sí
-        contribuyen al total anual de energía, pero no al conteo de horas
-        activas.
+        alcanza o supera 50 kW. Las horas con generación menor a este
+        umbral sí contribuyen al total anual de energía, pero no al
+        conteo de horas activas.
       </p>
       <p className="mb-2">
         <strong className="font-medium text-[var(--color-text-primary)]">
