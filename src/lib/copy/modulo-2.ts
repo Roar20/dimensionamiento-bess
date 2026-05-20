@@ -169,4 +169,44 @@ export const COPY_M2 = {
     abrir: "Mostrar detalle técnico",
     cerrar: "Ocultar detalle técnico",
   },
+  calidadDataset: {
+    titulo: "Calidad del dataset",
+    cobertura: {
+      label: "Cobertura temporal",
+      tooltip:
+        "Registros recibidos vs registros esperados para un año completo. Sirve para detectar archivos con huecos o rangos parciales. Año bisiesto considera 8,784 horas en lugar de 8,760.",
+      nota: (recibidos: number, esperados: number) =>
+        `${recibidos.toLocaleString("es-MX")} / ${esperados.toLocaleString(
+          "es-MX"
+        )} registros`,
+    },
+    diasConGeneracion: {
+      label: "Días con generación",
+      tooltip:
+        "Días del año con al menos un registro de generación > 0. Días sin registro o con generación nula completa cuentan como inactivos.",
+      nota: (pct: number) => `${pct.toFixed(1)}% del calendario`,
+    },
+    anomalias: {
+      label: "Anomalías detectadas",
+      tooltip:
+        "Días con caída de generación > 30% respecto al promedio móvil simétrico de 7 días. Es una señal de revisión, no un diagnóstico — no descuenta estacionalidad ni nubosidad típica.",
+      sufijoDias: (n: number) => (n === 1 ? "día" : "días"),
+      sinAnomalias: "Sin anomalías detectadas",
+      listaConExceso: (mostradas: string, restantes: number) =>
+        `${mostradas} · +${restantes} más`,
+    },
+    granularidad: {
+      label: "Granularidad",
+      tooltip:
+        "Intervalo entre registros consecutivos. Granularidad horaria suaviza picos por integración temporal; granularidades finas preservan picos instantáneos.",
+      notaHoraria: "Suavizado por integración horaria",
+      notaSubhoraria: "Preserva picos instantáneos",
+    },
+  },
+  perfilHorario: {
+    ventanaCFE: {
+      label: "Hora punta CFE",
+      leyenda: "Ventana hora-punta CFE",
+    },
+  },
 } as const;

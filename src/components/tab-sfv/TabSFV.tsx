@@ -17,6 +17,7 @@ import { BandaKpis } from "./BandaKpis";
 import { ChartExcedentesMensuales } from "./ChartExcedentesMensuales";
 import { ChartPerfilHorario } from "./ChartPerfilHorario";
 import { MetodologiaSFV } from "./MetodologiaSFV";
+import { PanelCalidadDataset } from "./PanelCalidadDataset";
 import { MiniKpisExcedentesDiarios } from "./MiniKpisExcedentesDiarios";
 import { TablaResumenMensual } from "./TablaResumenMensual";
 import { ensureChartJsRegistered } from "./chart-setup";
@@ -162,6 +163,8 @@ export function TabSFV({ datos }: Props) {
           zonaLmp: config.zona_lmp,
         }}
       />
+
+      <PanelCalidadDataset registros={registros} anio={meta.anio} />
 
       <BandaKpis
         generacionAnualMwh={indicadores.generacion_mwh}
