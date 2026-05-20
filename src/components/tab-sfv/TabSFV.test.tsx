@@ -112,8 +112,14 @@ describe("TabSFV — estructura ejecutiva", () => {
     expect(screen.getAllByText(/factor de capacidad/i).length).toBeGreaterThan(
       0
     );
-    expect(screen.getByText(/horas con generación/i)).toBeInTheDocument();
-    expect(screen.getByText(/potencia promedio/i)).toBeInTheDocument();
+    // Cada label aparece >= 1 vez (puede repetirse en Metodología tras
+    // documentar la definición del umbral 50 kW).
+    expect(
+      screen.getAllByText(/horas con generación/i).length
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(/potencia promedio/i).length
+    ).toBeGreaterThan(0);
   });
 
   it("KpiCards exponen tooltips de trazabilidad (botones info-circle)", () => {
