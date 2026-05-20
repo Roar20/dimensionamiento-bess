@@ -1,5 +1,11 @@
 import { useCambiarPlanta } from "@/hooks/useCambiarPlanta";
 
+/**
+ * @deprecated Reemplazado por `<ProjectContextHeader>` en PR #29 (header
+ * de proyecto unificado para los 4 tabs). Mantener este archivo como
+ * referencia histórica del patrón; eliminar en un futuro PR de limpieza
+ * una vez que ningún consumidor lo importe.
+ */
 interface Props {
   nombrePlanta: string | null;
   anio: number;

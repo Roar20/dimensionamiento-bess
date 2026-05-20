@@ -12,12 +12,9 @@ interface Props {
 }
 
 /**
- * Variante minimal del HeaderDossier para tabs independientes de planta
- * (sin estado de planta, sin botón "Cambiar planta"). Reusa tipografía
- * y spacing del HeaderDossier: h1 24/medium/-0.01em + chips Tabler.
- *
- * Vive en `bess/` porque hoy solo lo usa Tab BESS. Si aparece un segundo
- * consumidor en otra tab, mover a `src/components/ui/`.
+ * @deprecated Reemplazado por `<ProjectContextHeader>` en PR #29.
+ * Mantener este archivo como referencia histórica; eliminar en un futuro
+ * PR de limpieza una vez que ningún consumidor lo importe.
  */
 export function HeaderCatalogo({ titulo, chips, slotFinal }: Props) {
   return (

@@ -1,9 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 
 import { TabBessCatalogo } from "@/components/bess/TabBessCatalogo";
+import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 import { limpiarTipoCambioPersistido } from "@/hooks/useTipoCambio";
+
+function renderTab() {
+  return render(
+    <MemoryRouter>
+      <DatosSFVProvider>
+        <TabBessCatalogo />
+      </DatosSFVProvider>
+    </MemoryRouter>
+  );
+}
 
 vi.mock("react-chartjs-2", () => ({
   Line: ({ data }: { data: { datasets: { label: string }[] } }) => (
@@ -25,13 +37,13 @@ function inputTc(): HTMLInputElement {
 
 describe("TipoCambioInput integrado en TabBessCatalogo", () => {
   it("renderiza con valor inicial '20.00' en el input", () => {
-    render(<TabBessCatalogo />);
+    renderTab();
     expect(inputTc().value).toBe("20.00");
   });
 
   it("al cambiar el input a 22.00 y desenfocar, los chips MXN de las 3 cards se recalculan", async () => {
     const user = userEvent.setup();
-    render(<TabBessCatalogo />);
+    renderTab();
 
     // Valores iniciales (TC = 20).
     expect(screen.getByText(/\$1,119,940/)).toBeInTheDocument(); // Cube Plus precio total
@@ -54,7 +66,7 @@ describe("TipoCambioInput integrado en TabBessCatalogo", () => {
 
   it("al escribir un valor inválido (-5) y desenfocar, el buffer revierte al último válido", async () => {
     const user = userEvent.setup();
-    render(<TabBessCatalogo />);
+    renderTab();
 
     const input = inputTc();
     await user.clear(input);

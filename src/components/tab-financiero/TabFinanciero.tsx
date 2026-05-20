@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 import { ensureChartJsRegistered } from "@/components/tab-sfv/chart-setup";
 import { FooterEstandar } from "@/components/ui/FooterEstandar";
 import { CATALOGO_HYPERSTRONG } from "@/data/catalogo-hyperstrong";
@@ -251,16 +252,24 @@ export function TabFinanciero({ datos }: Props) {
 
   return (
     <div>
-      <header className="mb-6">
-        <h1 className="text-[20px] font-medium text-[var(--color-text-primary)]">
-          Valor incremental del BESS sobre un SFV existente
-        </h1>
-        <p className="mt-1 text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
-          El SFV ya produce ingreso por sí mismo. Este modelo cuantifica
-          únicamente el valor incremental que el BESS suma, cómo evoluciona
-          bajo degradación SOH a 20 años, y cuándo se paga.
-        </p>
-      </header>
+      <ProjectContextHeader
+        titulo={
+          datos.config.nombre
+            ? `Valor incremental del BESS sobre un SFV existente — ${datos.config.nombre}`
+            : "Valor incremental del BESS sobre un SFV existente"
+        }
+        meta={{
+          anio: datos.meta.anio,
+          totalRegistros: datos.meta.total_horas,
+          poiKw: datos.config.capacidad_poi_kw,
+          zonaLmp: datos.config.zona_lmp,
+        }}
+      />
+      <p className="mb-8 text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+        El SFV ya produce ingreso por sí mismo. Este modelo cuantifica
+        únicamente el valor incremental que el BESS suma, cómo evoluciona
+        bajo degradación SOH a 20 años, y cuándo se paga.
+      </p>
 
       <DisclaimerTransversal />
 

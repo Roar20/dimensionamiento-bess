@@ -5,6 +5,12 @@ import { COPY_M2 } from "@/lib/copy/modulo-2";
 import type { DatosSFV } from "@/types/sfv";
 import { ModalCambiarPlanta } from "./ModalCambiarPlanta";
 
+/**
+ * @deprecated Tras PR #29 el contexto de planta vive en cada tab vía
+ * `<ProjectContextHeader>` (fuente única). Este banner ya no se monta
+ * desde `<AppShell>`. Archivo conservado como referencia; eliminar en
+ * un futuro PR de limpieza.
+ */
 interface Props {
   datos: DatosSFV;
   onCambiar: () => void;
