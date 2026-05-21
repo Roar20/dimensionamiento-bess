@@ -38,6 +38,65 @@ export const COPY_SFV_BESS = {
     },
   },
 
+  /**
+   * Hero ejecutivo "captura-vs-ciclos" (D-SFV-06).
+   *
+   * Versión INTERINA con TITULAR + APOYO CONDICIONALES:
+   * `fraccion_capturada` se calcula sobre la energía candidata de la
+   * categoría activa, NO sobre generación total. Para el mismo Cube
+   * Plus, da fracciones radicalmente distintas según la categoría:
+   * ~10% en "toda la energía", ~65% en "arriba del compromiso PPA",
+   * ~0% en "exceso capacidad CFE". Por tanto el copy del hero NO puede
+   * afirmar magnitud fija — debe ser condicional según el valor real,
+   * y SIEMPRE nombrar la categoría activa.
+   *
+   * Insight de producto: cuando la fracción es baja y los ciclos son
+   * altos, el BESS opera saturado — su capacidad es el factor
+   * limitante. Esto es argumento de venta de mayor capacidad, no
+   * debilidad. Cuando el motor incorpore barrido de configuraciones,
+   * el hero evoluciona a comparar capacidades.
+   */
+  heroCapturaCiclos: {
+    label: "Interpretación del sistema",
+    titular: {
+      alta: (config: string, natural: string) =>
+        `La configuración de ${config} aprovecha prácticamente toda la energía elegible bajo ${natural} con una alta utilización anual del BESS.`,
+      media: (config: string, natural: string) =>
+        `La configuración de ${config} captura una parte significativa de la energía elegible bajo ${natural}, operando con alta utilización anual.`,
+      baja: (config: string, natural: string) =>
+        `La configuración de ${config} opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo ${natural}.`,
+      nula: (_config: string, natural: string) =>
+        `Bajo ${natural}, la planta prácticamente no presenta energía disponible para almacenamiento con la configuración actual.`,
+    },
+    apoyo: {
+      alta: "La estrategia actual aprovecha prácticamente toda la energía elegible de esta categoría.",
+      media:
+        "La estrategia actual captura una porción relevante de la energía elegible bajo esta categoría.",
+      baja: "La capacidad del BESS es el factor limitante frente al volumen anual de energía elegible.",
+      nula: "Bajo esta categoría, la planta prácticamente no presenta energía disponible para almacenamiento.",
+    },
+    microAprovechamiento: {
+      label: "Aprovechamiento",
+      valor: (pct: number) => `${pct}% de energía elegible capturada`,
+    },
+    microUtilizacion: {
+      label: "Utilización del activo",
+      valor: (ciclos: string) => `${ciclos} ciclos/año`,
+    },
+    /**
+     * Mapeo `tipo` → lenguaje natural para encajar gramaticalmente en
+     * "elegible bajo {natural}". Las `etiqueta` del catálogo
+     * (`categoria-energia.ts`) están escritas para títulos de KPIs y no
+     * fluyen en esta construcción; este mapeo es local al hero.
+     */
+    nombreCategoriaNatural: {
+      toda_energia: "la operación con toda la energía",
+      fuera_hora_punta_cfe: "energía fuera de hora-punta CFE",
+      compromiso_ppa_mensual_mwh: "energía por encima del compromiso PPA",
+      exceso_capacidad_cfe_kw: "energía que excede capacidad CFE",
+    },
+  },
+
   paneles: {
     precios: {
       titulo: "Precios proxy editables",
