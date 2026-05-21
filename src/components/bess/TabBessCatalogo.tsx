@@ -9,6 +9,7 @@ import { useTipoCambio } from "@/hooks/useTipoCambio";
 import { CATALOGO_HYPERSTRONG, type EquipoBess } from "@/data/catalogo-hyperstrong";
 
 import { ComparativaTecnica } from "./ComparativaTecnica";
+import { CostoUnitarioBess } from "./CostoUnitarioBess";
 import { EquipoCard } from "./EquipoCard";
 import { FichaTecnicaModal } from "./FichaTecnicaModal";
 import { SeccionDegradacionSOH } from "./SeccionDegradacionSOH";
@@ -60,6 +61,8 @@ export function TabBessCatalogo() {
       </section>
 
       <ComparativaTecnica />
+
+      <CostoUnitarioBess />
 
       <SeccionDegradacionSOH />
 

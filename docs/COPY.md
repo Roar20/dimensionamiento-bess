@@ -207,3 +207,34 @@ _Pendiente._
 ### Tab 4 — Análisis financiero
 
 _Pendiente._
+
+---
+
+## Tab BESS — Costo Unitario (PR P5)
+
+Espejo editorial. Implementación en `src/lib/copy/modulo-3.ts` bajo `COPY_M3.costoUnitario`.
+
+- **Eyebrow:** "Costo de capacidad"
+- **Título:** "Costo unitario por kWh nominal"
+- **Subtítulo:** "USD por kWh de capacidad nominal declarada · equipos aplicables a Tequila."
+- **Headline (24px/700):** "El Cube Max cuesta 17% menos por kWh que el Cube Plus."
+- **Chip base:** "Base: capacidad nominal"
+- **Chip sensibilidad:** "Sensibilidad DoD 95% en tooltip y metodología"
+- **Tooltip de barra:** `Nominal $214 · con DoD 95% ≈ $225` (Cube Plus) / `Nominal $177 · con DoD 95% ≈ $186` (Cube Max).
+- **Tira Block III (utility, fuera de comparación):** "$113 USD/kWh — Escala utility — no compite para POI 500 kW · Tag: Fuera de escala".
+- **Metodología:** sección dentro del `<details>` técnico con tres párrafos (base nominal, sensibilidad DoD, exclusión Block III).
+
+## Tab BESS — Degradación SOH (PR P5)
+
+Espejo editorial. Implementación en `src/lib/copy/modulo-3.ts` bajo `COPY_M3.degradacionSoh`. Migración incremental sobre la sección existente; no es rediseño.
+
+- **Headline ejecutivo (24px/700):** "La batería mantiene más del 80% de su capacidad hasta cerca del año 9."
+- **Línea de asimetría (debajo, sin números crudos):** "La pérdida se concentra en los primeros años y se atenúa después."
+- **Subtítulo (limpiado de C-rate):** "Retención de capacidad (SOH, State of Health) según la curva declarada por Hyperstrong para la familia LFP-314Ah, en condiciones nominales del datasheet."
+- **KPI cards (solo 2 anclas):** "SOH año 0 — Entrega" y "SOH año 20 — Fin del horizonte modelado".
+- **Dos umbrales en la curva (con etiquetas distintas):** 80% = fin de vida útil de referencia (≈ año 9); 70% = umbral de garantía contractual típico (≈ año 16).
+- **Callout sobre la curva en el cruce del 80%:** título "Fin de vida útil de referencia" + subtítulo "Año 9 · 80% capacidad".
+- **Tabla 21 filas — solo seis hitos:** años 0, 9, 12, 15, 16, 20. Demás filas con "—". Cube Max en año 12 y Cube Plus en año 15 (consistente con tarjetas).
+- **Disclaimer ámbar (compacto, neutral sobre C-rate):** carta formal de garantía como pendiente de confirmación con Hyperstrong; mantiene mención de desviaciones operativas (temperatura, ciclado, sobre-corriente, tasa de carga/descarga) sin afirmar valores específicos de C-rate.
+- **Hitos prohibidos (eliminados de la migración):** "Cierre asentamiento" (año 1), "Primer lustro" (año 5), "Punto contractual garantía" (año 10).
+- **Afirmaciones prohibidas:** valores específicos de C-rate (1C, 0.5C). Se mencionan factores generales sin numerar.

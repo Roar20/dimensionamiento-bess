@@ -1,30 +1,52 @@
 import { useMemo } from "react";
-import type { ChartOptions } from "chart.js";
-import { Line } from "react-chartjs-2";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ReferenceArea,
+  ReferenceDot,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import { CATALOGO_HYPERSTRONG } from "@/data/catalogo-hyperstrong";
+import { COPY_M3 } from "@/lib/copy/modulo-3";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { MetodologiaDetalles } from "@/components/ui/MetodologiaDetalles";
 
-import { ensureChartJsRegistered } from "../tab-sfv/chart-setup";
+// ============================================================
+// Migración P5 (PR #N): la curva SOH pasa de Chart.js a Recharts
+// para que dos `ReferenceLine` + `ReferenceArea` + `ReferenceDot`
+// sean trivialmente declarativos (callout del año 9, bandas verde/
+// ámbar/gris). Layout, spacing y wiring del Tab preservados.
+// ============================================================
 
-ensureChartJsRegistered();
+const COPY = COPY_M3.degradacionSoh;
 
 const HITOS: Record<number, string> = {
-  0: "Entrega",
-  1: "Cierre asentamiento",
-  5: "Primer lustro",
-  10: "Punto contractual garantía",
-  15: "Vida útil declarada Cube Plus",
-  16: "Cruce umbral garantía",
-  20: "Fin horizonte modelado",
+  0: COPY.tabla.hitos.ano0,
+  9: COPY.tabla.hitos.ano9,
+  12: COPY.tabla.hitos.ano12,
+  15: COPY.tabla.hitos.ano15,
+  16: COPY.tabla.hitos.ano16,
+  20: COPY.tabla.hitos.ano20,
 };
 
-const UMBRAL_GARANTIA_TIPICA = 70;
+const UMBRAL_FIN_VIDA_UTIL = 80; // %
+const UMBRAL_GARANTIA = 70; // %
+const ANO_CRUCE_80 = 9;
 
 const COLOR_SOH = "#0F766E";
 const COLOR_SOH_FILL = "rgba(15, 118, 110, 0.10)";
-const COLOR_UMBRAL = "#B45309";
+const COLOR_UMBRAL_FIN_VIDA = "#0F766E";
+const COLOR_UMBRAL_GARANTIA = "#B45309";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
+const COLOR_BANDA_VERDE = "rgba(15, 118, 110, 0.05)";
+const COLOR_BANDA_AMBAR = "rgba(180, 83, 9, 0.05)";
+const COLOR_BANDA_GRIS = "rgba(0, 0, 0, 0.03)";
 
 const FORMATO_PCT_1DEC = new Intl.NumberFormat("es-MX", {
   minimumFractionDigits: 1,
@@ -34,7 +56,7 @@ const FORMATO_PCT_1DEC = new Intl.NumberFormat("es-MX", {
 export function SeccionDegradacionSOH() {
   const soh = CATALOGO_HYPERSTRONG[0]!.curvaSoh;
 
-  const { sohPct, deltas, pendiente1a10, pendiente10a20 } = useMemo(() => {
+  const { datos, sohPct, deltas, pendiente1a10, pendiente10a20 } = useMemo(() => {
     const sohPct = soh.map((v) => v * 100);
     const deltas: (number | null)[] = sohPct.map((v, i) =>
       i === 0 ? null : (sohPct[i - 1] as number) - v
@@ -48,140 +70,163 @@ export function SeccionDegradacionSOH() {
     for (let i = 11; i <= 20; i += 1) suma10a20 += deltas[i] as number;
     const pendiente10a20 = suma10a20 / 10;
 
-    return { sohPct, deltas, pendiente1a10, pendiente10a20 };
+    const datos = sohPct.map((v, i) => ({ ano: i, soh: v }));
+
+    return { datos, sohPct, deltas, pendiente1a10, pendiente10a20 };
   }, [soh]);
-
-  const labelsAnos = sohPct.map((_, i) => `Año ${i}`);
-
-  const data = {
-    labels: labelsAnos,
-    datasets: [
-      {
-        label: "Umbral garantía típica (70%)",
-        data: sohPct.map(() => UMBRAL_GARANTIA_TIPICA),
-        borderColor: COLOR_UMBRAL,
-        borderDash: [4, 4],
-        borderWidth: 1.5,
-        pointRadius: 0,
-        fill: false,
-        tension: 0,
-        order: 2,
-      },
-      {
-        label: "SOH (%)",
-        data: sohPct,
-        borderColor: COLOR_SOH,
-        backgroundColor: COLOR_SOH_FILL,
-        borderWidth: 2.5,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        fill: true,
-        tension: 0.25,
-        order: 1,
-      },
-    ],
-  };
-
-  const options: ChartOptions<"line"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: (ctx) =>
-            `${ctx.dataset.label}: ${FORMATO_PCT_1DEC.format(ctx.parsed.y ?? 0)}%`,
-        },
-      },
-    },
-    interaction: { mode: "index", intersect: false },
-    scales: {
-      x: {
-        grid: { display: false },
-        ticks: { color: "#737373", font: { size: 11 } },
-      },
-      y: {
-        min: 60,
-        max: 100,
-        grid: { color: COLOR_GRID },
-        ticks: {
-          color: "#737373",
-          font: { size: 11 },
-          callback: (value) => `${Number(value).toFixed(0)}%`,
-        },
-      },
-    },
-  };
 
   return (
     <section className="mb-8">
       <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
-        Vida útil del equipo
+        {COPY.eyebrow}
       </p>
       <header className="mb-3">
         <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          Degradación del BESS a 20 años
+          {COPY.titulo}
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          Retención de capacidad (SOH, State of Health) según la curva
-          declarada por Hyperstrong para la familia LFP-314Ah, base operación
-          1C y condiciones nominales.
+          {COPY.subtitulo}
         </p>
       </header>
 
-      <div className="mb-4 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-3 text-[13px] text-[var(--color-text-secondary)]">
-        <strong className="font-medium text-[var(--color-text-primary)]">
-          Lectura ejecutiva:
-        </strong>{" "}
-        La capacidad del banco baja de {FORMATO_PCT_1DEC.format(sohPct[0] as number)}% al
-        entregar a {FORMATO_PCT_1DEC.format(sohPct[20] as number)}% al cierre del horizonte
-        modelado. La pérdida no es lineal: el primer lustro concentra la mayor
-        caída ({FORMATO_PCT_1DEC.format(pendiente1a10)} pp/año promedio entre año 1 y 10)
-        y se atenúa después ({FORMATO_PCT_1DEC.format(pendiente10a20)} pp/año entre año
-        10 y 20).
+      {/* Headline ejecutivo dominante (24px/700) + línea de asimetría. */}
+      <div className="mb-5">
+        <div className="mb-1 flex items-center gap-1.5">
+          <h3 className="text-[clamp(20px,2.2vw,24px)] font-bold leading-tight tracking-[-0.01em] text-[var(--color-text-primary)]">
+            {COPY.headline}
+          </h3>
+          <InfoTooltip texto={COPY.tooltipHeadline} etiqueta="Metodología de los umbrales SOH" />
+        </div>
+        <p className="text-[13px] text-[var(--color-text-secondary)]">
+          {COPY.lineaAsimetria}
+        </p>
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+      {/* Anclas: solo año 0 y año 20. */}
+      <div className="mb-4 grid grid-cols-2 gap-3">
         <KPICard
-          label="SOH año 0"
+          label={COPY.cardEntrega.label}
           valor={`${FORMATO_PCT_1DEC.format(sohPct[0] as number)}%`}
-          sublabel="Entrega"
+          sublabel={COPY.cardEntrega.sublabel}
         />
         <KPICard
-          label="SOH año 1"
-          valor={`${FORMATO_PCT_1DEC.format(sohPct[1] as number)}%`}
-          sublabel="Cierre asentamiento"
-        />
-        <KPICard
-          label="SOH año 10"
-          valor={`${FORMATO_PCT_1DEC.format(sohPct[10] as number)}%`}
-          sublabel="Punto contractual garantía"
-        />
-        <KPICard
-          label="SOH año 20"
+          label={COPY.cardFinHorizonte.label}
           valor={`${FORMATO_PCT_1DEC.format(sohPct[20] as number)}%`}
-          sublabel="Fin horizonte modelado"
+          sublabel={COPY.cardFinHorizonte.sublabel}
         />
       </div>
 
+      {/* Curva con dos umbrales + callout año 9. */}
       <div className="mb-4 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda colorBg={COLOR_SOH} texto="SOH (%) por año" />
-          <Leyenda colorBg={COLOR_UMBRAL} dashed texto={`Umbral garantía típica (${UMBRAL_GARANTIA_TIPICA}%)`} />
+          <Leyenda colorBg={COLOR_SOH} texto={COPY.legend.soh} />
+          <Leyenda
+            colorBg={COLOR_UMBRAL_FIN_VIDA}
+            dashed
+            texto={COPY.legend.umbralFinVida}
+          />
+          <Leyenda
+            colorBg={COLOR_UMBRAL_GARANTIA}
+            dashed
+            texto={COPY.legend.umbralGarantia}
+          />
         </div>
-        <div className="relative h-[280px] w-full">
-          <Line data={data} options={options} />
+        <div className="relative h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={datos}
+              margin={{ top: 12, right: 32, bottom: 4, left: 4 }}
+            >
+              <CartesianGrid stroke={COLOR_GRID} vertical={false} />
+              <XAxis
+                dataKey="ano"
+                tick={{ fontSize: 11, fill: "#737373" }}
+                tickFormatter={(v) => `Año ${v}`}
+                interval={1}
+              />
+              <YAxis
+                domain={[60, 100]}
+                tick={{ fontSize: 11, fill: "#737373" }}
+                tickFormatter={(v) => `${v}%`}
+              />
+              {/* Bandas verde/ámbar/gris detrás de la curva. */}
+              <ReferenceArea y1={80} y2={100} fill={COLOR_BANDA_VERDE} />
+              <ReferenceArea y1={70} y2={80} fill={COLOR_BANDA_AMBAR} />
+              <ReferenceArea y1={60} y2={70} fill={COLOR_BANDA_GRIS} />
+              {/* Etiquetas cortas en la línea (solo el número con color);
+                  el texto completo de cada umbral vive en la leyenda
+                  arriba del chart, evita truncar en el margen derecho. */}
+              <ReferenceLine
+                y={UMBRAL_FIN_VIDA_UTIL}
+                stroke={COLOR_UMBRAL_FIN_VIDA}
+                strokeDasharray="4 4"
+                label={{
+                  value: "80%",
+                  position: "right",
+                  fill: COLOR_UMBRAL_FIN_VIDA,
+                  fontSize: 11,
+                  fontWeight: 500,
+                }}
+              />
+              <ReferenceLine
+                y={UMBRAL_GARANTIA}
+                stroke={COLOR_UMBRAL_GARANTIA}
+                strokeDasharray="4 4"
+                label={{
+                  value: "70%",
+                  position: "right",
+                  fill: COLOR_UMBRAL_GARANTIA,
+                  fontSize: 11,
+                  fontWeight: 500,
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="soh"
+                stroke={COLOR_SOH}
+                strokeWidth={2.5}
+                dot={false}
+                isAnimationActive={false}
+                fill={COLOR_SOH_FILL}
+              />
+              {/* Callout discreto en el cruce del 80% (año 9). */}
+              <ReferenceDot
+                x={ANO_CRUCE_80}
+                y={UMBRAL_FIN_VIDA_UTIL}
+                r={4}
+                fill={COLOR_UMBRAL_FIN_VIDA}
+                stroke="white"
+                strokeWidth={2}
+                label={{
+                  value: `${COPY.callout.titulo} · ${COPY.callout.sub}`,
+                  position: "top",
+                  fill: "var(--color-text-primary)",
+                  fontSize: 11,
+                  fontWeight: 500,
+                  offset: 12,
+                }}
+              />
+              <RechartsTooltip
+                formatter={(v: number) => [`${FORMATO_PCT_1DEC.format(v)}%`, "SOH"]}
+                labelFormatter={(label) => `Año ${label}`}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
       <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
         <NarrativaCard
-          titulo="Primera década"
-          texto={`Pérdida promedio de ${FORMATO_PCT_1DEC.format(pendiente1a10)} pp/año entre el año 1 y el año 10. Es la fase donde la química LFP entrega su perfil más exigente: estabilización del SEI, primer ciclo profundo y ajuste del balance celda-celda. El punto contractual de garantía (año 10) cierra esta etapa.`}
+          titulo={COPY.narrativa.primeraDecada.titulo}
+          texto={COPY.narrativa.primeraDecada.texto(
+            FORMATO_PCT_1DEC.format(pendiente1a10)
+          )}
         />
         <NarrativaCard
-          titulo="Segunda década"
-          texto={`Pérdida promedio de ${FORMATO_PCT_1DEC.format(pendiente10a20)} pp/año entre el año 10 y el año 20. La curva se aplana; la energía útil sigue cayendo pero a ritmo menor. El cruce del umbral garantía típica (${UMBRAL_GARANTIA_TIPICA}%) ocurre dentro de esta ventana, en línea con la vida útil declarada del equipo.`}
+          titulo={COPY.narrativa.segundaDecada.titulo}
+          texto={COPY.narrativa.segundaDecada.texto(
+            FORMATO_PCT_1DEC.format(pendiente10a20)
+          )}
         />
       </div>
 
@@ -189,10 +234,10 @@ export function SeccionDegradacionSOH() {
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="bg-[var(--color-bg-secondary)]">
-              <Th align="left">Año</Th>
-              <Th>SOH (%)</Th>
-              <Th>Δ vs año anterior (pp)</Th>
-              <Th align="left">Hito</Th>
+              <Th align="left">{COPY.tabla.headers.ano}</Th>
+              <Th>{COPY.tabla.headers.soh}</Th>
+              <Th>{COPY.tabla.headers.delta}</Th>
+              <Th align="left">{COPY.tabla.headers.hito}</Th>
             </tr>
           </thead>
           <tbody>
@@ -217,31 +262,17 @@ export function SeccionDegradacionSOH() {
         </table>
       </div>
 
-      <div className="mb-4 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-[#FEF3C7] px-4 py-3 text-[12px] text-[#78350F]">
-        <strong className="font-medium">Disclaimer y condiciones del dato:</strong>{" "}
-        Los 21 valores graficados provienen de la curva SOH publicada por
-        Hyperstrong para la plataforma LFP-314Ah en condiciones nominales (1C,
-        rango de temperatura de operación, sin estrés térmico o eléctrico
-        extraordinario). La curva refleja un perfil declarado por el
-        fabricante, no una garantía contractual: la carta formal de garantía
-        de capacidad mínima vinculante a 10 años está pendiente de
-        confirmación con Hyperstrong, así como la revisión de la curva para
-        régimen 0.5C aplicable a despacho de hora-punta. Cualquier desviación
-        operativa frente a estas condiciones (temperaturas sostenidas fuera
-        de rango, ciclado profundo continuo, sobre-corriente) acelera la
-        degradación más allá de lo modelado aquí.
+      <div className="mb-4 rounded-[12px] border-[0.5px] border-[#B45309] bg-[#FEF3C7] px-4 py-3 text-[12px] leading-relaxed text-[#78350F]">
+        <strong className="font-medium">{COPY.disclaimer.titulo}</strong>{" "}
+        {COPY.disclaimer.cuerpo}
       </div>
 
-      <MetodologiaDetalles titulo="Metodología y procedencia de la curva SOH">
+      <MetodologiaDetalles titulo={COPY.metodologia.titulo}>
         <p className="mb-2">
           <strong className="font-medium text-[var(--color-text-primary)]">
             Origen del dato:
           </strong>{" "}
-          21 puntos anuales (año 0 al año 20) entregados por Hyperstrong para
-          la plataforma LFP-314Ah, operación 1C y condiciones nominales del
-          datasheet. La curva es la misma para Cube Plus, Cube Max y Block
-          III; el atributo distintivo entre equipos es la vida útil declarada,
-          no la forma de la curva.
+          {COPY.metodologia.origen}
         </p>
         <p className="mb-2">
           <strong className="font-medium text-[var(--color-text-primary)]">
