@@ -189,26 +189,29 @@ export function CostoUnitarioBess() {
         </div>
       </div>
 
-      {/* Tira utility separada para Block III. Borde punteado + fondo
-          tenue para que NO compita con la comparación de arriba. */}
+      {/* Tira informativa separada para Block III. Borde punteado +
+          fondo tenue para que NO compita con la comparación. Jerarquía
+          invertida: el mensaje "no aplica" domina; el costo de
+          referencia queda como contexto secundario. */}
       {blockIII ? (
         <div
           className="mb-4 rounded-[12px] border border-dashed border-[var(--color-border-medium)] bg-[var(--color-bg-secondary)] px-4 py-3"
           data-testid="tira-block-iii"
         >
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div className="flex items-baseline gap-3">
-              <span className="text-[16px] font-medium text-[var(--color-text-primary)] tabular-nums">
-                {COPY.blockIII.titulo}
-              </span>
-              <span className="text-[12px] text-[var(--color-text-secondary)]">
-                {COPY.blockIII.mensaje}
-              </span>
-            </div>
-            <span className="rounded-sm bg-[var(--color-text-tertiary)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.5px] text-white">
-              {COPY.blockIII.tag}
+            <p className="text-[13px] font-medium text-[var(--color-text-primary)]">
+              {COPY.blockIII.mensajePrincipal}
+            </p>
+            <span className="shrink-0 rounded-sm bg-[var(--color-text-tertiary)] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.5px] text-white">
+              {COPY.blockIII.badge}
             </span>
           </div>
+          <p className="mt-1 text-[11px] font-semibold text-[var(--color-text-tertiary)]">
+            {COPY.blockIII.mensajeSecundario}{" "}
+            <span className="tabular-nums">
+              {COPY.blockIII.costoReferencia}
+            </span>
+          </p>
         </div>
       ) : null}
 

@@ -193,9 +193,12 @@ export const COPY_M3 = {
     tooltipBarra: (nominal: number, util: number) =>
       `Nominal $${nominal} · con DoD 95% ≈ $${util}`,
     blockIII: {
-      titulo: "$113 USD/kWh",
-      mensaje: "Escala utility — no compite para POI 500 kW",
-      tag: "Fuera de escala",
+      badge: "No aplica a este tamaño",
+      mensajePrincipal:
+        "El HyperBlock III es demasiado grande para estas plantas con un punto de conexión de 500 kW.",
+      mensajeSecundario:
+        "Pertenece a proyectos de gran escala. Costo de referencia:",
+      costoReferencia: "~$113 USD/kWh",
     },
     metodologia: {
       titulo: "Metodología del costo unitario",

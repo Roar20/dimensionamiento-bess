@@ -33,14 +33,23 @@ describe("CostoUnitarioBess", () => {
     ).toBeInTheDocument();
   });
 
-  it("renderiza la tira Block III separada con tag 'Fuera de escala'", () => {
+  it("renderiza la tira Block III con jerarquía invertida y badge 'No aplica a este tamaño'", () => {
     render(<CostoUnitarioBess />);
     const tira = screen.getByTestId("tira-block-iii");
-    expect(tira).toBeInTheDocument();
-    expect(tira.textContent).toMatch(/\$113 USD\/kWh/);
-    expect(tira.textContent).toMatch(/escala utility/i);
-    expect(tira.textContent).toMatch(/no compite para POI 500 kW/i);
-    expect(tira.textContent).toMatch(/fuera de escala/i);
+    expect(tira.textContent).toMatch(/demasiado grande para estas plantas/i);
+    expect(tira.textContent).toMatch(/punto de conexión de 500 kW/i);
+    expect(tira.textContent).toMatch(/~\$113 USD\/kWh/);
+    expect(tira.textContent).toMatch(/no aplica a este tamaño/i);
+  });
+
+  it("la tira Block III NO usa jerga técnica visible al usuario", () => {
+    render(<CostoUnitarioBess />);
+    const texto = screen.getByTestId("tira-block-iii").textContent ?? "";
+    expect(texto).not.toMatch(/\bPOI\b/);
+    expect(texto).not.toMatch(/escala utility/i);
+    expect(texto).not.toMatch(/utility scale/i);
+    expect(texto).not.toMatch(/utility/i);
+    expect(texto).not.toMatch(/fuera de escala/i);
   });
 
   it("Block III NO aparece como categoría dentro del gráfico de barras", () => {
