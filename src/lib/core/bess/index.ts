@@ -18,6 +18,19 @@ export { simularDespachoArbitraje } from "./despacho-arbitraje";
 export { calcularKPIs } from "./agregaciones";
 export { simularCompleto, simularUna } from "./simulacion";
 export { escalarEquipo, inversionTotal } from "./configuracion-equipo";
+export {
+  HORAS_DEFAULT,
+  POTENCIAS_KW_DEFAULT,
+  computarFrentePareto,
+  correrBarridoConfiguraciones,
+  encontrarCodo,
+} from "./barrido-configuraciones";
+
+export type {
+  ConfiguracionEvaluada,
+  ParametrosBarrido,
+  ResultadoBarridoConfiguraciones,
+} from "./barrido-configuraciones";
 
 export type {
   CategoriaEnergia,
