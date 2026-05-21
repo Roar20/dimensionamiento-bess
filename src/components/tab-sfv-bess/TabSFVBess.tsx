@@ -187,11 +187,14 @@ export function TabSFVBess({ datos }: Props) {
             ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
           />
 
-          <HeroCapturaCiclosSFVBess
-            configNombre={nombreEquipoPrincipal}
-            fraccionCapturada={activa.kpis.fraccion_capturada}
-            ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
-          />
+          {categoriaActiva ? (
+            <HeroCapturaCiclosSFVBess
+              configNombre={nombreEquipoPrincipal}
+              fraccionCapturada={activa.kpis.fraccion_capturada}
+              ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
+              categoria={categoriaActiva}
+            />
+          ) : null}
 
           <SeccionDespachoDiarioPromedio
             detalle={activa.detalle_horario}

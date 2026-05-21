@@ -202,29 +202,48 @@ _Pendiente._
 
 ### Tab 3 — Análisis del SFV + BESS
 
-#### Hero captura-vs-ciclos (D-SFV-06, versión interina)
+#### Hero captura-vs-ciclos (D-SFV-06, versión interina con titular condicional)
 
 Implementación en `src/lib/copy/sfv-bess.ts` bajo `COPY_SFV_BESS.heroCapturaCiclos`. Componente consumidor: `src/components/tab-sfv-bess/HeroCapturaCiclosSFVBess.tsx`.
 
-Encuadre INTERINO: el motor hoy no hace barrido de configuraciones, así que el hero interpreta la configuración principal actual SIN afirmar trade-offs entre alternativas. Cuando el motor incorpore barrido, evoluciona a la forma "punto de equilibrio".
+Encuadre INTERINO: `fraccion_capturada` se calcula sobre la **energía candidata de la categoría activa**, no sobre la generación total. La misma config da fracciones radicalmente distintas según la categoría (Cube Plus en Tequila: ~10% bajo "toda la energía", ~65% bajo "compromiso PPA", ~0% bajo "exceso CFE"). Por tanto el titular y el apoyo son **condicionales** sobre la fracción real, y el hero SIEMPRE nombra la categoría activa. Cuando el motor incorpore barrido de configuraciones, evoluciona a comparar capacidades (Cube Plus vs Cube Max).
 
 - **Label superior** (discreto, ícono `ti-target-arrow` 14px terciario): "Interpretación del sistema".
-- **Titular** (peso 500, máx. 2 líneas desktop, sin porcentaje absoluto): "La configuración de {config} mantiene una alta utilización anual del BESS aprovechando prácticamente toda la energía disponible."
+- **Titular** por umbral de `pct = Math.round(fraccion_capturada * 100)`:
+  - Alta (`pct ≥ 80`): "La configuración de {config} aprovecha prácticamente toda la energía elegible bajo {natural} con una alta utilización anual del BESS."
+  - Media (`30 ≤ pct < 80`): "La configuración de {config} captura una parte significativa de la energía elegible bajo {natural}, operando con alta utilización anual."
+  - Baja (`0 < pct < 30`): "La configuración de {config} opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo {natural}."
+  - Nula (`pct === 0`): "Bajo {natural}, la planta prácticamente no presenta energía disponible para almacenamiento con la configuración actual."
 - **Micro-métricas** (separadas por border-top tenue):
-  - Aprovechamiento → `{X}% de excedentes capturados`
+  - Aprovechamiento → `{X}% de energía elegible capturada`
   - Utilización del activo → `{Y} ciclos/año`
-- **Apoyo** (descriptivo, no compara): "La estrategia actual prioriza el aprovechamiento continuo del sistema durante el año."
+- **Apoyo** por umbral:
+  - Alta: "La estrategia actual aprovecha prácticamente toda la energía elegible de esta categoría."
+  - Media: "La estrategia actual captura una porción relevante de la energía elegible bajo esta categoría."
+  - Baja (diagnóstico fuerte de sizing): "La capacidad del BESS es el factor limitante frente al volumen anual de energía elegible."
+  - Nula (simétrico con titular): "Bajo esta categoría, la planta prácticamente no presenta energía disponible para almacenamiento."
 
-Placeholders dinámicos (props desde `activa.kpis`):
-- `{config}` → nombre del `equipoPrincipal` actual (hoy `"Cube Plus"`).
+**Mapeo `{natural}` por tipo de categoría** (local al hero; permite que la frase fluya gramaticalmente en "elegible bajo {natural}"; las `etiqueta` del catálogo no encajan en esa construcción):
+
+| `tipo` (motor) | `{natural}` (hero) |
+|---|---|
+| `toda_energia` | "la operación con toda la energía" |
+| `fuera_hora_punta_cfe` | "energía fuera de hora-punta CFE" |
+| `compromiso_ppa_mensual_mwh` | "energía por encima del compromiso PPA" |
+| `exceso_capacidad_cfe_kw` | "energía que excede capacidad CFE" |
+
+Placeholders dinámicos:
+- `{config}` → nombre del `equipoPrincipal` actual (hoy `"Cube Plus"`; sin cambio al sizing default).
 - `{X}` → `Math.round(fraccion_capturada * 100)`.
 - `{Y}` → `Math.round(ciclos_periodo)`.
+- `{natural}` → desde `categoriaActiva.tipo` vía el mapeo de arriba.
 
 Reglas de honestidad verificadas por test (`HeroCapturaCiclosSFVBess.test.tsx`):
-- NO menciona "configuración recomendada" ni "la mejor".
-- NO afirma trade-off, equilibrio ni comparación con alternativas.
-- NO referencia "extender la duración" ni "duración mayor".
-- Titular NO incluye el porcentaje absoluto — vive en las micro-métricas.
+- Titular y apoyo cambian por umbral — no hay copy estático que afirme magnitud fija.
+- "prácticamente toda" SOLO aparece en alta; "factor limitante" SOLO en apoyo baja.
+- Titular SIEMPRE nombra la categoría activa.
+- Titular NO incluye el porcentaje absoluto (cifras solo en micro-métricas).
+- NO menciona "configuración recomendada", "la mejor", "equilibrio", "trade-off", "extender la duración", "duración mayor", "alternativa".
 
 ### Tab 4 — Análisis financiero
 
