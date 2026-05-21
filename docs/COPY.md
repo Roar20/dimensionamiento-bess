@@ -221,7 +221,12 @@ Espejo editorial. Implementación en `src/lib/copy/modulo-3.ts` bajo `COPY_M3.co
 - **Chip base:** "Base: capacidad nominal"
 - **Chip sensibilidad:** "Sensibilidad DoD 95% en tooltip y metodología"
 - **Tooltip de barra:** `Nominal $214 · con DoD 95% ≈ $225` (Cube Plus) / `Nominal $177 · con DoD 95% ≈ $186` (Cube Max).
-- **Tira Block III (utility, fuera de comparación):** "$113 USD/kWh — Escala utility — no compite para POI 500 kW · Tag: Fuera de escala".
+- **Tira Block III (jerarquía invertida — el motivo de exclusión domina, el costo queda como contexto secundario):**
+  - **Badge (uppercase por CSS, gris neutro, no alerta):** "No aplica a este tamaño".
+  - **Línea principal** (`text-primary`, `font-medium`, se lee primero): "El HyperBlock III es demasiado grande para estas plantas con un punto de conexión de 500 kW."
+  - **Línea secundaria** (`text-tertiary`, `font-semibold`): "Pertenece a proyectos de gran escala. Costo de referencia: ~$113 USD/kWh."
+  - El número va en sub-span con `tabular-nums` (campo `costoReferencia` aparte en `modulo-3.ts` para preservar fuente única de verdad).
+  - Sin jerga visible: cero "POI", "escala utility", "utility scale", "fuera de escala".
 - **Metodología:** sección dentro del `<details>` técnico con tres párrafos (base nominal, sensibilidad DoD, exclusión Block III).
 
 ## Tab BESS — Degradación SOH (PR P5)
