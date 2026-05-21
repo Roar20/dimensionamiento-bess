@@ -54,11 +54,18 @@ export type ResultadoBarridoConfiguraciones = {
  * Dominancia Pareto (3 dimensiones):
  *  - mayor `fraccion_capturada` (mejor)
  *  - mayor `ciclos_periodo` (mejor)
- *  - menor `e_kwh` instalada (mejor — proxy de inversión)
+ *  - menor `e_kwh` instalada (mejor — proxy PROVISIONAL de inversión)
  *
- * Nota: "más ciclos" y "menos e_kwh" están acoplados (ciclos ∝ 1/e_kwh
- * para misma energía cargada). Eso es intencional: el frente premia el
- * uso intensivo del activo.
+ * Nota sobre la 3ra dimensión: usar `e_kwh` como proxy de inversión
+ * ASUME un costo lineal en kWh instalado e iguales economías de escala
+ * entre tamaños. Es un placeholder hasta que entre el catálogo BESS
+ * real con precios USD por equipo (escalones por familia/SKU, descuentos
+ * por volumen). En ese momento la 3ra dimensión debe sustituirse por el
+ * costo real en USD, no derivarse de `e_kwh`.
+ *
+ * Nota sobre el acoplamiento "más ciclos" + "menos e_kwh": están
+ * acoplados (ciclos ∝ 1/e_kwh para misma energía cargada). Eso es
+ * intencional: el frente premia el uso intensivo del activo.
  */
 export function correrBarridoConfiguraciones(
   registros: readonly RegistroHorario[],

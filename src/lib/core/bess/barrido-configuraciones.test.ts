@@ -248,12 +248,19 @@ describe("computarFrentePareto — invariantes estructurales", () => {
       TODAS_ESTRATEGIAS,
       PARAMS
     );
+    // Guardia anti-vacuidad: el frente debe tener al menos 2 puntos
+    // para que el doble bucle ejerza al menos una comparación real.
+    expect(r.frentePareto.length).toBeGreaterThanOrEqual(2);
+
+    let comparacionesEjercidas = 0;
     for (const a of r.frentePareto) {
       for (const b of r.frentePareto) {
         if (a === b) continue;
+        comparacionesEjercidas += 1;
         expect(dominaEnTest(a, b)).toBe(false);
       }
     }
+    expect(comparacionesEjercidas).toBeGreaterThan(0);
   });
 
   it("ningún elemento fuera del frente puede dominar a uno dentro del frente", () => {
@@ -268,11 +275,19 @@ describe("computarFrentePareto — invariantes estructurales", () => {
     const fueraDelFrente = r.evaluadas.filter(
       (e) => !r.frentePareto.includes(e)
     );
+    // Guardias anti-vacuidad: ambos conjuntos deben ser no vacíos para
+    // que el doble bucle ejerza al menos una comparación real.
+    expect(fueraDelFrente.length).toBeGreaterThan(0);
+    expect(r.frentePareto.length).toBeGreaterThan(0);
+
+    let comparacionesEjercidas = 0;
     for (const fuera of fueraDelFrente) {
       for (const dentro of r.frentePareto) {
+        comparacionesEjercidas += 1;
         expect(dominaEnTest(fuera, dentro)).toBe(false);
       }
     }
+    expect(comparacionesEjercidas).toBeGreaterThan(0);
   });
 
   it("todo elemento fuera del frente está dominado por al menos un elemento (dentro o fuera)", () => {
