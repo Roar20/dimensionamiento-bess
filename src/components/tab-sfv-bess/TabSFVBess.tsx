@@ -26,6 +26,7 @@ import type {
 import type { DatosSFV } from "@/types/sfv";
 
 import { BandaKPIsSFVBess } from "./BandaKPIsSFVBess";
+import { HeroCapturaCiclosSFVBess } from "./HeroCapturaCiclosSFVBess";
 import { LecturaEjecutivaSFVBess } from "./LecturaEjecutivaSFVBess";
 import { MetodologiaSFVBess } from "./MetodologiaSFVBess";
 import { PanelPreciosEditables } from "./PanelPreciosEditables";
@@ -182,6 +183,12 @@ export function TabSFVBess({ datos }: Props) {
           <BandaKPIsSFVBess
             cargadoMwh={activa.kpis.cargado_total_mwh}
             descargadoMwh={activa.kpis.descargado_total_mwh}
+            fraccionCapturada={activa.kpis.fraccion_capturada}
+            ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
+          />
+
+          <HeroCapturaCiclosSFVBess
+            configNombre={nombreEquipoPrincipal}
             fraccionCapturada={activa.kpis.fraccion_capturada}
             ciclosAnuales={Math.round(activa.kpis.ciclos_periodo)}
           />

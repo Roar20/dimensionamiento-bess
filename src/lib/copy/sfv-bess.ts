@@ -38,6 +38,29 @@ export const COPY_SFV_BESS = {
     },
   },
 
+  /**
+   * Hero ejecutivo "captura-vs-ciclos" (D-SFV-06).
+   * Versión INTERINA: el motor hoy NO hace barrido de configuraciones,
+   * así que el hero solo INTERPRETA la configuración principal actual
+   * sin afirmar trade-offs entre alternativas. Cuando el motor incorpore
+   * barrido, evoluciona a la forma trade-off.
+   */
+  heroCapturaCiclos: {
+    label: "Interpretación del sistema",
+    titular: (config: string) =>
+      `La configuración de ${config} mantiene una alta utilización anual del BESS aprovechando prácticamente toda la energía disponible.`,
+    microAprovechamiento: {
+      label: "Aprovechamiento",
+      valor: (pct: number) => `${pct}% de excedentes capturados`,
+    },
+    microUtilizacion: {
+      label: "Utilización del activo",
+      valor: (ciclos: string) => `${ciclos} ciclos/año`,
+    },
+    apoyo:
+      "La estrategia actual prioriza el aprovechamiento continuo del sistema durante el año.",
+  },
+
   paneles: {
     precios: {
       titulo: "Precios proxy editables",

@@ -202,7 +202,29 @@ _Pendiente._
 
 ### Tab 3 — Análisis del SFV + BESS
 
-_Pendiente._
+#### Hero captura-vs-ciclos (D-SFV-06, versión interina)
+
+Implementación en `src/lib/copy/sfv-bess.ts` bajo `COPY_SFV_BESS.heroCapturaCiclos`. Componente consumidor: `src/components/tab-sfv-bess/HeroCapturaCiclosSFVBess.tsx`.
+
+Encuadre INTERINO: el motor hoy no hace barrido de configuraciones, así que el hero interpreta la configuración principal actual SIN afirmar trade-offs entre alternativas. Cuando el motor incorpore barrido, evoluciona a la forma "punto de equilibrio".
+
+- **Label superior** (discreto, ícono `ti-target-arrow` 14px terciario): "Interpretación del sistema".
+- **Titular** (peso 500, máx. 2 líneas desktop, sin porcentaje absoluto): "La configuración de {config} mantiene una alta utilización anual del BESS aprovechando prácticamente toda la energía disponible."
+- **Micro-métricas** (separadas por border-top tenue):
+  - Aprovechamiento → `{X}% de excedentes capturados`
+  - Utilización del activo → `{Y} ciclos/año`
+- **Apoyo** (descriptivo, no compara): "La estrategia actual prioriza el aprovechamiento continuo del sistema durante el año."
+
+Placeholders dinámicos (props desde `activa.kpis`):
+- `{config}` → nombre del `equipoPrincipal` actual (hoy `"Cube Plus"`).
+- `{X}` → `Math.round(fraccion_capturada * 100)`.
+- `{Y}` → `Math.round(ciclos_periodo)`.
+
+Reglas de honestidad verificadas por test (`HeroCapturaCiclosSFVBess.test.tsx`):
+- NO menciona "configuración recomendada" ni "la mejor".
+- NO afirma trade-off, equilibrio ni comparación con alternativas.
+- NO referencia "extender la duración" ni "duración mayor".
+- Titular NO incluye el porcentaje absoluto — vive en las micro-métricas.
 
 ### Tab 4 — Análisis financiero
 
