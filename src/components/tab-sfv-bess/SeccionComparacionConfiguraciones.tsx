@@ -13,6 +13,7 @@ import type { CategoriaEnergia } from "@/types/bess";
 import type { RegistroHorario } from "@/types/sfv";
 
 import { BandaContextoArchivo } from "./BandaContextoArchivo";
+import { CurvaCapturaCapacidad } from "./CurvaCapturaCapacidad";
 import { TablaConfiguraciones } from "./TablaConfiguraciones";
 
 /**
@@ -72,6 +73,14 @@ export function SeccionComparacionConfiguraciones({
 
       <BandaContextoArchivo metadataArchivo={metadataArchivo} />
 
+      <div
+        data-testid="narrativa-segura"
+        className="mb-3 text-[12px] leading-relaxed text-[var(--color-text-secondary)]"
+      >
+        <p>{copy.curva.narrativaLinea1}</p>
+        <p>{copy.curva.narrativaLinea2}</p>
+      </div>
+
       {!expandida && (
         <div
           data-testid="resumen-colapsado"
@@ -89,6 +98,8 @@ export function SeccionComparacionConfiguraciones({
           </p>
         </div>
       )}
+
+      <CurvaCapturaCapacidad resultado={resultado} />
 
       <button
         type="button"
@@ -109,6 +120,9 @@ export function SeccionComparacionConfiguraciones({
 
       <p className="mt-3 text-[11px] text-[var(--color-text-tertiary)]">
         {copy.nota}
+      </p>
+      <p className="mt-1 text-[11px] text-[var(--color-text-tertiary)]">
+        {copy.notaModelo}
       </p>
       <p className="mt-1 text-[11px] text-[var(--color-text-tertiary)]">
         {copy.notaEficiencia}

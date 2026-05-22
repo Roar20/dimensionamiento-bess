@@ -155,10 +155,28 @@ export const COPY_SFV_BESS = {
       "Esta vista muestra qué captura cada configuración sobre los datos cargados. " +
       "No define por sí sola la estrategia de carga u operación para plantas sin " +
       "excedentes; esa validación sigue en revisión metodológica.",
+    notaModelo:
+      "La curva refleja el comportamiento del modelo actual bajo la definición " +
+      "vigente de energía elegible. La interpretación operativa y financiera del " +
+      "punto de inflexión no forma parte de esta vista y sigue en definición metodológica.",
     notaEficiencia:
       "El barrido usa una eficiencia de referencia conservadora del sector industrial " +
       "y comercial (85%) para comparar tamaños genéricos; puede diferir de las " +
       "secciones basadas en equipos específicos del catálogo.",
+    curva: {
+      tituloPanel: "Captura vs capacidad instalada",
+      subtituloPanel: "% de captura por kWh instalado",
+      narrativaLinea1:
+        "El barrido evalúa 32 configuraciones de 200 a 500 kW por 2 a 6 horas.",
+      narrativaLinea2:
+        "La captura cambia de forma relevante entre categorías operativas, según la definición vigente de energía elegible.",
+      leyendaEvaluadas: "Evaluadas",
+      leyendaFrente: "Frente Pareto",
+      leyendaCodo: "Punto de rendimientos decrecientes (orientativo)",
+      labelCodo: "Punto de rendimientos decrecientes (orientativo)",
+      ejeY: "Captura (%)",
+      ejeX: "Capacidad instalada (kWh)",
+    },
     colapso: {
       resumen: (n: number, minPct: number, maxPct: number) =>
         `Se evaluaron ${n} configuraciones · captura entre ${minPct}% y ${maxPct}%`,

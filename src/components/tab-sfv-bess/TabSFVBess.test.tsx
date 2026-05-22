@@ -73,7 +73,9 @@ describe("TabSFVBess — integración", () => {
     expect(screen.getAllByText(/energía capturada/i).length).toBeGreaterThan(0);
     // Chart de despacho siempre presente; el de captura mensual puede
     // sustituirse por HallazgoEjecutivo cuando la captura agregada = 0.
-    expect(screen.getByTestId("chart-line")).toBeInTheDocument();
+    // Con la curva descriptiva (PR-C) también se monta un <Line> dentro de
+    // SeccionComparacionConfiguraciones — pueden coexistir varios chart-line.
+    expect(screen.getAllByTestId("chart-line").length).toBeGreaterThanOrEqual(1);
     expect(
       screen.getByTestId("chart-bar") ??
         screen.getByText(/sin captura mensual bajo/i)
