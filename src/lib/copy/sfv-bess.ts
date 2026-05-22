@@ -141,6 +141,44 @@ export const COPY_SFV_BESS = {
       "Cargar todo el día; descargar exclusivamente en hora-punta CFE (18:00–22:00).",
   },
 
+  comparacionConfiguraciones: {
+    seccionLabel: "Comparación de configuraciones",
+    titulo: "Barrido de configuraciones BESS",
+    subtitulo:
+      "Resultado del barrido sobre los datos cargados con ambas estrategias de despacho.",
+    nota:
+      "Esta vista muestra qué captura cada configuración sobre los datos cargados. " +
+      "No afirma una estrategia de carga/operación óptima para plantas sin excedentes " +
+      "— esa validación sigue en revisión metodológica.",
+    tabla: {
+      colConfig: "Configuración",
+      colEstrategia: "Estrategia",
+      colKwh: "Capacidad",
+      colCaptura: "Captura",
+      colCiclos: "Ciclos/año",
+      colIndicador: "Indicador",
+    },
+    badges: {
+      frente: "Frente",
+      inflexion: "Inflexión",
+    },
+    banda: {
+      limpio: {
+        granularidad: "Granularidad horaria",
+        cobertura: "Cobertura anual",
+        registros: (n: number) => `${n.toLocaleString("es-MX")} registros`,
+        periodo: (ini: string, fin: string) => `${ini} – ${fin}`,
+      },
+      advertencia: {
+        titulo: "Advertencias del archivo cargado",
+      },
+    },
+    estrategias: {
+      greedy: "Greedy",
+      arbitraje: "Arbitraje",
+    },
+  },
+
   comparativaEquipos: {
     seccionLabel: "Comparativa de equipos",
     headerCategoria: "Categoría",
