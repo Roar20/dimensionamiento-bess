@@ -29,34 +29,22 @@ import {
   CardEquipoComparativo,
   type SimulacionEquipo,
 } from "./CardEquipoComparativo";
-import { SelectoresComparativa } from "./SelectoresComparativa";
 
 interface Props {
   registros: readonly RegistroHorario[];
-  categorias: readonly CategoriaEnergia[];
-  categoriaTipo: CategoriaEnergia["tipo"];
-  onCambiarCategoria: (tipo: CategoriaEnergia["tipo"]) => void;
+  categoriaActiva: CategoriaEnergia | null;
   estrategia: EstrategiaDespacho;
-  onCambiarEstrategia: (e: EstrategiaDespacho) => void;
   precios: PreciosProxy;
   tipoCambio: number;
 }
 
 export function SeccionComparativaEquipos({
   registros,
-  categorias,
-  categoriaTipo,
-  onCambiarCategoria,
+  categoriaActiva,
   estrategia,
-  onCambiarEstrategia,
   precios,
   tipoCambio,
 }: Props) {
-  const categoriaActiva = useMemo(
-    () => categorias.find((c) => c.tipo === categoriaTipo) ?? categorias[0],
-    [categorias, categoriaTipo]
-  );
-
   const tarjetas = useMemo(() => {
     return CATALOGO_NUEVO.map((equipoNuevo) => {
       const fuera = esFueraDeEscala(equipoNuevo);
@@ -112,18 +100,22 @@ export function SeccionComparativaEquipos({
     });
   }, [registros, categoriaActiva, estrategia, precios, tipoCambio]);
 
+  const estrategiaLabel =
+    estrategia === "greedy"
+      ? COPY_SFV_BESS.estrategias.greedy
+      : COPY_SFV_BESS.estrategias.arbitraje;
+
   return (
     <section className="mb-8">
       <p className="mb-3 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
         {COPY_SFV_BESS.comparativaEquipos.seccionLabel}
       </p>
-      <SelectoresComparativa
-        categorias={categorias}
-        categoriaTipo={categoriaTipo}
-        onCambiarCategoria={onCambiarCategoria}
-        estrategia={estrategia}
-        onCambiarEstrategia={onCambiarEstrategia}
-      />
+      <p
+        data-testid="contexto-lectura-equipos"
+        className="mb-4 text-[12px] text-[var(--color-text-tertiary)]"
+      >
+        {COPY_SFV_BESS.comparativaEquipos.contextoLectura(estrategiaLabel)}
+      </p>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {tarjetas.map((t) => (
           <CardEquipoComparativo

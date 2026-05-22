@@ -141,6 +141,11 @@ export const COPY_SFV_BESS = {
       "Cargar todo el día; descargar exclusivamente en hora-punta CFE (18:00–22:00).",
   },
 
+  filtrosAnalisis: {
+    prefacio: "Análisis configurado por",
+    labelCategoria: "Categoría",
+  },
+
   comparacionConfiguraciones: {
     seccionLabel: "Comparación de configuraciones",
     titulo: "Barrido de configuraciones BESS",
@@ -154,6 +159,14 @@ export const COPY_SFV_BESS = {
       "El barrido usa una eficiencia de referencia conservadora del sector industrial " +
       "y comercial (85%) para comparar tamaños genéricos; puede diferir de las " +
       "secciones basadas en equipos específicos del catálogo.",
+    colapso: {
+      resumen: (n: number, minPct: number, maxPct: number) =>
+        `Se evaluaron ${n} configuraciones · captura entre ${minPct}% y ${maxPct}%`,
+      lineaMetodologica:
+        "El análisis distingue configuraciones técnicamente defendibles según su relación entre captura y capacidad.",
+      ctaExpandir: (n: number) => `Ver las ${n} configuraciones evaluadas`,
+      ctaColapsar: "Ocultar configuraciones",
+    },
     tabla: {
       colConfig: "Configuración",
       colEstrategia: "Estrategia",
@@ -189,6 +202,8 @@ export const COPY_SFV_BESS = {
     headerEstrategia: "Estrategia",
     fueraDeEscala: "Fuera de escala",
     sinSimulacion: "—",
+    contextoLectura: (estrategia: string) =>
+      `Cifras calculadas con estrategia ${estrategia}`,
   },
 
   metodologia: {
