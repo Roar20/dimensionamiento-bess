@@ -148,8 +148,12 @@ export const COPY_SFV_BESS = {
       "Resultado del barrido sobre los datos cargados con ambas estrategias de despacho.",
     nota:
       "Esta vista muestra qué captura cada configuración sobre los datos cargados. " +
-      "No afirma una estrategia de carga/operación óptima para plantas sin excedentes " +
-      "— esa validación sigue en revisión metodológica.",
+      "No define por sí sola la estrategia de carga u operación para plantas sin " +
+      "excedentes; esa validación sigue en revisión metodológica.",
+    notaEficiencia:
+      "El barrido usa una eficiencia de referencia conservadora del sector industrial " +
+      "y comercial (85%) para comparar tamaños genéricos; puede diferir de las " +
+      "secciones basadas en equipos específicos del catálogo.",
     tabla: {
       colConfig: "Configuración",
       colEstrategia: "Estrategia",

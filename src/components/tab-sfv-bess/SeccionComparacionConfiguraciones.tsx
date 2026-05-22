@@ -72,6 +72,9 @@ export function SeccionComparacionConfiguraciones({
       <p className="mt-3 text-[11px] text-[var(--color-text-tertiary)]">
         {copy.nota}
       </p>
+      <p className="mt-1 text-[11px] text-[var(--color-text-tertiary)]">
+        {copy.notaEficiencia}
+      </p>
     </section>
   );
 }
