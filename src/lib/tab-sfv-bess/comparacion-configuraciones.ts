@@ -66,3 +66,38 @@ export function formatearPct(fraccion: number): string {
 export function formatearCiclos(ciclos: number): string {
   return String(Math.round(ciclos));
 }
+
+export type ResumenBarrido = {
+  numConfiguraciones: number;
+  capturaMinPct: number;
+  capturaMaxPct: number;
+};
+
+/**
+ * Resumen compacto del barrido para el modo colapsado de la tabla.
+ * Devuelve cuántas configuraciones se evaluaron y el rango de captura
+ * (min/max de `fraccion_capturada` × 100, redondeado a entero).
+ *
+ * Si no hay configuraciones evaluadas, devuelve ceros — el componente
+ * decide cómo (o si) renderizarlo.
+ */
+export function calcularResumenBarrido(
+  resultado: ResultadoBarridoConfiguraciones
+): ResumenBarrido {
+  const { evaluadas } = resultado;
+  if (evaluadas.length === 0) {
+    return { numConfiguraciones: 0, capturaMinPct: 0, capturaMaxPct: 0 };
+  }
+  let min = Infinity;
+  let max = -Infinity;
+  for (const ev of evaluadas) {
+    const f = ev.kpis.fraccion_capturada;
+    if (f < min) min = f;
+    if (f > max) max = f;
+  }
+  return {
+    numConfiguraciones: evaluadas.length,
+    capturaMinPct: Math.round(min * 100),
+    capturaMaxPct: Math.round(max * 100),
+  };
+}

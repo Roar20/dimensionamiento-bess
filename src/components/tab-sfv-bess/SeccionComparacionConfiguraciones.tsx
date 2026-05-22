@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import {
   HORAS_DEFAULT,
@@ -8,7 +8,8 @@ import {
 import { DOD_DEFAULT } from "@/lib/core/bess";
 import { COPY_SFV_BESS } from "@/lib/copy/sfv-bess";
 import { useDatosSFV } from "@/hooks/useDatosSFV";
-import type { CategoriaEnergia, EstrategiaDespacho } from "@/types/bess";
+import { calcularResumenBarrido } from "@/lib/tab-sfv-bess/comparacion-configuraciones";
+import type { CategoriaEnergia } from "@/types/bess";
 import type { RegistroHorario } from "@/types/sfv";
 
 import { BandaContextoArchivo } from "./BandaContextoArchivo";
@@ -27,15 +28,14 @@ const RTE_CI_DEFAULT = 0.85;
 interface Props {
   registros: readonly RegistroHorario[];
   categoriaActiva: CategoriaEnergia;
-  estrategia: EstrategiaDespacho;
 }
 
 export function SeccionComparacionConfiguraciones({
   registros,
   categoriaActiva,
-  estrategia: _estrategia,
 }: Props) {
   const { metadataArchivo } = useDatosSFV();
+  const [expandida, setExpandida] = useState(false);
 
   const resultado = useMemo(
     () =>
@@ -47,6 +47,11 @@ export function SeccionComparacionConfiguraciones({
         { dod: DOD_DEFAULT, rte: RTE_CI_DEFAULT, soc_inicial_kwh: 0 }
       ),
     [registros, categoriaActiva]
+  );
+
+  const resumen = useMemo(
+    () => calcularResumenBarrido(resultado),
+    [resultado]
   );
 
   const copy = COPY_SFV_BESS.comparacionConfiguraciones;
@@ -67,7 +72,40 @@ export function SeccionComparacionConfiguraciones({
 
       <BandaContextoArchivo metadataArchivo={metadataArchivo} />
 
-      <TablaConfiguraciones resultado={resultado} />
+      {!expandida && (
+        <div
+          data-testid="resumen-colapsado"
+          className="mb-3 rounded-[10px] border-[0.5px] border-[var(--color-border-light)] bg-white px-4 py-3"
+        >
+          <p className="text-[13px] text-[var(--color-text-primary)]">
+            {copy.colapso.resumen(
+              resumen.numConfiguraciones,
+              resumen.capturaMinPct,
+              resumen.capturaMaxPct
+            )}
+          </p>
+          <p className="mt-1 text-[12px] text-[var(--color-text-secondary)]">
+            {copy.colapso.lineaMetodologica}
+          </p>
+        </div>
+      )}
+
+      <button
+        type="button"
+        data-testid="cta-toggle-tabla"
+        aria-expanded={expandida}
+        aria-controls="tabla-configuraciones-region"
+        onClick={() => setExpandida((v) => !v)}
+        className="mb-3 inline-flex h-8 items-center rounded-md border-[0.5px] border-[var(--color-border-medium)] bg-white px-3 text-[12px] text-[var(--color-text-primary)] hover:bg-[var(--color-bg-page)] focus:outline-none focus-visible:border-[var(--color-primary)]"
+      >
+        {expandida
+          ? copy.colapso.ctaColapsar
+          : copy.colapso.ctaExpandir(resumen.numConfiguraciones)}
+      </button>
+
+      <div id="tabla-configuraciones-region" hidden={!expandida}>
+        {expandida && <TablaConfiguraciones resultado={resultado} />}
+      </div>
 
       <p className="mt-3 text-[11px] text-[var(--color-text-tertiary)]">
         {copy.nota}

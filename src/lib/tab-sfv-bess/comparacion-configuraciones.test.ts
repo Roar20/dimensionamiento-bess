@@ -6,6 +6,7 @@ import {
   correrBarridoConfiguraciones,
 } from "@/lib/core/bess/barrido-configuraciones";
 import {
+  calcularResumenBarrido,
   construirFilasTabla,
   esMismaConfiguracionEvaluada,
   formatearCiclos,
@@ -207,5 +208,57 @@ describe("formatearCiclos", () => {
 
   it("redondea hacia arriba en .5", () => {
     expect(formatearCiclos(142.5)).toBe("143");
+  });
+});
+
+describe("calcularResumenBarrido", () => {
+  it("32 evaluadas → numConfiguraciones=32 + min/max en porcentaje entero", () => {
+    const registros = registros60Dias();
+    const resultado = correrBarridoConfiguraciones(
+      registros,
+      { potencias_kw: POTENCIAS_KW_DEFAULT, horas: HORAS_DEFAULT },
+      CATEGORIA,
+      ["greedy", "arbitraje"],
+      PARAMS
+    );
+    const r = calcularResumenBarrido(resultado);
+    expect(r.numConfiguraciones).toBe(32);
+    expect(Number.isInteger(r.capturaMinPct)).toBe(true);
+    expect(Number.isInteger(r.capturaMaxPct)).toBe(true);
+    expect(r.capturaMinPct).toBeGreaterThanOrEqual(0);
+    expect(r.capturaMaxPct).toBeLessThanOrEqual(100);
+    expect(r.capturaMinPct).toBeLessThanOrEqual(r.capturaMaxPct);
+  });
+
+  it("min y max coinciden con el rango real de fraccion_capturada en evaluadas", () => {
+    const registros = registros60Dias();
+    const resultado = correrBarridoConfiguraciones(
+      registros,
+      { potencias_kw: POTENCIAS_KW_DEFAULT, horas: HORAS_DEFAULT },
+      CATEGORIA,
+      ["greedy", "arbitraje"],
+      PARAMS
+    );
+    const fracciones = resultado.evaluadas.map(
+      (e) => e.kpis.fraccion_capturada
+    );
+    const minReal = Math.round(Math.min(...fracciones) * 100);
+    const maxReal = Math.round(Math.max(...fracciones) * 100);
+    const r = calcularResumenBarrido(resultado);
+    expect(r.capturaMinPct).toBe(minReal);
+    expect(r.capturaMaxPct).toBe(maxReal);
+  });
+
+  it("evaluadas vacías → ceros", () => {
+    const r = calcularResumenBarrido({
+      evaluadas: [],
+      frentePareto: [],
+      codo: null,
+    });
+    expect(r).toEqual({
+      numConfiguraciones: 0,
+      capturaMinPct: 0,
+      capturaMaxPct: 0,
+    });
   });
 });

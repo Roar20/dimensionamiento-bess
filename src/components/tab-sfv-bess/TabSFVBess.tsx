@@ -26,6 +26,7 @@ import type {
 import type { DatosSFV } from "@/types/sfv";
 
 import { BandaKPIsSFVBess } from "./BandaKPIsSFVBess";
+import { FiltrosAnalisisSFVBess } from "./FiltrosAnalisisSFVBess";
 import { HeroCapturaCiclosSFVBess } from "./HeroCapturaCiclosSFVBess";
 import { LecturaEjecutivaSFVBess } from "./LecturaEjecutivaSFVBess";
 import { MetodologiaSFVBess } from "./MetodologiaSFVBess";
@@ -167,6 +168,14 @@ export function TabSFVBess({ datos }: Props) {
         setTipoCambio={tipoCambioState.setTipoCambio}
       />
 
+      {categorias.length > 0 && (
+        <FiltrosAnalisisSFVBess
+          categorias={categorias}
+          categoriaTipo={categoriaTipo}
+          onCambiarCategoria={setCategoriaTipo}
+        />
+      )}
+
       {!activa || !simulacionPrincipal ? (
         <p className="mb-8 rounded-md border-[0.5px] border-[var(--color-border-light)] bg-white p-5 text-[13px] text-[var(--color-text-secondary)]">
           Sin parámetros PPA o categorías disponibles para simular el BESS.
@@ -220,17 +229,13 @@ export function TabSFVBess({ datos }: Props) {
             <SeccionComparacionConfiguraciones
               registros={registros}
               categoriaActiva={categoriaActiva}
-              estrategia={estrategia}
             />
           )}
 
           <SeccionComparativaEquipos
             registros={registros}
-            categorias={categorias}
-            categoriaTipo={categoriaTipo}
-            onCambiarCategoria={setCategoriaTipo}
+            categoriaActiva={categoriaActiva}
             estrategia={estrategia}
-            onCambiarEstrategia={setEstrategia}
             precios={precios}
             tipoCambio={tipoCambio}
           />
