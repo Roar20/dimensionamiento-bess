@@ -32,7 +32,7 @@ export const COPY_SFV_BESS = {
           ? "el payback no es calculable bajo los precios proxy actuales"
           : `el payback preliminar con precios proxy Estanzuela 2 es de ${formato1Dec(args.payback_anios)} años para ${args.equipo_nombre}`;
       return (
-        `El BESS captura ${cap} MWh anuales bajo estrategia ${args.estrategia}, ` +
+        `La configuración Cube Plus captura ${cap} MWh anuales bajo estrategia ${args.estrategia}, ` +
         `equivalentes a ${ciclos} ciclos efectivos. ${capitalizar(pb)}.`
       );
     },
@@ -57,14 +57,14 @@ export const COPY_SFV_BESS = {
    * el hero evoluciona a comparar capacidades.
    */
   heroCapturaCiclos: {
-    label: "Interpretación del sistema",
+    label: "Equipo de referencia: Cube Plus",
     titular: {
       alta: (config: string, natural: string) =>
         `La configuración de ${config} aprovecha prácticamente toda la energía elegible bajo ${natural} con una alta utilización anual del BESS.`,
       media: (config: string, natural: string) =>
         `La configuración de ${config} captura una parte significativa de la energía elegible bajo ${natural}, operando con alta utilización anual.`,
       baja: (config: string, natural: string) =>
-        `La configuración de ${config} opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo ${natural}.`,
+        `El equipo ${config} opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo ${natural}.`,
       nula: (_config: string, natural: string) =>
         `Bajo ${natural}, la planta prácticamente no presenta energía disponible para almacenamiento con la configuración actual.`,
     },
@@ -72,7 +72,7 @@ export const COPY_SFV_BESS = {
       alta: "La estrategia actual aprovecha prácticamente toda la energía elegible de esta categoría.",
       media:
         "La estrategia actual captura una porción relevante de la energía elegible bajo esta categoría.",
-      baja: "La capacidad del BESS es el factor limitante frente al volumen anual de energía elegible.",
+      baja: "El Cube Plus representa una configuración compacta de referencia del catálogo. Configuraciones de mayor capacidad se evalúan en el comparativo de esta misma vista.",
       nula: "Bajo esta categoría, la planta prácticamente no presenta energía disponible para almacenamiento.",
     },
     microAprovechamiento: {
