@@ -43,10 +43,10 @@ function rend(
 }
 
 describe("HeroCapturaCiclosSFVBess — render base", () => {
-  it("renderiza el label 'Interpretación del sistema'", () => {
+  it("renderiza el label 'Equipo de referencia: Cube Plus'", () => {
     rend();
     expect(
-      screen.getByText(/interpretación del sistema/i)
+      screen.getByText(/equipo de referencia: cube plus/i)
     ).toBeInTheDocument();
   });
 
@@ -90,16 +90,16 @@ describe("HeroCapturaCiclosSFVBess — umbrales del titular y apoyo", () => {
     ).toBeInTheDocument();
   });
 
-  it("baja (0 < pct < 30): opera con alta utilización aunque solo fracción + apoyo 'factor limitante'", () => {
+  it("baja (0 < pct < 30): titular 'El equipo Cube Plus' + apoyo enmarca como configuración de referencia", () => {
     rend({ fraccionCapturada: 0.1, categoria: CAT_TODA });
     expect(
       screen.getByRole("heading", { level: 2 }).textContent
     ).toMatch(
-      /opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo la operación con toda la energía/i
+      /El equipo Cube Plus opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo la operación con toda la energía/i
     );
     expect(
       screen.getByText(
-        /La capacidad del BESS es el factor limitante frente al volumen anual de energía elegible\./i
+        /El Cube Plus representa una configuración compacta de referencia del catálogo\. Configuraciones de mayor capacidad se evalúan en el comparativo de esta misma vista\./i
       )
     ).toBeInTheDocument();
   });

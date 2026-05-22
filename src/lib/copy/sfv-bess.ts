@@ -32,7 +32,7 @@ export const COPY_SFV_BESS = {
           ? "el payback no es calculable bajo los precios proxy actuales"
           : `el payback preliminar con precios proxy Estanzuela 2 es de ${formato1Dec(args.payback_anios)} años para ${args.equipo_nombre}`;
       return (
-        `El BESS captura ${cap} MWh anuales bajo estrategia ${args.estrategia}, ` +
+        `La configuración Cube Plus captura ${cap} MWh anuales bajo estrategia ${args.estrategia}, ` +
         `equivalentes a ${ciclos} ciclos efectivos. ${capitalizar(pb)}.`
       );
     },
@@ -57,14 +57,14 @@ export const COPY_SFV_BESS = {
    * el hero evoluciona a comparar capacidades.
    */
   heroCapturaCiclos: {
-    label: "Interpretación del sistema",
+    label: "Equipo de referencia: Cube Plus",
     titular: {
       alta: (config: string, natural: string) =>
         `La configuración de ${config} aprovecha prácticamente toda la energía elegible bajo ${natural} con una alta utilización anual del BESS.`,
       media: (config: string, natural: string) =>
         `La configuración de ${config} captura una parte significativa de la energía elegible bajo ${natural}, operando con alta utilización anual.`,
       baja: (config: string, natural: string) =>
-        `La configuración de ${config} opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo ${natural}.`,
+        `El equipo ${config} opera con alta utilización anual, aunque captura solo una fracción de la energía elegible bajo ${natural}.`,
       nula: (_config: string, natural: string) =>
         `Bajo ${natural}, la planta prácticamente no presenta energía disponible para almacenamiento con la configuración actual.`,
     },
@@ -72,7 +72,7 @@ export const COPY_SFV_BESS = {
       alta: "La estrategia actual aprovecha prácticamente toda la energía elegible de esta categoría.",
       media:
         "La estrategia actual captura una porción relevante de la energía elegible bajo esta categoría.",
-      baja: "La capacidad del BESS es el factor limitante frente al volumen anual de energía elegible.",
+      baja: "El Cube Plus representa una configuración compacta de referencia del catálogo. Configuraciones de mayor capacidad se evalúan en el comparativo de esta misma vista.",
       nula: "Bajo esta categoría, la planta prácticamente no presenta energía disponible para almacenamiento.",
     },
     microAprovechamiento: {
@@ -139,6 +139,48 @@ export const COPY_SFV_BESS = {
       "Cargar apenas haya energía en la categoría; descargar apenas la categoría se agote.",
     descripcionArbitraje:
       "Cargar todo el día; descargar exclusivamente en hora-punta CFE (18:00–22:00).",
+  },
+
+  comparacionConfiguraciones: {
+    seccionLabel: "Comparación de configuraciones",
+    titulo: "Barrido de configuraciones BESS",
+    subtitulo:
+      "Resultado del barrido sobre los datos cargados con ambas estrategias de despacho.",
+    nota:
+      "Esta vista muestra qué captura cada configuración sobre los datos cargados. " +
+      "No define por sí sola la estrategia de carga u operación para plantas sin " +
+      "excedentes; esa validación sigue en revisión metodológica.",
+    notaEficiencia:
+      "El barrido usa una eficiencia de referencia conservadora del sector industrial " +
+      "y comercial (85%) para comparar tamaños genéricos; puede diferir de las " +
+      "secciones basadas en equipos específicos del catálogo.",
+    tabla: {
+      colConfig: "Configuración",
+      colEstrategia: "Estrategia",
+      colKwh: "Capacidad",
+      colCaptura: "Captura",
+      colCiclos: "Ciclos/año",
+      colIndicador: "Indicador",
+    },
+    badges: {
+      frente: "Frente",
+      inflexion: "Inflexión",
+    },
+    banda: {
+      limpio: {
+        granularidad: "Granularidad horaria",
+        cobertura: "Cobertura anual",
+        registros: (n: number) => `${n.toLocaleString("es-MX")} registros`,
+        periodo: (ini: string, fin: string) => `${ini} – ${fin}`,
+      },
+      advertencia: {
+        titulo: "Advertencias del archivo cargado",
+      },
+    },
+    estrategias: {
+      greedy: "Greedy",
+      arbitraje: "Arbitraje",
+    },
   },
 
   comparativaEquipos: {

@@ -31,6 +31,7 @@ import { LecturaEjecutivaSFVBess } from "./LecturaEjecutivaSFVBess";
 import { MetodologiaSFVBess } from "./MetodologiaSFVBess";
 import { PanelPreciosEditables } from "./PanelPreciosEditables";
 import { SeccionCapturaPorPeriodo } from "./SeccionCapturaPorPeriodo";
+import { SeccionComparacionConfiguraciones } from "./SeccionComparacionConfiguraciones";
 import { SeccionComparativaEquipos } from "./SeccionComparativaEquipos";
 import { SeccionComparativaEstrategias } from "./SeccionComparativaEstrategias";
 import { SeccionDespachoDiarioPromedio } from "./SeccionDespachoDiarioPromedio";
@@ -214,6 +215,14 @@ export function TabSFVBess({ datos }: Props) {
             estrategiaActiva={estrategia}
             onCambiarEstrategia={setEstrategia}
           />
+
+          {categoriaActiva && (
+            <SeccionComparacionConfiguraciones
+              registros={registros}
+              categoriaActiva={categoriaActiva}
+              estrategia={estrategia}
+            />
+          )}
 
           <SeccionComparativaEquipos
             registros={registros}
