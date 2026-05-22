@@ -14,16 +14,21 @@ const COLOR_EVALUADA = "rgba(115, 115, 115, 0.45)";
 const COLOR_EVALUADA_BORDER = "rgba(115, 115, 115, 0.7)";
 const COLOR_FRENTE = "#1e40af";
 const COLOR_FRENTE_BORDER = "#1e40af";
-const COLOR_CODO_BORDER = "#0f172a";
 const COLOR_GRID = "rgba(0, 0, 0, 0.06)";
+
+/**
+ * Tolerancia para detectar convergencia entre estrategias en un mismo
+ * punto (x,y). El motor escribe `fraccion_capturada` como float; dos
+ * estrategias pueden coincidir hasta varios decimales sin ser idénticas.
+ */
+const EPS_CONVERGENCIA = 1e-6;
 
 export function CurvaCapturaCapacidad({ resultado }: Props) {
   const datos = useMemo(() => prepararDatosCurva(resultado), [resultado]);
   const copy = COPY_SFV_BESS.comparacionConfiguraciones.curva;
+  const copyEstrategias = COPY_SFV_BESS.estrategias;
 
   const { data, options } = useMemo(() => {
-    const tieneCodo = datos.codo !== null;
-
     const datasets: NonNullable<ChartData<"line">["datasets"]> = [
       // Dataset 1: evaluadas (scatter neutro, sin línea).
       {
@@ -47,23 +52,55 @@ export function CurvaCapturaCapacidad({ resultado }: Props) {
         tension: 0,
         showLine: true,
       },
+      // Codo: NO se renderiza marker hasta que se defina la regla de
+      // significancia de curvatura (D-MOTOR-02). El cálculo en el motor
+      // sigue intacto; solo se oculta su marker en esta vista.
     ];
 
-    if (tieneCodo) {
-      datasets.push({
-        label: copy.leyendaCodo,
-        data: [{ x: datos.codo!.x, y: datos.codo!.y }],
-        backgroundColor: "transparent",
-        borderColor: COLOR_CODO_BORDER,
-        borderWidth: 1.5,
-        pointRadius: 7,
-        pointHoverRadius: 8,
-        pointStyle: "rectRot",
-        showLine: false,
-      });
+    const data: ChartData<"line"> = { datasets };
+
+    /** Detecta si otra evaluada coincide en (p_kw, e_kwh, y) con distinta estrategia. */
+    function convergenEvaluadas(i: number): boolean {
+      const p = datos.evaluadas[i];
+      if (!p) return false;
+      return datos.evaluadas.some(
+        (q, j) =>
+          j !== i &&
+          q.config.config.p_kw === p.config.config.p_kw &&
+          q.config.config.e_kwh === p.config.config.e_kwh &&
+          q.config.estrategia !== p.config.estrategia &&
+          Math.abs(q.y - p.y) < EPS_CONVERGENCIA
+      );
     }
 
-    const data: ChartData<"line"> = { datasets };
+    function convergenFrente(i: number): boolean {
+      const p = datos.frente[i];
+      if (!p) return false;
+      return datos.frente.some(
+        (q, j) =>
+          j !== i &&
+          q.config.config.p_kw === p.config.config.p_kw &&
+          q.config.config.e_kwh === p.config.config.e_kwh &&
+          q.config.estrategia !== p.config.estrategia &&
+          Math.abs(q.y - p.y) < EPS_CONVERGENCIA
+      );
+    }
+
+    function formatearLabel(
+      puntoY: number,
+      p_kw: number,
+      e_kwh: number,
+      estrategia: "greedy" | "arbitraje",
+      converge: boolean
+    ): string {
+      const horas = e_kwh / p_kw;
+      const estrategiaTxt = converge
+        ? copy.estrategiasAmbas
+        : estrategia === "greedy"
+          ? copyEstrategias.greedy
+          : copyEstrategias.arbitraje;
+      return `${p_kw} kW × ${horas} h · ${estrategiaTxt} · ${puntoY.toFixed(1)}%`;
+    }
 
     const options: ChartOptions<"line"> = {
       responsive: true,
@@ -71,32 +108,53 @@ export function CurvaCapturaCapacidad({ resultado }: Props) {
       plugins: {
         legend: { display: false },
         tooltip: {
+          // Dedupe: cuando dos items del mismo dataset coinciden en (x,y)
+          // (típicamente porque ambas estrategias convergen), mantenemos
+          // sólo el primero.
+          filter: (item, index, items) => {
+            return (
+              items.findIndex(
+                (it) =>
+                  it.datasetIndex === item.datasetIndex &&
+                  it.parsed.x === item.parsed.x &&
+                  it.parsed.y === item.parsed.y
+              ) === index
+            );
+          },
           callbacks: {
             label: (ctx) => {
-              // Recupera la config detrás del punto.
-              const i = ctx.dataIndex;
               const label = ctx.dataset.label ?? "";
-              let punto:
-                | { x: number; y: number; config?: { config: { p_kw: number; e_kwh: number }; estrategia: string } }
-                | undefined;
+              const i = ctx.dataIndex;
               if (label === copy.leyendaEvaluadas) {
-                punto = datos.evaluadas[i];
-              } else if (label === copy.leyendaFrente) {
-                punto = datos.frente[i];
-              } else if (label === copy.leyendaCodo && datos.codo) {
-                punto = datos.codo;
+                const p = datos.evaluadas[i];
+                if (!p) {
+                  const y = ctx.parsed.y ?? 0;
+                  return `${Math.round(y).toLocaleString("es-MX")}%`;
+                }
+                return formatearLabel(
+                  p.y,
+                  p.config.config.p_kw,
+                  p.config.config.e_kwh,
+                  p.config.estrategia,
+                  convergenEvaluadas(i)
+                );
               }
-              if (!punto || !punto.config) {
-                const y = ctx.parsed.y ?? 0;
-                return `${Math.round(y).toLocaleString("es-MX")}%`;
+              if (label === copy.leyendaFrente) {
+                const p = datos.frente[i];
+                if (!p) {
+                  const y = ctx.parsed.y ?? 0;
+                  return `${Math.round(y).toLocaleString("es-MX")}%`;
+                }
+                return formatearLabel(
+                  p.y,
+                  p.config.config.p_kw,
+                  p.config.config.e_kwh,
+                  p.config.estrategia,
+                  convergenFrente(i)
+                );
               }
-              const { p_kw, e_kwh } = punto.config.config;
-              const horas = e_kwh / p_kw;
-              const estrategia =
-                punto.config.estrategia === "greedy"
-                  ? COPY_SFV_BESS.estrategias.greedy
-                  : COPY_SFV_BESS.estrategias.arbitraje;
-              return `${p_kw} kW × ${horas} h · ${estrategia} · ${punto.y.toFixed(1)}%`;
+              const y = ctx.parsed.y ?? 0;
+              return `${Math.round(y).toLocaleString("es-MX")}%`;
             },
           },
         },
@@ -137,9 +195,7 @@ export function CurvaCapturaCapacidad({ resultado }: Props) {
     };
 
     return { data, options };
-  }, [datos, copy]);
-
-  const tieneCodo = datos.codo !== null;
+  }, [datos, copy, copyEstrategias]);
 
   return (
     <div
@@ -157,14 +213,6 @@ export function CurvaCapturaCapacidad({ resultado }: Props) {
       <div className="mb-3 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[var(--color-text-secondary)]">
         <Leyenda color={COLOR_EVALUADA_BORDER} texto={copy.leyendaEvaluadas} />
         <Leyenda color={COLOR_FRENTE_BORDER} texto={copy.leyendaFrente} />
-        {tieneCodo && (
-          <Leyenda
-            color={COLOR_CODO_BORDER}
-            texto={copy.leyendaCodo}
-            style="outline"
-            testid="leyenda-codo"
-          />
-        )}
       </div>
       <div className="relative h-[190px] w-full md:h-[220px]">
         <Line data={data} options={options} />
@@ -173,29 +221,12 @@ export function CurvaCapturaCapacidad({ resultado }: Props) {
   );
 }
 
-function Leyenda({
-  color,
-  texto,
-  style = "solid",
-  testid,
-}: {
-  color: string;
-  texto: string;
-  style?: "solid" | "outline";
-  testid?: string;
-}) {
+function Leyenda({ color, texto }: { color: string; texto: string }) {
   return (
-    <span
-      className="inline-flex items-center gap-1.5"
-      data-testid={testid}
-    >
+    <span className="inline-flex items-center gap-1.5">
       <span
         className="inline-block h-3 w-3 rounded-sm"
-        style={
-          style === "outline"
-            ? { borderColor: color, borderWidth: 1.5, borderStyle: "solid" }
-            : { backgroundColor: color }
-        }
+        style={{ backgroundColor: color }}
       />
       {texto}
     </span>
