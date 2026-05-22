@@ -35,13 +35,10 @@ function registrosFixture() {
 
 function rend(overrides: Partial<Parameters<typeof SeccionComparativaEquipos>[0]> = {}) {
   const categorias = construirCategoriasDefault(params);
-  const props = {
+  const props: Parameters<typeof SeccionComparativaEquipos>[0] = {
     registros: registrosFixture(),
-    categorias,
-    categoriaTipo: categorias[0]!.tipo,
-    onCambiarCategoria: vi.fn(),
+    categoriaActiva: categorias[0]!,
     estrategia: "greedy" as const,
-    onCambiarEstrategia: vi.fn(),
     precios: PRECIOS_DEFAULT,
     tipoCambio: 20,
     ...overrides,
