@@ -2,15 +2,18 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
 
 import { cargarArchivoSFV } from "@/lib/io/excel-loader";
+import { extraerMetadataArchivo } from "@/lib/io/metadata-archivo";
 import {
   ErrorFormatoArchivo,
   type ConfiguracionPlanta,
   type DatosSFV,
+  type MetadataArchivoUI,
   type Warning,
 } from "@/types/sfv";
 
@@ -40,6 +43,12 @@ type DatosSFVContextValue = {
   warnings: Warning[];
   cargando: boolean;
   error: ErrorFormatoArchivo | null;
+  /**
+   * Vista camelCase derivada de `datos` + `warnings` + `config`, lista
+   * para consumir desde UI (banda de contexto). `null` cuando no hay
+   * datos cargados todavía.
+   */
+  metadataArchivo: MetadataArchivoUI | null;
   cargar: (file: File, config: ConfiguracionPlanta) => Promise<void>;
   limpiar: () => void;
 };
@@ -77,11 +86,21 @@ function useDatosSFVInterno(): DatosSFVContextValue {
     setEstado(ESTADO_INICIAL);
   }, []);
 
+  const metadataArchivo = useMemo<MetadataArchivoUI | null>(() => {
+    if (!estado.datos) return null;
+    return extraerMetadataArchivo(
+      estado.datos,
+      estado.warnings,
+      estado.datos.config
+    );
+  }, [estado.datos, estado.warnings]);
+
   return {
     datos: estado.datos,
     warnings: estado.warnings,
     cargando: estado.cargando,
     error: estado.error,
+    metadataArchivo,
     cargar,
     limpiar,
   };

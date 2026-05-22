@@ -3,7 +3,9 @@ import * as XLSX from "xlsx";
 import {
   ErrorFormatoArchivo,
   type ConfiguracionPlanta,
+  type Cobertura,
   type DatosSFV,
+  type Granularidad,
   type RegistroHorario,
   type Warning,
 } from "@/types/sfv";
@@ -251,12 +253,18 @@ function calcularMeta(
   let horasConGen = 0;
   let pico = 0;
   let anioInferido = registros[0]?.timestamp.getFullYear() ?? new Date().getFullYear();
+  let tsMin = Number.POSITIVE_INFINITY;
+  let tsMax = Number.NEGATIVE_INFINITY;
   const conteoAnios = new Map<number, number>();
 
   for (const r of registros) {
     total += r.energia_mwh;
     if (r.energia_mwh > 0) horasConGen += 1;
     if (r.potencia_kw_prom > pico) pico = r.potencia_kw_prom;
+
+    const t = r.timestamp.getTime();
+    if (t < tsMin) tsMin = t;
+    if (t > tsMax) tsMax = t;
 
     const anio = r.timestamp.getFullYear();
     conteoAnios.set(anio, (conteoAnios.get(anio) ?? 0) + 1);
@@ -270,6 +278,10 @@ function calcularMeta(
     }
   }
 
+  const { granularidad, minutos_mediana_delta } =
+    detectarGranularidad(registros);
+  const cobertura = clasificarCobertura(registros.length, granularidad);
+
   return {
     nombre_archivo: nombreArchivo,
     fecha_carga: new Date().toISOString(),
@@ -278,7 +290,71 @@ function calcularMeta(
     total_energia_mwh: total,
     horas_con_generacion: horasConGen,
     pico_horario_kw: pico,
+    periodo_inicio: registros.length > 0 ? new Date(tsMin) : null,
+    periodo_fin: registros.length > 0 ? new Date(tsMax) : null,
+    granularidad_detectada: granularidad,
+    minutos_mediana_delta,
+    cobertura,
   };
+}
+
+/**
+ * Clasifica la granularidad de la serie usando la MEDIANA de los deltas
+ * entre timestamps consecutivos. Se usa mediana (no promedio) para que
+ * un hueco aislado (DST, registro faltante, separación entre meses) no
+ * desplace la clasificación: con 8,759 deltas de 60 min y 1 de 48 h, la
+ * mediana sigue siendo 60.
+ *
+ * Bandas:
+ *  - mediana ∈ [55, 65]  → "horaria"   (tolera DST y huecos aislados)
+ *  - mediana ∈ (0, 55)   → "sub_horaria"
+ *  - mediana > 65        → "supra_horaria"
+ *  - <2 registros o todos los deltas <= 0 → "desconocida"
+ *
+ * Pure function. No side effects. Exportada para validar el contrato
+ * de detección sobre `RegistroHorario[]` sintéticos sin pasar por XLSX.
+ */
+export function detectarGranularidad(
+  registros: readonly RegistroHorario[]
+): { granularidad: Granularidad; minutos_mediana_delta: number | null } {
+  if (registros.length < 2) {
+    return { granularidad: "desconocida", minutos_mediana_delta: null };
+  }
+  const ordenados = [...registros].sort(
+    (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+  );
+  const deltasMs: number[] = [];
+  for (let i = 1; i < ordenados.length; i += 1) {
+    const d =
+      ordenados[i]!.timestamp.getTime() - ordenados[i - 1]!.timestamp.getTime();
+    if (d > 0) deltasMs.push(d);
+  }
+  if (deltasMs.length === 0) {
+    return { granularidad: "desconocida", minutos_mediana_delta: null };
+  }
+  deltasMs.sort((a, b) => a - b);
+  const mid = Math.floor(deltasMs.length / 2);
+  const medianaMs =
+    deltasMs.length % 2 === 0
+      ? (deltasMs[mid - 1]! + deltasMs[mid]!) / 2
+      : deltasMs[mid]!;
+  const medianaMin = medianaMs / 60_000;
+
+  let granularidad: Granularidad;
+  if (medianaMin >= 55 && medianaMin <= 65) granularidad = "horaria";
+  else if (medianaMin < 55) granularidad = "sub_horaria";
+  else granularidad = "supra_horaria";
+
+  return { granularidad, minutos_mediana_delta: medianaMin };
+}
+
+function clasificarCobertura(
+  totalRegistros: number,
+  granularidad: Granularidad
+): Cobertura {
+  if (granularidad !== "horaria") return "desconocida";
+  if (totalRegistros === 8760 || totalRegistros === 8784) return "anual";
+  return "parcial";
 }
 
 function calcularWarnings(
@@ -316,7 +392,41 @@ function calcularWarnings(
     });
   }
 
+  const warningGranularidad = warningPorGranularidad(
+    meta.granularidad_detectada,
+    meta.minutos_mediana_delta
+  );
+  if (warningGranularidad) warnings.push(warningGranularidad);
+
   return warnings;
+}
+
+function warningPorGranularidad(
+  granularidad: Granularidad,
+  minutosMediana: number | null
+): Warning | null {
+  if (granularidad === "horaria") return null;
+  if (granularidad === "desconocida") {
+    return {
+      codigo: "GRANULARIDAD_DESCONOCIDA",
+      mensaje:
+        "No se pudo detectar la granularidad temporal del archivo (se requieren al menos 2 registros con timestamps válidos).",
+    };
+  }
+  const minutosTxt =
+    minutosMediana !== null
+      ? `${minutosMediana.toLocaleString("es-MX", { maximumFractionDigits: 1 })} min`
+      : "desconocida";
+  if (granularidad === "sub_horaria") {
+    return {
+      codigo: "GRANULARIDAD_SUB_HORARIA",
+      mensaje: `Granularidad detectada: ~${minutosTxt} entre registros. El motor de despacho asume registros horarios; los KPIs (captura, ciclos, payback) pueden ser incorrectos. Si es posible, sube un archivo con registros horarios.`,
+    };
+  }
+  return {
+    codigo: "GRANULARIDAD_SUPRA_HORARIA",
+    mensaje: `Granularidad detectada: ~${minutosTxt} entre registros (mayor a una hora). El motor de despacho asume registros horarios; los KPIs (captura, ciclos, payback) pueden ser incorrectos.`,
+  };
 }
 
 function cubreAnioCompleto(registros: RegistroHorario[], anio: number): boolean {

@@ -45,6 +45,11 @@ function datosFixture(): DatosSFV {
       total_energia_mwh: 0,
       horas_con_generacion: 0,
       pico_horario_kw: 400,
+      periodo_inicio: registros[0]?.timestamp ?? null,
+      periodo_fin: registros[registros.length - 1]?.timestamp ?? null,
+      granularidad_detectada: "horaria",
+      minutos_mediana_delta: 60,
+      cobertura: "parcial",
     },
   };
 }

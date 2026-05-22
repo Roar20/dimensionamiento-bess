@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import * as XLSX from "xlsx";
 
-import { cargarArchivoSFV } from "@/lib/io/excel-loader";
+import { cargarArchivoSFV, detectarGranularidad } from "@/lib/io/excel-loader";
 import {
   ErrorFormatoArchivo,
   type ConfiguracionPlanta,
+  type RegistroHorario,
 } from "@/types/sfv";
 
 const CONFIG_BASE: ConfiguracionPlanta = {
@@ -303,4 +304,160 @@ describe("cargarArchivoSFV", () => {
     expect(datos.registros[0]!.timestamp.getMonth()).toBe(2);
     expect(datos.registros[0]!.timestamp.getDate()).toBe(15);
   });
+
+  // ────────────────────────────────────────────────────────────────
+  // Metadata: granularidad, periodo, cobertura
+  // ────────────────────────────────────────────────────────────────
+
+  it("archivo horario válido → granularidad 'horaria', mediana ≈ 60 min, sin warning de granularidad", async () => {
+    const filas: Fila[] = [HEADERS];
+    for (let h = 1; h <= 24; h += 1) {
+      filas.push(["2025-03-15", h, 0.1]);
+    }
+    const { datos, warnings } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.meta.granularidad_detectada).toBe("horaria");
+    expect(datos.meta.minutos_mediana_delta).toBeCloseTo(60, 6);
+    expect(
+      warnings.find((w) =>
+        w.codigo.startsWith("GRANULARIDAD_")
+      )
+    ).toBeUndefined();
+    expect(datos.meta.periodo_inicio?.getDate()).toBe(15);
+    expect(datos.meta.periodo_fin?.getHours()).toBe(23);
+  });
+
+  it("serie horaria con hueco temporal grande sigue siendo 'horaria' (mediana, no promedio)", async () => {
+    // Esta es la decisión técnica central de la pieza: la MEDIANA de
+    // los deltas resiste un hueco aislado. Con 99 deltas de 60 min y
+    // 1 delta de 48 h, el promedio sería ~88 min (rompería la
+    // clasificación), pero la mediana sigue siendo 60.
+    const filas: Fila[] = [HEADERS];
+    // Bloque 1: 50 registros consecutivos enero 1-2 (días 1-2, 24h + 2h).
+    for (let h = 1; h <= 24; h += 1) filas.push(["2025-01-01", h, 0.1]);
+    for (let h = 1; h <= 24; h += 1) filas.push(["2025-01-02", h, 0.1]);
+    for (let h = 1; h <= 2; h += 1) filas.push(["2025-01-03", h, 0.1]);
+    // Hueco grande: saltamos del 03 02:00 al 05 03:00 (≈ 49 horas).
+    for (let h = 3; h <= 24; h += 1) filas.push(["2025-01-05", h, 0.1]);
+    for (let h = 1; h <= 24; h += 1) filas.push(["2025-01-06", h, 0.1]);
+
+    const { datos, warnings } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.meta.granularidad_detectada).toBe("horaria");
+    expect(datos.meta.minutos_mediana_delta).toBeCloseTo(60, 6);
+    expect(
+      warnings.find((w) =>
+        w.codigo.startsWith("GRANULARIDAD_")
+      )
+    ).toBeUndefined();
+  });
+
+  it("detecta granularidad sub-horaria de 15 min sobre registros sintéticos", () => {
+    // El formato Excel del loader fuerza Hora 1-24 (horario), así que
+    // sub-horario no puede provenir de un .xlsx aceptado. Se valida
+    // directamente sobre la función pura `detectarGranularidad`.
+    const registros = registrosSinteticos(
+      new Date(2025, 2, 15, 0, 0, 0, 0),
+      96,
+      15 * 60_000
+    );
+    const r = detectarGranularidad(registros);
+    expect(r.granularidad).toBe("sub_horaria");
+    expect(r.minutos_mediana_delta).toBeCloseTo(15, 6);
+  });
+
+  it("detecta granularidad sub-horaria de 5 min sobre registros sintéticos", () => {
+    const registros = registrosSinteticos(
+      new Date(2025, 2, 15, 0, 0, 0, 0),
+      288,
+      5 * 60_000
+    );
+    const r = detectarGranularidad(registros);
+    expect(r.granularidad).toBe("sub_horaria");
+    expect(r.minutos_mediana_delta).toBeCloseTo(5, 6);
+  });
+
+  it("detecta granularidad supra-horaria diaria sobre registros sintéticos", () => {
+    const registros = registrosSinteticos(
+      new Date(2025, 2, 1, 0, 0, 0, 0),
+      30,
+      24 * 60 * 60_000
+    );
+    const r = detectarGranularidad(registros);
+    expect(r.granularidad).toBe("supra_horaria");
+    expect(r.minutos_mediana_delta).toBeCloseTo(1440, 6);
+  });
+
+  it("archivo con 1 registro → granularidad 'desconocida', cobertura 'desconocida', warning GRANULARIDAD_DESCONOCIDA", async () => {
+    const filas: Fila[] = [HEADERS, ["2025-03-15", 12, 0.42]];
+    const { datos, warnings } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.registros).toHaveLength(1);
+    expect(datos.meta.granularidad_detectada).toBe("desconocida");
+    expect(datos.meta.minutos_mediana_delta).toBeNull();
+    expect(datos.meta.cobertura).toBe("desconocida");
+    expect(
+      warnings.find((w) => w.codigo === "GRANULARIDAD_DESCONOCIDA")
+    ).toBeTruthy();
+  });
+
+  it("cobertura 'anual' con 8,760 registros horarios (año no bisiesto)", async () => {
+    const filas: Fila[] = [HEADERS, ...generarRegistrosAnio(2025, 0.1)];
+    const { datos } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.meta.total_horas).toBe(8760);
+    expect(datos.meta.granularidad_detectada).toBe("horaria");
+    expect(datos.meta.cobertura).toBe("anual");
+  });
+
+  it("cobertura 'anual' con 8,784 registros horarios (año bisiesto 2024)", async () => {
+    const filas: Fila[] = [HEADERS, ...generarRegistrosAnio(2024, 0.1)];
+    const { datos } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.meta.total_horas).toBe(8784);
+    expect(datos.meta.granularidad_detectada).toBe("horaria");
+    expect(datos.meta.cobertura).toBe("anual");
+  });
+
+  it("cobertura 'parcial' cuando granularidad es horaria pero el conteo no es 8,760 ni 8,784", async () => {
+    const filas: Fila[] = [HEADERS];
+    for (let d = 1; d <= 5; d += 1) {
+      for (let h = 1; h <= 24; h += 1) {
+        filas.push([`2025-01-${String(d).padStart(2, "0")}`, h, 0.1]);
+      }
+    }
+    const { datos } = await cargarArchivoSFV(
+      construirArchivo(filas),
+      CONFIG_BASE
+    );
+    expect(datos.meta.total_horas).toBe(120);
+    expect(datos.meta.granularidad_detectada).toBe("horaria");
+    expect(datos.meta.cobertura).toBe("parcial");
+  });
 });
+
+// Helper para construir RegistroHorario[] con timestamps separados por
+// un delta arbitrario. Usado por los tests de sub/supra que no pueden
+// pasar por el loader de Excel (fuerza Hora 1-24).
+function registrosSinteticos(
+  inicio: Date,
+  n: number,
+  deltaMs: number
+): RegistroHorario[] {
+  const out: RegistroHorario[] = [];
+  for (let i = 0; i < n; i += 1) {
+    const ts = new Date(inicio.getTime() + i * deltaMs);
+    out.push({ timestamp: ts, energia_mwh: 0.05, potencia_kw_prom: 50 });
+  }
+  return out;
+}
