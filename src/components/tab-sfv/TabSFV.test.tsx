@@ -24,6 +24,11 @@ const META_COMUN = {
   anio: 2025,
   total_energia_mwh: 0,
   horas_con_generacion: 0,
+  periodo_inicio: new Date(2025, 2, 1, 0, 0, 0, 0),
+  periodo_fin: new Date(2025, 4, 31, 23, 0, 0, 0),
+  granularidad_detectada: "horaria" as const,
+  minutos_mediana_delta: 60,
+  cobertura: "parcial" as const,
 };
 
 /** Fixture sin excedentes: pico 200 kW × 60 días, muy por debajo de POI 500 kW. */
