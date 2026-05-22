@@ -14,7 +14,14 @@ import type { RegistroHorario } from "@/types/sfv";
 import { BandaContextoArchivo } from "./BandaContextoArchivo";
 import { TablaConfiguraciones } from "./TablaConfiguraciones";
 
-/** RTE conservador C&I, independiente del equipo principal de la vista. */
+/**
+ * RTE genérico C&I para el barrido de configuraciones.
+ * El barrido usa un RTE genérico C&I para comparar tamaños abstractos;
+ * no representa un equipo específico del catálogo. La sección principal
+ * del tab usa el RTE del equipo (0.91 para Cube Plus); esa diferencia
+ * es intencional — aquí se compara el ESPACIO de configuraciones, no
+ * un hardware concreto.
+ */
 const RTE_CI_DEFAULT = 0.85;
 
 interface Props {
