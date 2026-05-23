@@ -257,3 +257,149 @@ describe("validador — coherencia general", () => {
     }
   });
 });
+
+describe("validador — gate de rechazo (tests negativos)", () => {
+  // Un validador vale por lo que rechaza. Cada test clona el fixture válido,
+  // introduce UN defecto, y asevera resultado.ok === false con el path correcto.
+
+  function clonarFixtureValido(): Record<string, unknown> {
+    return JSON.parse(
+      JSON.stringify(leerJsonPublic("data/tequila-1.json"))
+    ) as Record<string, unknown>;
+  }
+
+  function clonarManifestValido(): Record<string, unknown> {
+    return JSON.parse(
+      JSON.stringify(leerJsonPublic("data/manifest.json"))
+    ) as Record<string, unknown>;
+  }
+
+  it("(#1) rechaza archivo de planta SIN schema_version en la raíz", () => {
+    const corrupto = clonarFixtureValido();
+    delete corrupto["schema_version"];
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) => e.path === "$.schema_version" && /requerido/.test(e.message)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("(#2) rechaza llave con sufijo de unidad equivocado (kpi *_kwh donde el contrato espera *_mwh)", () => {
+    // El contrato exige `energia_generada_anual_mwh`. Si se sustituye por
+    // `energia_generada_anual_kwh`, el validador debe rechazar porque la
+    // llave correcta queda ausente. (El validador no detecta "campos extra
+    // inesperados" en KPIs — solo detecta los requeridos faltantes. El test
+    // demuestra que ese mecanismo es suficiente para atrapar sufijos
+    // equivocados en este caso.)
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    const kpis = modo["kpis"] as Record<string, unknown>;
+    kpis["energia_generada_anual_kwh"] = kpis["energia_generada_anual_mwh"];
+    delete kpis["energia_generada_anual_mwh"];
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some((e) =>
+          e.path.endsWith("kpis.energia_generada_anual_mwh")
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("(#3) rechaza enum de naturaleza con valor fuera del dominio cerrado", () => {
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    modo["naturaleza"] = "fisico_inventado";
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      // El validador chequea el literal exacto del modo, así que cualquier
+      // string distinto a "fisico_medido_anual" en esa posición es rechazado
+      // — incluyendo valores fuera del enum BadgeNaturaleza.
+      expect(
+        res.errores.some((e) => e.path.endsWith("fisico_medido_anual.naturaleza"))
+      ).toBe(true);
+    }
+  });
+
+  it("(#4) rechaza advertencia SIN campo `codigo` (faltante, no inválido)", () => {
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    modo["advertencias"] = [{ mensaje: "advertencia sin código" }];
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) =>
+            e.path.endsWith("advertencias[0].codigo") &&
+            /requerido/.test(e.message)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("(#5a) rechaza perfil 24h con longitud 23", () => {
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    const perfil = modo["perfil_horario_promedio_diario"] as Record<string, unknown>;
+    perfil["gen_kw"] = Array.from({ length: 23 }, () => 0);
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) => e.path.endsWith("gen_kw") && /23/.test(e.message)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("(#5b) rechaza perfil 24h con longitud 25", () => {
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    const perfil = modo["perfil_horario_promedio_diario"] as Record<string, unknown>;
+    perfil["gen_kw"] = Array.from({ length: 25 }, () => 0);
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) => e.path.endsWith("gen_kw") && /25/.test(e.message)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("(#6) rechaza manifest con planta SIN campo `modos_disponibles`", () => {
+    const corrupto = clonarManifestValido();
+    const plantas = corrupto["plantas"] as Array<Record<string, unknown>>;
+    delete plantas[0]!["modos_disponibles"];
+    const res = validarManifest(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) =>
+            e.path === "$.plantas[0].modos_disponibles" &&
+            /requerido/.test(e.message)
+        )
+      ).toBe(true);
+    }
+  });
+});
