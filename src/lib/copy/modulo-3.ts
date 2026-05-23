@@ -186,7 +186,7 @@ export const COPY_M3 = {
     eyebrow: "Costo de capacidad",
     titulo: "Costo unitario por kWh nominal",
     subtitulo:
-      "USD por kWh de capacidad nominal declarada · equipos aplicables a Tequila.",
+      "USD por kWh de capacidad nominal declarada · equipos aplicables al portafolio actual.",
     headline: "El Cube Max cuesta 17% menos por kWh que el Cube Plus.",
     chipBase: "Base: capacidad nominal",
     chipSensibilidad: "Sensibilidad DoD 95% en tooltip y metodología",

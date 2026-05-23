@@ -5,7 +5,7 @@ import type { EquipoBess } from "@/data/catalogo-hyperstrong";
 /**
  * Parámetros del Tab Análisis Financiero. Stateless: viven solo en
  * memoria React. Sin persistencia. Cualquier remount restablece los
- * defaults validados marzo 2026 Estanzuela 2.
+ * defaults (proxy externo, pendientes de validación con MHG).
  */
 export type ParametrosFinancieros = {
   equipo_id: EquipoBess["id"];

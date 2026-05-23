@@ -124,8 +124,8 @@ export function TabFinanciero({ datos }: Props) {
     );
 
     // Captura de excedentes: energía que excede POI capturable por el BESS.
-    // Para factor_produccion = 1 con Tequila (pico 446.7 < POI 500) es ~0.
-    // Con factor > 1 emerge captura real.
+    // Para una planta cuyo pico está por debajo del POI con factor_produccion = 1
+    // es ~0. Con factor > 1 emerge captura real.
     const captura_excedentes_mwh = calcularCapturaExcedentesAnio(
       registrosAjustados,
       POI_kw,
@@ -362,7 +362,7 @@ export function TabFinanciero({ datos }: Props) {
 
       <MetodologiaFinanciero />
 
-      <FooterEstandar fuente="Fuente: dispatch BESS sobre dataset Tequila 2025 · precios proxy Estanzuela 2 marzo 2026 · catálogo Hyperstrong" />
+      <FooterEstandar fuente="Fuente: dispatch BESS sobre los datos cargados · precios proxy actuales · catálogo Hyperstrong" />
     </div>
   );
 }

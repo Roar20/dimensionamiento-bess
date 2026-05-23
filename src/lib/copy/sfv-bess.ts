@@ -30,7 +30,7 @@ export const COPY_SFV_BESS = {
       const pb =
         args.payback_anios === null
           ? "el payback no es calculable bajo los precios proxy actuales"
-          : `el payback preliminar con precios proxy Estanzuela 2 es de ${formato1Dec(args.payback_anios)} años para ${args.equipo_nombre}`;
+          : `el payback preliminar con los precios proxy actuales es de ${formato1Dec(args.payback_anios)} años para ${args.equipo_nombre}`;
       return (
         `La configuración Cube Plus captura ${cap} MWh anuales bajo estrategia ${args.estrategia}, ` +
         `equivalentes a ${ciclos} ciclos efectivos. ${capitalizar(pb)}.`
@@ -101,7 +101,7 @@ export const COPY_SFV_BESS = {
     precios: {
       titulo: "Precios proxy editables",
       banner:
-        "Precios default tomados de Estanzuela 2. Confirmar con offtaker antes del cierre.",
+        "Precios default tomados de un proxy externo. Confirmar con offtaker antes del cierre.",
       energia: "Precio energía PPA",
       energiaUnidad: "MXN/MWh",
       potenciaFirme: "Precio potencia firme",
