@@ -70,13 +70,23 @@ export type Estrategia = "greedy" | "arbitraje";
 // ─── Perfiles agregados (payload base, sin 8760) ──────────────────────────────
 
 /**
- * Perfil promedio del día tipo. 24 puntos (hora-ending 1..24 o 0..23 según
- * convención de la planta; el array es índice-puro, la convención la fija
- * la app consumidora).
+ * Perfil promedio del día tipo. 24 puntos.
+ *
+ * Convención de horas **hora-ending 1..24** (D-CONTRATO-HORAS):
+ *  - `horas` DEBE ser exactamente `[1, 2, 3, ..., 24]`.
+ *  - La hora `h` representa el intervalo que TERMINA en `h` (e.g. hora 13
+ *    = intervalo 12:00–13:00, mediodía).
+ *  - `gen_kw[i]` es el promedio del intervalo etiquetado `horas[i]`. El
+ *    primer elemento del array es siempre el primer intervalo del día
+ *    (00:00–01:00 = hora-ending 1); el último es 23:00–00:00 = hora-ending 24.
+ *
+ * Misma convención que el motor SFV del repo (`caracterizarRecurso`,
+ * `calcularPerfilHorario`) y el Colab fuente. NO se introduce traducción
+ * entre contrato y motor.
  */
 export type PerfilHorarioPromedioDiario = {
-  horas: readonly number[];   // longitud 24
-  gen_kw: readonly number[];  // longitud 24
+  horas: readonly number[];   // exactamente [1..24]
+  gen_kw: readonly number[];  // longitud 24, cronológico (00:00–01:00 primero)
   badge_trazabilidad: BadgeTrazabilidad;
 };
 
