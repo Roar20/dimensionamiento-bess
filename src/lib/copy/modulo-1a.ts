@@ -9,7 +9,7 @@ export const COPY_M1A = {
       campos: {
         nombre: {
           label: "Nombre de la planta",
-          placeholder: "Ej. Tequila 1",
+          placeholder: "Ej. nombre de la planta",
         },
         cliente: {
           label: "Cliente",
@@ -17,7 +17,7 @@ export const COPY_M1A = {
         },
         ubicacion: {
           label: "Ubicación",
-          placeholder: "Ej. Tequila, Jalisco, México",
+          placeholder: "Ej. ciudad, estado, país",
         },
       },
     },
@@ -39,7 +39,7 @@ export const COPY_M1A = {
         },
         precioPpa: {
           label: "Precio PPA (MXN/MWh)",
-          placeholder: "Ej. 1010.80",
+          placeholder: "MXN/MWh",
         },
       },
     },

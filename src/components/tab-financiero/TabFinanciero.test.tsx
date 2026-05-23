@@ -75,7 +75,7 @@ describe("TabFinanciero · render integration", () => {
     ).toBeInTheDocument();
   });
 
-  it("comunica el modelo proxy de potencia firme + Estanzuela 2 como referencia de precios", () => {
+  it("comunica el modelo proxy de potencia firme + proxy externo como referencia de precios", () => {
     rend();
     // El badge "incluye potencia firme proxy" del Hero está siempre
     // visible y es el indicador canónico del proxy tras el cambio F
@@ -84,9 +84,10 @@ describe("TabFinanciero · render integration", () => {
     expect(
       screen.getAllByText(/incluye potencia firme proxy/i).length
     ).toBeGreaterThanOrEqual(1);
-    // El disclaimer ámbar superior mantiene la mención a Estanzuela 2.
+    // El disclaimer ámbar superior comunica que los precios PPA son un
+    // proxy externo pendiente de validar con MHG para la planta cargada.
     expect(
-      screen.getAllByText(/Estanzuela 2/i).length
+      screen.getAllByText(/proxy externo/i).length
     ).toBeGreaterThanOrEqual(1);
   });
 

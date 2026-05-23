@@ -4,11 +4,11 @@ export function DisclaimerTransversal() {
       <strong className="font-medium">
         Modelo preliminar para discusión metodológica.
       </strong>{" "}
-      Precios PPA validados con liquidación CFE marzo 2026 Estanzuela 2
-      (proxy para Tequila pendiente confirmar con MHG). CAPEX, OPEX y WACC
-      son estimaciones pendientes de validación con MHG, Hyperstrong y CFO
-      MHG respectivamente. No representa valuación financiera bancable ni
-      cálculo regulatorio oficial.
+      Precios PPA basados en una liquidación CFE de referencia
+      (proxy externo pendiente de confirmar con MHG para la planta cargada).
+      CAPEX, OPEX y WACC son estimaciones pendientes de validación con MHG,
+      Hyperstrong y CFO MHG respectivamente. No representa valuación
+      financiera bancable ni cálculo regulatorio oficial.
     </div>
   );
 }

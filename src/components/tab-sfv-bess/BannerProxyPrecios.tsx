@@ -7,7 +7,7 @@ interface Props {
 
 /**
  * Banda discreta arriba del panel de precios. Cuando los precios están en
- * defaults (Estanzuela 2), muestra el aviso y un reset deshabilitado.
+ * defaults (proxy externo), muestra el aviso y un reset deshabilitado.
  * Cuando el usuario los editó, habilita el reset para volver a defaults.
  */
 export function BannerProxyPrecios({ esProxy, onReset }: Props) {

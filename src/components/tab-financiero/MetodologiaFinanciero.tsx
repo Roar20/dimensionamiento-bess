@@ -19,7 +19,7 @@ export function MetodologiaFinanciero() {
           Datos reales del simulador:
         </strong>{" "}
         el perfil horario 8,760 registros viene del dataset cargado por el
-        usuario en el onboarding (Tequila 2025 valida la implementación).
+        usuario en el onboarding.
         El motor de dispatch BESS (despacho greedy/arbitraje) es el mismo
         que el Tab SFV+BESS y produce los KPIs energéticos del año 1.
       </p>
@@ -54,7 +54,7 @@ export function MetodologiaFinanciero() {
           captura de excedentes
         </strong>{" "}
         = <code>Σ_h min(max(0, gen_kw − POI), p_kw_BESS) × RTE / 1000</code>{" "}
-        valorada al PPA. Para factor 1.0 con Tequila es 0; emerge con factor &gt; 1.
+        valorada al PPA. Para una planta cuyo pico está por debajo del POI con factor 1.0 es 0; emerge con factor &gt; 1.
         <br />
         (b){" "}
         <strong className="font-medium text-[var(--color-text-primary)]">
@@ -142,8 +142,8 @@ export function MetodologiaFinanciero() {
         <strong className="font-medium text-[var(--color-text-primary)]">
           Pendientes de validación:
         </strong>{" "}
-        confirmar con MHG los precios PPA para Tequila (actualmente proxy
-        Estanzuela 2 marzo 2026), cerrar la fórmula PAA con Lalo y subir
+        confirmar con MHG los precios PPA de la planta (actualmente proxy
+        externo), cerrar la fórmula PAA con Lalo y subir
         el factor de credibilidad si el reconocimiento real lo permite,
         confirmar CAPEX/OPEX con Hyperstrong y CFO MHG.
       </p>

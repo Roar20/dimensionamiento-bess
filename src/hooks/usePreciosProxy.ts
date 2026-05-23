@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
 
 /**
- * Precios proxy de mercado capturados en Tab SFV+BESS. Default = Estanzuela 2
- * (proxy mientras se confirma con Soluciones MHG el precio para Tequila).
+ * Precios proxy de mercado capturados en Tab SFV+BESS. Default = proxy
+ * externo (pendiente de confirmar con Soluciones MHG el precio para la
+ * planta cargada).
  *
  * Stateless: viven solo en memoria React. Sin persistencia.
  *
@@ -34,7 +35,7 @@ type Result = {
    * si la validación falló y el valor previo se mantiene.
    */
   setPrecio: (key: PrecioKey, next: number) => boolean;
-  /** Resetea a los defaults (Estanzuela 2). */
+  /** Resetea a los defaults (proxy externo). */
   reset: () => void;
   esProxy: boolean;
 };

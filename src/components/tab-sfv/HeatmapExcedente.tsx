@@ -54,8 +54,8 @@ function colorScale(kwh: number): string {
  * Heatmap de excedente sobre POI por (mes, hora). Cuando
  * `excedenteAnualKwh === 0`, el componente devuelve `null` por
  * completo: ni section label ni wrapper — el `<HallazgoEjecutivo>` que
- * vive abajo en `TabSFV.tsx` cumple la función para el caso Tequila
- * (D-PROYECTO-01 vigente). Ver decisión A del prompt B.
+ * vive abajo en `TabSFV.tsx` cumple la función para el caso de planta
+ * sin excedentes (D-PROYECTO-01 vigente). Ver decisión A del prompt B.
  */
 export function HeatmapExcedente({
   registros,

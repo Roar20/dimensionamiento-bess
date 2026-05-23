@@ -24,8 +24,8 @@ export const TOOLTIPS_SFV_BESS = {
     "pérdidas reales en la operación, no solo la cifra del datasheet.",
 
   precio_energia:
-    "MXN por MWh descargado al lado AC. Proxy Estanzuela 2 mientras se " +
-    "confirma el precio del PPA de Tequila con el offtaker.",
+    "MXN por MWh descargado al lado AC. Proxy externo mientras se " +
+    "confirma el precio del PPA con el offtaker de la planta cargada.",
 
   precio_potencia_firme:
     "MXN por MW de potencia firme acreditable por mes. Capturado para " +

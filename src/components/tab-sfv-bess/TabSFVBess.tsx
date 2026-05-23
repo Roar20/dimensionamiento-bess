@@ -82,7 +82,7 @@ export function TabSFVBess({ datos }: Props) {
 
   // Equipo "principal" para BandaKPIs, charts y lectura ejecutiva: Cube
   // Plus (escala C&I conservadora, alineada con los precios proxy
-  // Estanzuela 2). El usuario compara los 3 abajo en SeccionComparativaEquipos.
+  // actuales). El usuario compara los 3 abajo en SeccionComparativaEquipos.
   const equipoPrincipal = useMemo(
     () => CATALOGO_VIEJO.find((e) => e.id === "hypercube-plus"),
     []
