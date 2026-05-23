@@ -386,6 +386,46 @@ describe("validador — gate de rechazo (tests negativos)", () => {
     }
   });
 
+  it("(#7a) rechaza perfil 24h con horas en convención inicio-de-intervalo [0..23]", () => {
+    // D-CONTRATO-HORAS: el contrato adopta hora-ending 1..24. Cualquier otra
+    // convención (incluido inicio-de-intervalo) debe ser rechazada.
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    const perfil = modo["perfil_horario_promedio_diario"] as Record<string, unknown>;
+    perfil["horas"] = Array.from({ length: 24 }, (_, i) => i); // [0..23]
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) =>
+            e.path.endsWith("perfil_horario_promedio_diario.horas") &&
+            /hora-ending/.test(e.message)
+        )
+      ).toBe(true);
+    }
+  });
+
+  it("(#7b) rechaza perfil 24h con horas desordenadas [24..1]", () => {
+    const corrupto = clonarFixtureValido();
+    const modo = (corrupto["modos"] as Record<string, unknown>)[
+      "fisico_medido_anual"
+    ] as Record<string, unknown>;
+    const perfil = modo["perfil_horario_promedio_diario"] as Record<string, unknown>;
+    perfil["horas"] = Array.from({ length: 24 }, (_, i) => 24 - i); // [24..1]
+    const res = validarArchivoPlanta(corrupto);
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(
+        res.errores.some(
+          (e) => e.path.endsWith("perfil_horario_promedio_diario.horas")
+        )
+      ).toBe(true);
+    }
+  });
+
   it("(#6) rechaza manifest con planta SIN campo `modos_disponibles`", () => {
     const corrupto = clonarManifestValido();
     const plantas = corrupto["plantas"] as Array<Record<string, unknown>>;

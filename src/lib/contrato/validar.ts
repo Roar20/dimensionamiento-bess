@@ -190,7 +190,7 @@ function validarPerfilHorarioPromedioDiario(v: unknown, path: string): ErrorVali
   const errores = exigirObjeto(v, path);
   if (errores.length > 0) return errores;
   const o = v as Record<string, unknown>;
-  return [
+  const out: ErrorValidacion[] = [
     ...exigirCampo(o, "horas", path),
     ...(o["horas"] !== undefined ? exigirArrayDeNumeros(o["horas"], 24, `${path}.horas`) : []),
     ...exigirCampo(o, "gen_kw", path),
@@ -200,6 +200,20 @@ function validarPerfilHorarioPromedioDiario(v: unknown, path: string): ErrorVali
       ? exigirMiembroDe(o["badge_trazabilidad"], BADGES_TRAZABILIDAD, `${path}.badge_trazabilidad`)
       : []),
   ];
+  // Convención hora-ending 1..24 (D-CONTRATO-HORAS): exigir exactamente [1..24].
+  if (esArrayDe(o["horas"]) && o["horas"].length === 24) {
+    const horas = o["horas"] as number[];
+    for (let i = 0; i < 24; i += 1) {
+      if (horas[i] !== i + 1) {
+        out.push({
+          path: `${path}.horas`,
+          message: `convención hora-ending 1..24: se esperaba [1..24]; índice ${i} es ${horas[i]} (esperado ${i + 1})`,
+        });
+        break;
+      }
+    }
+  }
+  return out;
 }
 
 function validarCapturaMensualMwh(v: unknown, path: string): ErrorValidacion[] {
