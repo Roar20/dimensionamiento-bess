@@ -357,10 +357,18 @@ Constantes añadidas en `src/lib/copy/tab-financiero.ts`:
 | Bullet SFV+BESS (activo) | "Potencia firme estimada (proxy preliminar)" | "Potencia firme estimada" |
 | Nota al pie | "...(captura + **arbitraje** + potencia firme − OPEX)..." | "...(captura + **optimización operativa** + potencia firme − OPEX)..." |
 
-### `waterfall.labelAporteOptimizacion` (bloque nuevo)
+### `waterfall.*` (bloque nuevo, 2 labels + eliminación de leyenda ⚑)
 
-- **Antes:** "+ Arbitraje"
-- **Después:** "+ Optimización operativa"
+- **`labelAporteOptimizacion`** — Antes: `"+ Arbitraje"` → Después: `"+ Optimización operativa"`.
+- **`labelAportePotenciaFirme`** — Antes: `"+ Pfirme proxy⚑"` → Después: `"+ Potencia firme estimada"`.
+
+Además, se **elimina la leyenda asociada** al footnote marker `⚑` que vivía bajo las leyendas de color:
+
+```
+⚑ proxy conservador preliminar    ← eliminado
+```
+
+Razón: el `⚑` (U+2691 BLACK PENNANT) funcionaba como advertencia visual fuerte sobre la barra de potencia firme. En vista ejecutiva duplica una advertencia que ya vive en (a) el badge del KPI hero "incluye potencia firme estimada", (b) su tooltip canónico `COPY_PROXY_PFIRME`, y (c) el tooltip del `CampoSliderCredibilidad`. La trazabilidad metodológica se preserva en esas tres capas; el waterfall adopta el lenguaje ejecutivo consistente con el resto del Tab.
 
 ### `evolucion.*` (bloque nuevo, 8 strings visibles)
 

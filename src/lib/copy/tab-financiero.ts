@@ -81,6 +81,16 @@ export const COPY_TAB_FINANCIERO = {
   /** Sección "Waterfall". */
   waterfall: {
     labelAporteOptimizacion: "+ Optimización operativa",
+    /**
+     * Label de la barra de potencia firme. La advertencia visual `⚑`
+     * (footnote marker) y su leyenda asociada "proxy conservador
+     * preliminar" se eliminaron en 1b: el flag duplicaba una advertencia
+     * que ya vive en el badge del KPI hero, su tooltip canónico
+     * (COPY_PROXY_PFIRME) y el tooltip del factor de credibilidad. La
+     * trazabilidad metodológica se preserva en esas capas; el waterfall
+     * adopta el lenguaje ejecutivo consistente con el resto del Tab.
+     */
+    labelAportePotenciaFirme: "+ Potencia firme estimada",
   },
 
   /** Sección "Evolución económica" (Aporte incremental BESS · 20 años con SOH). */

@@ -50,7 +50,7 @@ export function SeccionWaterfall({
     }[] = [
       { label: "+ Captura BESS", delta: ingreso_captura_excedentes_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
       { label: COPY_TAB_FINANCIERO.waterfall.labelAporteOptimizacion, delta: ingreso_arbitraje_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
-      { label: "+ Pfirme proxy⚑", delta: ingreso_potencia_firme_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
+      { label: COPY_TAB_FINANCIERO.waterfall.labelAportePotenciaFirme, delta: ingreso_potencia_firme_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
       { label: "− OPEX BESS", delta: -opex_mxn, color: COLOR_NEGATIVO, tipo: "egreso" },
     ];
     const total_incremental_bess =
@@ -216,9 +216,6 @@ export function SeccionWaterfall({
           <Leyenda color={COLOR_BESS_POSITIVO} texto="Aporte BESS" />
           <Leyenda color={COLOR_NEGATIVO} texto="OPEX BESS" />
           <Leyenda color={COLOR_TOTAL_BESS} texto="Aporte BESS neto" />
-          <span className="text-[11px] text-[#7F1D1D]">
-            ⚑ proxy conservador preliminar
-          </span>
         </div>
         <div className="relative h-[320px] w-full">
           <Bar data={data} options={options} plugins={[labelsBarrasPlugin]} />
