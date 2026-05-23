@@ -29,21 +29,32 @@ describe("EquipoCard", () => {
     expect(screen.getByText(/261\.2 kWh/)).toBeInTheDocument();
   });
 
-  it("muestra badge 'Aplicable a Tequila' en Cube Plus y Cube Max, no en Block III", () => {
+  // GATE DE REGRESIÓN: aplicabilidad derivada de !esFueraDeEscala(equipo).
+  // Si la polaridad quedara invertida (es decir, `aplicable = esFueraDeEscala(equipo)`
+  // sin el `!`), los tipos pasan y el build queda verde, pero la UI se voltea:
+  // Block III se mostraría como aplicable y los Cube como fuera de escala.
+  // Este test atrapa exactamente esa regresión.
+  it("badge 'Aplicable al portafolio actual' en Cube Plus y Cube Max, no en Block III", () => {
     const { rerender } = render(
       <EquipoCard equipo={cubePlus} tipoCambio={20} onAbrirFicha={() => {}} />
     );
-    expect(screen.getByText(/aplicable a tequila/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/aplicable al portafolio actual/i)
+    ).toBeInTheDocument();
 
     rerender(
       <EquipoCard equipo={cubeMax} tipoCambio={20} onAbrirFicha={() => {}} />
     );
-    expect(screen.getByText(/aplicable a tequila/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/aplicable al portafolio actual/i)
+    ).toBeInTheDocument();
 
     rerender(
       <EquipoCard equipo={blockIii} tipoCambio={20} onAbrirFicha={() => {}} />
     );
-    expect(screen.queryByText(/aplicable a tequila/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/aplicable al portafolio actual/i)
+    ).not.toBeInTheDocument();
   });
 
   it("botón 'Ficha técnica' dispara onAbrirFicha; botón 'PDF' apunta al datasheet", async () => {

@@ -11,11 +11,14 @@ describe("CATALOGO_HYPERSTRONG", () => {
     ]);
   });
 
-  it("marca Cube Plus y Cube Max como aplicables a Tequila; Block III no", () => {
+  it("Cube Plus y Cube Max declaran lado AC (potenciaKvaAc no-null); Block III no (DC-only)", () => {
+    // Invariante de datos del catálogo que soporta la regla derivada
+    // `esFueraDeEscala()`. Si esto cambia (p. ej. Block III gana lado AC),
+    // el test atrapa el cambio de semántica antes de que la UI lo refleje.
     const byId = new Map(CATALOGO_HYPERSTRONG.map((e) => [e.id, e]));
-    expect(byId.get("cube-plus")!.aplicableTequila).toBe(true);
-    expect(byId.get("cube-max")!.aplicableTequila).toBe(true);
-    expect(byId.get("block-iii")!.aplicableTequila).toBe(false);
+    expect(byId.get("cube-plus")!.potenciaKvaAc).not.toBeNull();
+    expect(byId.get("cube-max")!.potenciaKvaAc).not.toBeNull();
+    expect(byId.get("block-iii")!.potenciaKvaAc).toBeNull();
   });
 
   it("precioUsdKwh ≈ round(precioUsdUnidad / energiaKwh) para los 3 equipos", () => {

@@ -4,6 +4,7 @@ import { DOD_PCT, RTE_PCT } from "@/data/parametros-operacion";
 import type { EquipoBess } from "@/data/catalogo-hyperstrong";
 import { formatearVidaUtil } from "@/data/formatear-equipo";
 import { TOOLTIPS_BESS } from "@/data/tooltips-bess";
+import { esFueraDeEscala } from "@/lib/tab-sfv-bess/comparativa-equipos";
 
 const FORMATO_ENTERO = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 0,
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export function EquipoCard({ equipo, tipoCambio, onAbrirFicha }: Props) {
-  const aplicable = equipo.aplicableTequila;
+  const aplicable = !esFueraDeEscala(equipo);
   const potencia =
     equipo.potenciaKvaAc !== null
       ? `${FORMATO_ENTERO.format(equipo.potenciaKvaAc)} kVA`
@@ -60,7 +61,7 @@ export function EquipoCard({ equipo, tipoCambio, onAbrirFicha }: Props) {
         </div>
         {aplicable ? (
           <span className="shrink-0 rounded-full border-[0.5px] border-[var(--color-primary)] bg-[var(--color-primary-light)] px-2 py-0.5 text-[11px] font-medium text-[var(--color-primary-dark)]">
-            Aplicable a Tequila
+            Aplicable al portafolio actual
           </span>
         ) : null}
       </header>

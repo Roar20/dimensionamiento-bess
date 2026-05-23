@@ -28,7 +28,6 @@ export type EquipoBess = {
   densidadGananciaPct: number | null;
   certificaciones: string[];
   datasheetUrl: string;
-  aplicableTequila: boolean;
   curvaSoh: readonly number[];
 };
 
@@ -58,7 +57,6 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     densidadGananciaPct: null,
     certificaciones: ["IEC 62619", "IEC 63056", "UL9540A", "UN38.3"],
     datasheetUrl: "/datasheets/hypercube-plus.pdf",
-    aplicableTequila: true,
     curvaSoh: CURVAS_SOH.hyperstrong_lfp_standard,
   },
   {
@@ -86,7 +84,6 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
     densidadGananciaPct: null,
     certificaciones: ["IEC 62619", "IEC 63056", "UL9540A", "UN38.3"],
     datasheetUrl: "/datasheets/hypercube-max.pdf",
-    aplicableTequila: true,
     curvaSoh: CURVAS_SOH.hyperstrong_lfp_standard,
   },
   {
@@ -122,7 +119,6 @@ export const CATALOGO_HYPERSTRONG: EquipoBess[] = [
       "UN38.3",
     ],
     datasheetUrl: "/datasheets/hyperblock-iii.pdf",
-    aplicableTequila: false,
     curvaSoh: CURVAS_SOH.hyperstrong_lfp_standard,
   },
 ];
