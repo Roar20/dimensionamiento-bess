@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0.0",
+  "planta": {
+    "planta_id": "tequila-1",
+    "nombre_humano": "Tequila 1",
+    "capacidad_poi_kw": 500,
+    "capacidad_instalada_kw": 500,
+    "zona_lmp": "MINAS",
+    "anio_base": 2025
+  },
+  "modos": {
+    "fisico_medido_anual": {
+      "naturaleza": "fisico_medido_anual",
+      "fuente": "ejemplo-del-shape — valores reales se migran en PR-Arq-2a",
+      "periodo_inicio": "2025-01-01T00:00:00",
+      "periodo_fin": "2025-12-31T23:00:00",
+      "kpis": {
+        "energia_generada_anual_mwh": {
+          "valor": 913.32,
+          "unidad": "MWh",
+          "badge_trazabilidad": "validado_cliente",
+          "fuente": "reporte horario operador 2025"
+        },
+        "factor_capacidad_pct": {
+          "valor": 20.85,
+          "unidad": "%",
+          "badge_trazabilidad": "validado_cliente"
+        },
+        "horas_con_generacion": {
+          "valor": 4380,
+          "unidad": "h",
+          "badge_trazabilidad": "default_interno"
+        },
+        "pico_horario_kw": {
+          "valor": 446.7,
+          "unidad": "kW",
+          "badge_trazabilidad": "validado_cliente"
+        }
+      },
+      "perfil_horario_promedio_diario": {
+        "horas": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23],
+        "gen_kw": [0, 0, 0, 0, 0, 0, 0, 0, 50, 180, 310, 400, 446.7, 440, 410, 340, 240, 140, 50, 10, 0, 0, 0, 0],
+        "badge_trazabilidad": "default_interno"
+      },
+      "captura_mensual_mwh": {
+        "meses": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "valores_mwh": [59.37, 63.93, 77.63, 86.77, 95.90, 91.33, 86.77, 91.33, 82.20, 77.63, 59.37, 41.10],
+        "badge_trazabilidad": "default_interno"
+      },
+      "defaults_economicos": {
+        "precio_energia_mxn_mwh": {
+          "valor": 1010.80,
+          "unidad": "MXN/MWh",
+          "badge_trazabilidad": "proxy_externo"
+        },
+        "precio_cel_mxn": {
+          "valor": 190,
+          "unidad": "MXN/MWh",
+          "badge_trazabilidad": "proxy_externo"
+        },
+        "precio_potencia_firme_mxn_mw_mes": {
+          "valor": 333334,
+          "unidad": "MXN/MW-mes",
+          "badge_trazabilidad": "proxy_externo"
+        },
+        "capex_mxn": {
+          "valor": 1120000,
+          "unidad": "MXN",
+          "badge_trazabilidad": "datasheet_cotizacion",
+          "fuente": "catálogo Hyperstrong Cube Plus × tipo de cambio 20 MXN/USD"
+        },
+        "wacc_pct": {
+          "valor": 10,
+          "unidad": "%",
+          "badge_trazabilidad": "default_interno"
+        },
+        "opex_tasa_anual_pct": {
+          "valor": 2,
+          "unidad": "%",
+          "badge_trazabilidad": "default_interno"
+        },
+        "lmp_mxn_mwh": {
+          "valor": 360,
+          "unidad": "MXN/MWh",
+          "badge_trazabilidad": "proxy_externo"
+        }
+      },
+      "advertencias": []
+    }
+  }
+}

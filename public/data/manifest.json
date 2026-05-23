@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "generado_at": "2026-05-23T00:00:00Z",
+  "plantas": [
+    {
+      "planta_id": "tequila-1",
+      "nombre_humano": "Tequila 1",
+      "modos_disponibles": ["fisico_medido_anual"],
+      "fuente": "ejemplo-del-shape",
+      "ultima_actualizacion": "2026-05-23T00:00:00Z"
+    }
+  ]
+}
