@@ -77,12 +77,14 @@ describe("TabFinanciero · render integration", () => {
 
   it("comunica el modelo proxy de potencia firme + referencia externa de precios", () => {
     rend();
-    // El badge "incluye potencia firme proxy" del Hero está siempre
+    // El badge "incluye potencia firme estimada" del Hero está siempre
     // visible y es el indicador canónico del proxy tras el cambio F
     // (el disclaimer rojo separado se removió; el texto detallado vive
-    // ahora en tooltips contextuales).
+    // ahora en tooltips contextuales). En PR-Entrega-1b "proxy" se suavizó
+    // a "estimada" en vistas ejecutivas; el badge_tooltip canónico
+    // (COPY_PROXY_PFIRME) sigue conservando "proxy" en el hover técnico.
     expect(
-      screen.getAllByText(/incluye potencia firme proxy/i).length
+      screen.getAllByText(/incluye potencia firme estimada/i).length
     ).toBeGreaterThanOrEqual(1);
     // El disclaimer ámbar superior comunica que los precios PPA usan una
     // referencia externa pendiente de confirmación para la planta cargada.

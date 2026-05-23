@@ -223,7 +223,7 @@ export function TabFinanciero({ datos }: Props) {
         valor: formatoCompacto(calculo.ingreso_incremental_bess_anio1),
         sublabel: COPY_TAB_FINANCIERO.hero.aporteBess.sublabel,
         destacar: true,
-        badge: "incluye potencia firme proxy",
+        badge: COPY_TAB_FINANCIERO.hero.aporteBess.badge,
         badge_tooltip: COPY_PROXY_PFIRME,
       },
       {

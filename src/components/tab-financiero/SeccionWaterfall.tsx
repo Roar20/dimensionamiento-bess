@@ -3,6 +3,7 @@ import type { ChartOptions, Plugin } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
 import { formatoCompacto, formatoEje } from "@/lib/tab-financiero/formato-monetario";
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
 
 interface Props {
   ingreso_captura_excedentes_mxn: number;
@@ -48,7 +49,7 @@ export function SeccionWaterfall({
       tipo: TipoLabel;
     }[] = [
       { label: "+ Captura BESS", delta: ingreso_captura_excedentes_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
-      { label: "+ Arbitraje", delta: ingreso_arbitraje_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
+      { label: COPY_TAB_FINANCIERO.waterfall.labelAporteOptimizacion, delta: ingreso_arbitraje_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
       { label: "+ Pfirme proxy⚑", delta: ingreso_potencia_firme_mxn, color: COLOR_BESS_POSITIVO, tipo: "aporte" },
       { label: "− OPEX BESS", delta: -opex_mxn, color: COLOR_NEGATIVO, tipo: "egreso" },
     ];

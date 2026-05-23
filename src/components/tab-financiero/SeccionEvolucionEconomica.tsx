@@ -4,6 +4,9 @@ import { Line } from "react-chartjs-2";
 
 import type { FlujoAnual } from "@/lib/tab-financiero/calculos";
 import { formatoCompacto, formatoEje } from "@/lib/tab-financiero/formato-monetario";
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
+
+const COPY = COPY_TAB_FINANCIERO.evolucion;
 
 interface Props {
   flujos_base: readonly FlujoAnual[];
@@ -161,7 +164,7 @@ export function SeccionEvolucionEconomica({
     // stacking (el dataset no participa de él).
     datasets: [
       {
-        label: "Potencia firme proxy",
+        label: COPY.labelDatasetPotenciaFirme,
         data: datos.pfirme,
         backgroundColor: `${COLOR_PFIRME}${ALPHA_AREA}`,
         borderColor: COLOR_PFIRME,
@@ -174,7 +177,7 @@ export function SeccionEvolucionEconomica({
         stack: "aporte",
       },
       {
-        label: "Arbitraje horario",
+        label: COPY.labelDatasetOptimizacion,
         data: datos.arbitraje,
         backgroundColor: `${COLOR_ARBITRAJE}${ALPHA_AREA}`,
         borderColor: COLOR_ARBITRAJE,
@@ -270,9 +273,9 @@ export function SeccionEvolucionEconomica({
             return [
               `Aporte BESS total:    ${formatoCompacto(total)}`,
               "",
-              `  Potencia firme proxy:  ${formatoCompacto(p)}`,
-              `  Arbitraje horario:     ${formatoCompacto(a)}`,
-              `  Captura excedentes:    ${formatoCompacto(c)}`,
+              `${COPY.tooltipPotenciaFirme}${formatoCompacto(p)}`,
+              `${COPY.tooltipOptimizacion}${formatoCompacto(a)}`,
+              `${COPY.tooltipCapturaExcedentes}${formatoCompacto(c)}`,
               "",
               `SOH aplicado:            ${FMT_PCT.format(sohVal)}%`,
             ];
@@ -346,18 +349,13 @@ export function SeccionEvolucionEconomica({
           Aporte incremental BESS · 20 años con SOH
         </h2>
         <p className="text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
-          Las áreas apiladas son el aporte anual del BESS descompuesto en
-          sus tres fuentes: potencia firme proxy (base estructural),
-          arbitraje horario (optimización operativa) y captura de
-          excedentes (recuperación oportunista). La línea descendente es
-          el SOH del catálogo Hyperstrong que erosiona el aporte año a
-          año. La línea vertical marca el año del payback.
+          {COPY.narrativa}
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_PFIRME} texto="Potencia firme proxy" />
-          <Leyenda color={COLOR_ARBITRAJE} texto="Arbitraje horario" />
+          <Leyenda color={COLOR_PFIRME} texto={COPY.leyendaPotenciaFirme} />
+          <Leyenda color={COLOR_ARBITRAJE} texto={COPY.leyendaOptimizacion} />
           <Leyenda color={COLOR_CAPTURA} texto="Captura de excedentes (valor)" />
           <Leyenda color={COLOR_SOH} dashed texto="SOH (%)" />
         </div>

@@ -334,3 +334,65 @@ para preservar el patrón actual del campo.
 - Menciones de "proxy", "GDMTH", "spread" en otros componentes: preservadas.
 - Cálculos, variables internas, contratos TS, naming en `params.lmp_mxn_mwh`,
   `params.diferencial_lmp_pct`, etc.: intactos.
+
+## Tab Análisis Financiero — Entrega 1b (PR-Entrega-1b)
+
+Continuación del bloque Entrega 1a. Naturaleza única: **coherencia narrativa visible**. El objetivo NO es eliminar "arbitraje" del producto — es evitar afirmaciones técnicas/regulatorias fuertes en vistas ejecutivas de datasets proxy/físicos. "Arbitraje" se conserva en metodología, fórmulas y nombres de estrategia del motor; solo se suaviza el label visible en vistas ejecutivas. Mismo principio para "proxy preliminar" → "estimada".
+
+Constantes añadidas en `src/lib/copy/tab-financiero.ts`:
+
+### `hero.aporteBess.badge` (campo nuevo en bloque existente)
+
+- **Antes:** "incluye potencia firme proxy"
+- **Después:** "incluye potencia firme estimada"
+
+### `comparativa.*` (bloque nuevo)
+
+| Lugar | Antes | Después |
+|---|---|---|
+| Subtítulo SFV solo | "Sin almacenamiento, sin arbitraje, sin potencia firme" | "Sin almacenamiento, sin optimización horaria, sin potencia firme" |
+| Bullet SFV solo (no-activo) | "Arbitraje hora-punta CFE" | "Optimización operativa horaria" |
+| Bullet SFV solo (no-activo) | "Potencia firme estimada (proxy preliminar)" | "Potencia firme estimada" |
+| Bullet SFV+BESS (activo) | "Arbitraje hora-punta CFE 18-22h" | "Optimización operativa horaria" |
+| Bullet SFV+BESS (activo) | "Potencia firme estimada (proxy preliminar)" | "Potencia firme estimada" |
+| Nota al pie | "...(captura + **arbitraje** + potencia firme − OPEX)..." | "...(captura + **optimización operativa** + potencia firme − OPEX)..." |
+
+### `waterfall.labelAporteOptimizacion` (bloque nuevo)
+
+- **Antes:** "+ Arbitraje"
+- **Después:** "+ Optimización operativa"
+
+### `evolucion.*` (bloque nuevo, 8 strings visibles)
+
+| Lugar | Antes | Después |
+|---|---|---|
+| Dataset label chart | "Potencia firme proxy" | "Potencia firme estimada" |
+| Dataset label chart | "Arbitraje horario" | "Optimización horaria" |
+| Leyenda visual | "Potencia firme proxy" | "Potencia firme estimada" |
+| Leyenda visual | "Arbitraje horario" | "Optimización horaria" |
+| Tooltip hover | "Potencia firme proxy:" | "Potencia firme estimada:" *(padding ajustado para alineación monospace con strings más largos)* |
+| Tooltip hover | "Arbitraje horario:" | "Optimización horaria:" |
+| Tooltip hover | "Captura excedentes:" *(intacto en texto)* | *(intacto en texto; solo se aumenta el padding para alinear con los strings nuevos más largos)* |
+| Narrativa header | "...potencia firme proxy (base estructural), arbitraje horario (optimización operativa) y captura de excedentes..." | "...potencia firme estimada (base estructural), optimización horaria y captura de excedentes..." *(se quita paréntesis redundante "(optimización operativa)" porque el término principal ya es ejecutivo)* |
+
+### `flujoAcumulado.notaPie` (bloque nuevo, string gemelo de comparativa)
+
+- **Antes:** "...(captura + **arbitraje** + potencia firme − OPEX)..."
+- **Después:** "...(captura + **optimización operativa** + potencia firme − OPEX)..."
+
+### `breakdown.*` (bloque nuevo, preventivo — componente NO se renderiza hoy)
+
+`SeccionBreakdownIngresos` está desmontada del render por redundancia con master chart/waterfall/comparativa/tabla anual (decisión documentada en `TabFinanciero.tsx`). Sus strings se actualizan preventivamente para coherencia narrativa futura si se reactiva:
+
+- "Arbitraje hora-punta" → "Optimización operativa horaria"
+- "Pfirme proxy conservador" → "Potencia firme estimada"
+
+**Este componente NO es verificable visualmente en el preview** porque no se monta. El cambio queda registrado para que un eventual re-attach mantenga coherencia narrativa con el resto del Tab.
+
+### NO se toca (fuera de alcance, intacto)
+
+- `MetodologiaFinanciero.tsx` (fórmulas, despacho greedy/arbitraje, texto técnico).
+- Nombres de estrategia del motor en `sfv-bess.ts`, `modulo-5.ts`.
+- Variables internas (`ingreso_arbitraje_mxn`, `datos.arbitraje`, `const arbitraje`).
+- Comentarios de código.
+- Cálculos, contratos TS, naming en `params.lmp_mxn_mwh`, etc.

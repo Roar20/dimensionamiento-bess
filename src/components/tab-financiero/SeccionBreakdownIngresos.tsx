@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import type { ChartOptions } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
+
 interface Props {
   ingreso_ppa_sfv_mxn: number;
   ingreso_cels_sfv_mxn: number;
@@ -43,8 +45,8 @@ export function SeccionBreakdownIngresos({
   const bess = useMemo(
     () => [
       { label: "Captura excedentes", valor: ingreso_captura_excedentes_mxn, color: COLOR_CAPTURA },
-      { label: "Arbitraje hora-punta", valor: ingreso_arbitraje_mxn, color: COLOR_ARB },
-      { label: "Pfirme proxy conservador", valor: ingreso_potencia_firme_mxn, color: COLOR_PFIRME },
+      { label: COPY_TAB_FINANCIERO.breakdown.labelOptimizacion, valor: ingreso_arbitraje_mxn, color: COLOR_ARB },
+      { label: COPY_TAB_FINANCIERO.breakdown.labelPotenciaFirme, valor: ingreso_potencia_firme_mxn, color: COLOR_PFIRME },
     ],
     [
       ingreso_captura_excedentes_mxn,
