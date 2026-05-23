@@ -4,11 +4,9 @@ export function DisclaimerTransversal() {
       <strong className="font-medium">
         Modelo preliminar para discusión metodológica.
       </strong>{" "}
-      Precios PPA basados en una liquidación CFE de referencia
-      (proxy externo pendiente de confirmar con MHG para la planta cargada).
-      CAPEX, OPEX y WACC son estimaciones pendientes de validación con MHG,
-      Hyperstrong y CFO MHG respectivamente. No representa valuación
-      financiera bancable ni cálculo regulatorio oficial.
+      Los precios PPA usan una referencia externa pendiente de confirmación
+      para la planta cargada. CAPEX, OPEX y WACC son estimaciones preliminares.
+      No representa valuación financiera bancable ni cálculo regulatorio oficial.
     </div>
   );
 }
