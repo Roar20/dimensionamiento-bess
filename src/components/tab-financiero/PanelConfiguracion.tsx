@@ -10,8 +10,9 @@ import { CATALOGO_HYPERSTRONG } from "@/data/catalogo-hyperstrong";
 import type { ParametrosFinancieros } from "@/hooks/useParametrosFinancieros";
 
 import { formatoCompleto } from "@/lib/tab-financiero/formato-monetario";
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
 
-import { COPY_PROXY_PFIRME } from "./copy-proxy-pfirme";
+const COPY_CAMPOS = COPY_TAB_FINANCIERO.panelConfiguracion.campos;
 
 interface Props {
   params: ParametrosFinancieros;
@@ -88,7 +89,8 @@ export function PanelConfiguracion({
         />
 
         <CampoNumero
-          label="WACC (%)"
+          label={COPY_CAMPOS.wacc.label}
+          tooltip={COPY_CAMPOS.wacc.tooltip}
           valor={params.wacc_pct * 100}
           min={0}
           step={0.5}
@@ -125,7 +127,8 @@ export function PanelConfiguracion({
           }
         />
         <CampoNumero
-          label="Potencia firme (MXN/MW-mes)"
+          label={COPY_CAMPOS.precioPotenciaFirme.label}
+          tooltip={COPY_CAMPOS.precioPotenciaFirme.tooltip}
           valor={params.precio_potencia_firme_mxn_mw_mes}
           min={0}
           step={1000}
@@ -134,19 +137,21 @@ export function PanelConfiguracion({
           }
         />
         <CampoNumero
-          label="LMP zona (MXN/MWh)"
+          label={COPY_CAMPOS.zonaNodal.label}
+          tooltip={COPY_CAMPOS.zonaNodal.tooltip}
           valor={params.lmp_mxn_mwh}
           min={0}
           step={1}
           onChange={(n) => onChange({ lmp_mxn_mwh: Math.max(0, n) })}
         />
         <CampoNumero
-          label="Diferencial LMP punta-valle (%)"
+          label={COPY_CAMPOS.diferencialPuntaValle.label}
+          tooltip={COPY_CAMPOS.diferencialPuntaValle.tooltip}
           valor={params.diferencial_lmp_pct * 100}
           min={0}
           step={1}
           sufijo="%"
-          ayuda="Proxy. Default 30%: spread observado GDMTH."
+          ayuda={COPY_CAMPOS.diferencialPuntaValle.ayuda}
           onChange={(n) =>
             onChange({ diferencial_lmp_pct: Math.max(0, n / 100) })
           }
@@ -202,6 +207,7 @@ function CampoNumero({
   step,
   sufijo,
   ayuda,
+  tooltip,
   onChange,
 }: {
   label: string;
@@ -210,12 +216,32 @@ function CampoNumero({
   step?: number;
   sufijo?: string;
   ayuda?: string;
+  /** Texto del tooltip al hover/focus del ícono info junto al label. */
+  tooltip?: string;
   onChange: (n: number) => void;
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
+      <span className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
         {label}
+        {tooltip ? (
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`Información sobre ${label}`}
+                  className="inline-flex h-3.5 w-3.5 items-center justify-center text-[var(--color-text-tertiary)] outline-none transition-colors hover:text-[var(--color-text-secondary)]"
+                >
+                  <Info className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[320px] leading-snug">
+                {tooltip}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : null}
       </span>
       <div className="flex items-center gap-1">
         <input
@@ -350,20 +376,20 @@ function CampoSliderCredibilidad({
   return (
     <label className="flex flex-col gap-1.5">
       <span className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.3px] text-[var(--color-text-tertiary)]">
-        Factor credibilidad pot. firme
+        {COPY_CAMPOS.factorCredibilidadPfirme.label}
         <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
-                aria-label="Información sobre el factor de credibilidad de potencia firme"
+                aria-label={`Información sobre ${COPY_CAMPOS.factorCredibilidadPfirme.label}`}
                 className="inline-flex h-3.5 w-3.5 items-center justify-center text-[var(--color-text-tertiary)] outline-none transition-colors hover:text-[var(--color-text-secondary)]"
               >
                 <Info className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </TooltipTrigger>
             <TooltipContent className="max-w-[320px] leading-snug">
-              {COPY_PROXY_PFIRME}
+              {COPY_CAMPOS.factorCredibilidadPfirme.tooltip}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

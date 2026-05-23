@@ -15,6 +15,7 @@ import {
   sumarDescargadoEnPunta,
 } from "@/lib/tab-financiero/calculos";
 import { formatoCompacto } from "@/lib/tab-financiero/formato-monetario";
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
 import { DOD_DEFAULT, simularUna } from "@/lib/core/bess";
 import { useParametrosFinancieros } from "@/hooks/useParametrosFinancieros";
 import { useTipoCambio } from "@/hooks/useTipoCambio";
@@ -218,9 +219,9 @@ export function TabFinanciero({ datos }: Props) {
         destacar: true,
       },
       {
-        label: "Aporte BESS · año 1",
+        label: COPY_TAB_FINANCIERO.hero.aporteBess.label,
         valor: formatoCompacto(calculo.ingreso_incremental_bess_anio1),
-        sublabel: "Captura + arbitraje + pfirme proxy (antes de OPEX)",
+        sublabel: COPY_TAB_FINANCIERO.hero.aporteBess.sublabel,
         destacar: true,
         badge: "incluye potencia firme proxy",
         badge_tooltip: COPY_PROXY_PFIRME,

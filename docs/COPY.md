@@ -284,3 +284,53 @@ Espejo editorial. Implementación en `src/lib/copy/modulo-3.ts` bajo `COPY_M3.de
 - **Disclaimer ámbar (compacto, neutral sobre C-rate):** carta formal de garantía como pendiente de confirmación con Hyperstrong; mantiene mención de desviaciones operativas (temperatura, ciclado, sobre-corriente, tasa de carga/descarga) sin afirmar valores específicos de C-rate.
 - **Hitos prohibidos (eliminados de la migración):** "Cierre asentamiento" (año 1), "Primer lustro" (año 5), "Punto contractual garantía" (año 10).
 - **Afirmaciones prohibidas:** valores específicos de C-rate (1C, 0.5C). Se mencionan factores generales sin numerar.
+
+## Tab Análisis Financiero — Entrega 1a (PR-Entrega-1a)
+
+Copy oficial del Tab Análisis Financiero para Entrega 1. Implementación en
+`src/lib/copy/tab-financiero.ts` bajo `COPY_TAB_FINANCIERO`. Naturaleza
+ejecutiva: lenguaje llano, sin acrónimos crudos en labels principales; los
+acrónimos técnicos (LMP/GDMTH/WACC/PML) solo aparecen cuando son label de
+campo numérico acompañado de tooltip explicativo.
+
+### Hero — KPI principal "Aporte BESS · año 1"
+
+- **Label** (antes "Aporte BESS · año 1"): "Aporte operativo estimado".
+- **Sublabel** (antes "Captura + arbitraje + pfirme proxy (antes de OPEX)"):
+  "Incluye captura energética y aporte a potencia firme, antes de costos
+  de operación."
+- **Badge** y badge tooltip: sin cambio (siguen describiendo el componente
+  proxy de potencia firme).
+
+### Panel de configuración — campos numéricos
+
+Todos los campos siguen renderizando como `CampoNumero`/`CampoSlider*`. Se
+agrega prop opcional `tooltip` a `CampoNumero` que muestra ícono `info-circle`
+junto al label, con texto explicativo en hover/focus (mismo patrón Radix que
+`CampoSliderCredibilidad`, sin librería nueva).
+
+| Campo | Label | Tooltip |
+|---|---|---|
+| WACC | "WACC (%)" | "Costo estimado de financiamiento y capital usado para evaluar la rentabilidad del proyecto." |
+| Precio potencia firme | "Potencia firme (MXN/MW-mes)" | "Valor estimado asociado a la capacidad disponible para apoyar la demanda eléctrica." |
+| Zona Nodal | "Zona Nodal (MXN/MWh)" *(antes "LMP zona")* | "Referencia de precio eléctrico horario usada como aproximación económica regional." |
+| Diferencial PML punta-valle | "Diferencial PML punta-valle (%)" *(antes "Diferencial LMP punta-valle")* | "Diferencia estimada entre horas eléctricas de mayor y menor valor." |
+| Factor de credibilidad pot. firme | "Factor credibilidad pot. firme" *(sin cambio)* | "Porcentaje de confianza aplicado a la capacidad firme estimada del sistema." *(antes texto técnico)* |
+
+### Ayuda inline bajo "Diferencial PML"
+
+- **Antes:** "Proxy. Default 30%: spread observado GDMTH."
+- **Después:** "Valor de referencia usado para estimaciones preliminares."
+
+Se mantiene como `ayuda` (texto helper inline bajo el input), no como tooltip,
+para preservar el patrón actual del campo.
+
+### Lo que NO cambia
+
+- Otras menciones de "arbitraje" en charts, breakdown, waterfall, metodología,
+  estrategias BESS: preservadas (vocabulario técnico correcto en cada contexto).
+- Menciones de "LMP" en HeaderDossier (chip), ResumenCarga, MetodologiaFinanciero
+  (fórmula técnica): fuera del alcance de Entrega 1a.
+- Menciones de "proxy", "GDMTH", "spread" en otros componentes: preservadas.
+- Cálculos, variables internas, contratos TS, naming en `params.lmp_mxn_mwh`,
+  `params.diferencial_lmp_pct`, etc.: intactos.
