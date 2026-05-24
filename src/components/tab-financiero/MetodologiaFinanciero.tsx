@@ -119,11 +119,11 @@ export function MetodologiaFinanciero() {
         slider 100-200% que pre-multiplica el perfil horario del SFV antes
         del dispatch. Modela condiciones operativas óptimas (tracker,
         strings limpios). <strong className="font-medium">
-          NO modela ampliación de capacidad CFE ni overbuild masivo del SFV
+          NO modela ampliación de capacidad CFE ni instalación adicional de paneles
         </strong>{" "}
         (cumple Wave 1 / d18). Con factor &gt; 1, la generación puede
         exceder POI y el BESS captura los excedentes resultantes; lo que
-        no captura se pierde por curtailment al POI (visible en la sección
+        no captura se pierde al punto de interconexión (visible en la sección
         "Generación bajo factor X% vs capacidad POI").
       </p>
       <p className="mb-2">

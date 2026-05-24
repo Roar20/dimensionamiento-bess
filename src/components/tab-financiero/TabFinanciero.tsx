@@ -291,8 +291,8 @@ export function TabFinanciero({ datos }: Props) {
           el factor {(params.factor_produccion * 100).toFixed(0)}% modela
           condiciones operativas óptimas sobre el perfil horario (tracker
           alineado, strings limpios, irradiancia favorable). No representa
-          ampliación de capacidad CFE ni overbuild adicional del SFV; la
-          generación que excede POI sin BESS se perdería por curtailment.
+          ampliación de capacidad CFE ni instalación adicional de paneles; la
+          generación que excede el punto de interconexión sin BESS no se aprovecha.
         </div>
       ) : null}
 
