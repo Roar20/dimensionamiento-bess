@@ -3,12 +3,17 @@ import { useMemo } from "react";
 import { FooterEstandar } from "@/components/ui/FooterEstandar";
 import { ProjectContextHeader } from "@/components/shell/ProjectContextHeader";
 import { CATALOGO_HYPERSTRONG as CATALOGO_VIEJO } from "@/lib/bess/catalogo-hyperstrong";
+import { slugDePlanta } from "@/lib/contrato/derivar";
 import {
   DOD_DEFAULT,
   construirCategoriasDefault,
   simularUna,
 } from "@/lib/core/bess";
-import { COPY_RESUMEN_EJECUTIVO } from "@/lib/copy/resumen-ejecutivo";
+import {
+  COPY_PLANTAS_CURADAS,
+  COPY_RESUMEN_EJECUTIVO,
+  type CopyPlantaCurada,
+} from "@/lib/copy/resumen-ejecutivo";
 import { useParametrosPPA } from "@/hooks/useParametrosPPA";
 import type {
   CategoriaEnergia,
@@ -17,10 +22,11 @@ import type {
 } from "@/types/bess";
 import type { DatosSFV } from "@/types/sfv";
 
-import { CardsOperacion } from "./CardsOperacion";
-import { HeroResumen } from "./HeroResumen";
 import { SeccionDeDondeSaleEsto } from "./SeccionDeDondeSaleEsto";
-import { SeccionShell } from "./SeccionShell";
+import { SeccionHero } from "./SeccionHero";
+import { SeccionQueCambia } from "./SeccionQueCambia";
+import { SeccionQuePasaHoy } from "./SeccionQuePasaHoy";
+import { SeccionRecomendacionPreliminar } from "./SeccionRecomendacionPreliminar";
 import { SeccionSupuestosYAlcance } from "./SeccionSupuestosYAlcance";
 
 interface Props {
@@ -34,36 +40,45 @@ const FECHA_FORMATTER = new Intl.DateTimeFormat("es-MX", {
 });
 
 /**
- * Tab Resumen Ejecutivo — scaffold inicial de seis secciones.
+ * Tab Resumen Ejecutivo — narrativa de junta separada de los tabs de
+ * análisis. Seis secciones en orden de aparición:
+ *   1. Hero (apertura por planta, sin encabezado).
+ *   2. ¿Qué está pasando hoy? (estado observable curado).
+ *   3. ¿Qué cambia con almacenamiento? (visual+narrativa por planta).
+ *   4. Recomendación preliminar (card curada).
+ *   5. Supuestos y alcance (universal — disclaimers).
+ *   6. ¿De dónde sale esto? (universal — trazabilidad, accordion).
  *
- * Estado actual:
- * - Hero, secciones 1, 3 ("Qué pasa hoy", "Recomendación preliminar") y
- *   parte de la 6 quedan como shells: contenido se incorpora post-deck.
- * - Sección 2 ("Qué cambia con almacenamiento") tiene contenido real
- *   para Estanzuela vía CardsOperacion (lectura ejecutiva read-only de
- *   las dos estrategias del motor).
- * - Sección 5 ("Supuestos y alcance") tiene contenido real con los
- *   tres disclaimers despersonalizados.
+ * Las secciones 1, 2, 3, 4 leen del mapa `COPY_PLANTAS_CURADAS` con
+ * clave = `slugDePlanta(config.nombre)`. Si la planta no existe en el
+ * mapa, cada sección degrada a "vacío honesto" — nunca renderiza copy
+ * de otra planta. La sección 3 elige visual (`cards-operacion` vs
+ * `factor-generacion`) leyendo del propio mapa, sin hardcodear nombres.
  *
- * El motor de simulación se invoca aquí en lugar de extraerse a un hook
- * compartido con TabSFVBess: a) cada tab es dueño de su composición de
- * datos, b) la simulación es barata, c) extracción prematura sin
- * tercer consumidor.
+ * Las secciones 3 (cards) y 5/6 corren del motor / son universales:
+ * se renderizan igual para cualquier planta con datos cargados.
  */
 export function TabResumenEjecutivo({ datos }: Props) {
   const { config, registros, meta } = datos;
   const { params } = useParametrosPPA(datos);
+
+  const plantaId = useMemo(
+    () => slugDePlanta(config.nombre || ""),
+    [config.nombre]
+  );
+  const copyCurado: CopyPlantaCurada | null =
+    COPY_PLANTAS_CURADAS[plantaId] ?? null;
 
   const categorias = useMemo<readonly CategoriaEnergia[]>(() => {
     if (!params) return [];
     return construirCategoriasDefault(params);
   }, [params]);
 
-  // Para el resumen ejecutivo se usa la categoría más amplia
-  // ("toda_energia") y el equipo de referencia (Cube Plus), igual que
-  // el hero de TabSFVBess. Las cards muestran las dos estrategias del
-  // motor lado a lado, sin interactividad.
-  const categoriaTodaEnergia = useMemo(
+  // Las cards de operación libre/restringida usan `toda_energia` como
+  // base del contraste operativo. La frontera contractual (categoría
+  // `arriba_compromiso_ppa`) sigue pendiente de validar con el offtaker;
+  // el disclaimer correspondiente vive en la sección 5.
+  const categoriaBase = useMemo(
     () => categorias.find((c) => c.tipo === "toda_energia") ?? null,
     [categorias]
   );
@@ -88,20 +103,20 @@ export function TabResumenEjecutivo({ datos }: Props) {
     libre: KPIsSimulacion | null;
     restringida: KPIsSimulacion | null;
   }>(() => {
-    if (!configPrincipal || !categoriaTodaEnergia) {
+    if (!configPrincipal || !categoriaBase) {
       return { libre: null, restringida: null };
     }
     return {
-      libre: simularUna(registros, configPrincipal, categoriaTodaEnergia, "greedy")
+      libre: simularUna(registros, configPrincipal, categoriaBase, "greedy")
         .kpis,
       restringida: simularUna(
         registros,
         configPrincipal,
-        categoriaTodaEnergia,
+        categoriaBase,
         "arbitraje"
       ).kpis,
     };
-  }, [registros, configPrincipal, categoriaTodaEnergia]);
+  }, [registros, configPrincipal, categoriaBase]);
 
   const fechaFooter = (() => {
     try {
@@ -125,18 +140,23 @@ export function TabResumenEjecutivo({ datos }: Props) {
         }}
       />
 
-      <HeroResumen nombrePlanta={nombrePlanta} />
+      <SeccionContextoTab />
 
-      <SeccionShell titulo="¿Qué está pasando hoy?" pregunta />
+      <SeccionHero curado={copyCurado} nombrePlanta={nombrePlanta} />
 
-      <SeccionShell titulo="¿Qué cambia con almacenamiento?" pregunta>
-        <CardsOperacion
-          libre={kpisOperaciones.libre}
-          restringida={kpisOperaciones.restringida}
-        />
-      </SeccionShell>
+      <SeccionQuePasaHoy curado={copyCurado} />
 
-      <SeccionShell titulo="Recomendación preliminar" />
+      <SeccionQueCambia
+        curado={copyCurado}
+        datosVisual={{
+          registros,
+          capacidadPoiKw: config.capacidad_poi_kw,
+          capacidadCargaBessKw: configPrincipal?.p_kw ?? 0,
+        }}
+        kpisOperaciones={kpisOperaciones}
+      />
+
+      <SeccionRecomendacionPreliminar curado={copyCurado} />
 
       <SeccionSupuestosYAlcance />
 
@@ -147,5 +167,19 @@ export function TabResumenEjecutivo({ datos }: Props) {
         fecha={fechaFooter}
       />
     </div>
+  );
+}
+
+function SeccionContextoTab() {
+  const c = COPY_RESUMEN_EJECUTIVO.contextoTab;
+  return (
+    <section className="mb-8">
+      <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+        {c.kicker}
+      </p>
+      <p className="max-w-[680px] text-[14px] leading-[1.55] text-[var(--color-text-secondary)]">
+        {c.intro}
+      </p>
+    </section>
   );
 }
