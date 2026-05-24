@@ -127,9 +127,12 @@ export type ParamsDerivar = {
 /**
  * Convierte un nombre humano de planta en slug `kebab-case` ASCII.
  * No es la fuente de verdad de IDs en producción; sirve cuando el caller
- * no provee `planta_id` explícito (e.g. tests con fixture sintético).
+ * no provee `planta_id` explícito (e.g. tests con fixture sintético) o
+ * cuando se necesita una clave estable derivada del texto libre del
+ * onboarding (tab Resumen Ejecutivo, mientras DatosSFV no exponga
+ * planta_id real).
  */
-function slugDePlanta(nombre: string): string {
+export function slugDePlanta(nombre: string): string {
   return nombre
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")

@@ -5,6 +5,7 @@ import { DatosSFVProvider } from "@/hooks/useDatosSFV";
 import { BESS } from "@/pages/BESS";
 import { Financiero } from "@/pages/Financiero";
 import { Home } from "@/pages/Home";
+import { ResumenEjecutivo } from "@/pages/ResumenEjecutivo";
 import { SFV } from "@/pages/SFV";
 import { SFVBess } from "@/pages/SFVBess";
 
@@ -52,6 +53,7 @@ export function App() {
             <Route path="/bess" element={<BESS />} />
             <Route path="/sfv-bess" element={<SFVBess />} />
             <Route path="/financiero" element={<Financiero />} />
+            <Route path="/resumen-ejecutivo" element={<ResumenEjecutivo />} />
             <Route path="/onboarding" element={<Home />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
