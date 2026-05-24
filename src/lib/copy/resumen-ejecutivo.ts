@@ -161,8 +161,17 @@ export type CopyPlantaCurada = {
   };
 };
 
+/**
+ * Clave del mapa: alineada con la convención `planta_id` del contrato
+ * JSON (`public/data/manifest.json`). Los slugs deben coincidir con lo
+ * que produce `slugDePlanta(config.nombre)` desde el onboarding:
+ *   - Escribir "Tequila 1" en el campo nombre → `tequila-1`.
+ *   - Escribir "Estanzuela 1" en el campo nombre → `estanzuela-1`.
+ * Si el operador escribe otro texto, se renderiza el estado vacío
+ * honesto en lugar del copy curado.
+ */
 export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = {
-  tequila: {
+  "tequila-1": {
     hero: {
       kicker: "Apertura",
       titulo:
@@ -207,7 +216,7 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
       nota: "La configuración final se afina con el histórico de precios PML.",
     },
   },
-  estanzuela: {
+  "estanzuela-1": {
     hero: {
       kicker: "Apertura",
       titulo:
