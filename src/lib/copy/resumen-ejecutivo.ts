@@ -168,22 +168,36 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
   tequila: {
     hero: {
       kicker: "Apertura",
-      titulo: PLACEHOLDER_GUION_V2,
+      titulo:
+        "El sistema solar de Tequila opera hoy dentro de su capacidad de inyección.",
       apoyo:
-        "Frase de apertura curada para Tequila — pegar desde guion v2 " +
-        "(arranca con 'El sistema solar de Tequila opera hoy dentro de " +
-        "su capacidad de inyección…').",
+        "El valor de un sistema de almacenamiento aparece bajo un escenario " +
+        "de aumento de generación cercano al 20% —equivalente, por ejemplo, " +
+        "a la instalación de un tracker— cuando los picos cruzan el punto " +
+        "de interconexión.",
     },
     quePasaHoy: {
-      parrafos: [PLACEHOLDER_GUION_V2],
+      parrafos: [
+        "La curva de generación promedio se mantiene por debajo del punto " +
+          "de interconexión (500 kW); el pico no alcanza ese límite. Hoy " +
+          "no hay energía excedente sobre el punto de interconexión que un " +
+          "almacenamiento pueda capturar: el sistema no topa su capacidad " +
+          "de inyección. Generación anual cercana a 913 MWh.",
+      ],
     },
     queCambia: {
       parrafo:
-        "Texto narrativo del contraste para Tequila — pegar desde guion v2. " +
-        "Núcleo del argumento: hoy no hay excedentes; con sobreinstalación " +
-        "al 1.20× emergen los MWh elegibles para BESS.",
+        "Al elevar la generación cerca de un 20% —equivalente, por ejemplo, " +
+        "a un tracker— la curva cruza el punto de interconexión y emerge " +
+        "una zona de energía capturable en las horas centrales del día. El " +
+        "aumento de generación no solo produce más energía; crea las " +
+        "condiciones físicas para que un almacenamiento tenga energía que " +
+        "capturar.",
       visual: "factor-generacion",
-      nota: PLACEHOLDER_GUION_V2,
+      nota:
+        "El +20% modela el efecto de un tracker sobre el perfil horario. " +
+        "Tequila no tiene tracker ni terreno adicional hoy; esto ilustra " +
+        "el escenario, no una instalación existente.",
     },
     recomendacionPreliminar: {
       kicker: "Recomendación preliminar",
@@ -195,21 +209,35 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
   estanzuela: {
     hero: {
       kicker: "Apertura",
-      titulo: PLACEHOLDER_GUION_V2,
+      titulo:
+        "Estanzuela reúne las condiciones para capturar valor con " +
+        "almacenamiento: tiene tracker, terreno adicional y un mes de " +
+        "datos de precios reales.",
       apoyo:
-        "Frase de apertura curada para Estanzuela — pegar desde guion v2 " +
-        "(arranca con 'Estanzuela reúne las condiciones…').",
+        "Sobre esa base, una batería de 450 kW × 4 horas sirve como " +
+        "dimensionamiento de referencia.",
     },
     quePasaHoy: {
-      parrafos: [PLACEHOLDER_GUION_V2],
+      parrafos: [
+        "Sistema con tracker y terreno adicional, con un mes de datos de " +
+          "precios reales (a diferencia de Tequila, que solo cuenta con " +
+          "generación). Aquí no se supone el potencial: se observa con " +
+          "datos.",
+      ],
     },
     queCambia: {
       parrafo:
-        "Texto narrativo del contraste para Estanzuela — pegar desde guion v2. " +
-        "Núcleo del argumento: la batería puede operar libre o concentrar la " +
-        "descarga en punta tarifaria; las cards cuantifican ambas.",
+        "Comparación de dos formas de operar la batería. En operación " +
+        "libre, descarga en cuanto tiene energía, a cualquier hora. En " +
+        "operación restringida a punta, concentra la descarga en la " +
+        "ventana tarifaria de mayor valor (18–22h). La diferencia entre " +
+        "ambas muestra por qué importa cuándo descarga la batería, no " +
+        "solo cuánto.",
       visual: "cards-operacion",
-      nota: PLACEHOLDER_GUION_V2,
+      nota:
+        "La comparación se hace sobre toda la energía elegible; la " +
+        "fracción efectivamente capturable bajo el PPA está pendiente de " +
+        "validar la frontera contractual.",
     },
     recomendacionPreliminar: {
       kicker: "Recomendación preliminar",
