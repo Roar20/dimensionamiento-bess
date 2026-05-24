@@ -1,4 +1,7 @@
 import { formatoCompacto } from "@/lib/tab-financiero/formato-monetario";
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
+
+const COPY = COPY_TAB_FINANCIERO.comparativa;
 
 interface Props {
   ingreso_sfv_solo_anio1: number;
@@ -41,7 +44,7 @@ export function SeccionComparativa({
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <ColumnaEscenario
           titulo="SFV solo (línea base)"
-          subtitulo="Sin almacenamiento, sin arbitraje, sin potencia firme"
+          subtitulo={COPY.sfvSolo.subtitulo}
           variante="base"
           metricas={[
             { label: "Ingreso bruto año 1", valor: formatoCompacto(ingreso_sfv_solo_anio1) },
@@ -52,8 +55,8 @@ export function SeccionComparativa({
             { activa: true, texto: "Energía PPA (generación entregable al POI)" },
             { activa: true, texto: "CELs emitidos sobre la generación" },
             { activa: false, texto: "Captura de excedentes generados" },
-            { activa: false, texto: "Arbitraje hora-punta CFE" },
-            { activa: false, texto: "Potencia firme estimada (proxy preliminar)" },
+            { activa: false, texto: COPY.sfvSolo.bulletOptimizacion },
+            { activa: false, texto: COPY.sfvSolo.bulletPotenciaFirme },
           ]}
         />
         <ColumnaEscenario
@@ -79,20 +82,14 @@ export function SeccionComparativa({
             { activa: true, texto: "Energía PPA (generación entregable al POI)" },
             { activa: true, texto: "CELs emitidos sobre la generación" },
             { activa: true, texto: "Captura de excedentes que sin BESS se perderían" },
-            { activa: true, texto: "Arbitraje hora-punta CFE 18-22h" },
-            { activa: true, texto: "Potencia firme estimada (proxy preliminar)" },
+            { activa: true, texto: COPY.sfvBess.bulletOptimizacion },
+            { activa: true, texto: COPY.sfvBess.bulletPotenciaFirme },
           ]}
         />
       </div>
 
       <p className="mt-3 text-[11px] leading-relaxed text-[var(--color-text-tertiary)]">
-        El payback BESS se calcula contra el aporte incremental (captura +
-        arbitraje + potencia firme − OPEX), no contra el ingreso del proyecto
-        completo. El ingreso PPA y CELs del SFV son ingresos que la planta ya
-        recibía sin BESS; mostrarlos como repago del CAPEX BESS sería
-        contabilizar el dinero del SFV existente como mérito del nuevo
-        equipo. El acumulado 20 años aplica curva SOH del catálogo sobre los
-        tres componentes incrementales; el SFV no degrada con SOH BESS.
+        {COPY.notaPie}
       </p>
     </section>
   );

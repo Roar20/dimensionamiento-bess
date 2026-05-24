@@ -4,6 +4,7 @@ import { Line } from "react-chartjs-2";
 
 import type { FlujoAnual } from "@/lib/tab-financiero/calculos";
 import { formatoCompacto, formatoEje } from "@/lib/tab-financiero/formato-monetario";
+import { COPY_TAB_FINANCIERO } from "@/lib/copy/tab-financiero";
 
 interface Props {
   flujos_sfv_bess: readonly FlujoAnual[];
@@ -139,11 +140,7 @@ export function SeccionFlujoAcumulado({
           Flujo acumulado del BESS · 20 años con SOH
         </h2>
         <p className="text-[12px] text-[var(--color-text-secondary)]">
-          La línea verde es el flujo acumulado del aporte incremental del BESS
-          (captura + arbitraje + potencia firme − OPEX), partiendo de
-          −CAPEX BESS en el año 0. Cruza cero en el año del payback. La línea
-          gris punteada es el SFV existente como referencia visual; no
-          contribuye al pago del CAPEX BESS.
+          {COPY_TAB_FINANCIERO.flujoAcumulado.notaPie}
         </p>
       </header>
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
