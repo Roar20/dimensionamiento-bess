@@ -46,9 +46,9 @@ export function SeccionRecomendacionPreliminar({ curado }: Props) {
       ) : (
         <div className="rounded-md border border-dashed border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-4">
           <p className="text-[13px] leading-[1.55] text-[var(--color-text-secondary)]">
-            Recomendación preliminar pendiente de curaduría para esta
-            planta. La recomendación es una afirmación con consecuencias,
-            no se autogenera del motor.
+            Recomendación ejecutiva en preparación. La recomendación es una
+            afirmación con consecuencias y se publica solo cuando hay
+            sustento curado para sostenerla.
           </p>
         </div>
       )}

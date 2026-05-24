@@ -10,8 +10,8 @@ import {
   simularUna,
 } from "@/lib/core/bess";
 import {
-  COPY_PLANTAS_CURADAS,
   COPY_RESUMEN_EJECUTIVO,
+  buscarCopyDePlanta,
   type CopyPlantaCurada,
 } from "@/lib/copy/resumen-ejecutivo";
 import { useParametrosPPA } from "@/hooks/useParametrosPPA";
@@ -62,12 +62,10 @@ export function TabResumenEjecutivo({ datos }: Props) {
   const { config, registros, meta } = datos;
   const { params } = useParametrosPPA(datos);
 
-  const plantaId = useMemo(
-    () => slugDePlanta(config.nombre || ""),
+  const copyCurado: CopyPlantaCurada | null = useMemo(
+    () => buscarCopyDePlanta(slugDePlanta(config.nombre || "")),
     [config.nombre]
   );
-  const copyCurado: CopyPlantaCurada | null =
-    COPY_PLANTAS_CURADAS[plantaId] ?? null;
 
   const categorias = useMemo<readonly CategoriaEnergia[]>(() => {
     if (!params) return [];

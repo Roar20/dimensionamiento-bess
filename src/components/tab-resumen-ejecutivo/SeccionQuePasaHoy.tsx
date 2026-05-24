@@ -40,9 +40,8 @@ function PendientePorCuradoria() {
   return (
     <div className="rounded-md border border-dashed border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-4">
       <p className="text-[13px] leading-[1.55] text-[var(--color-text-secondary)]">
-        Diagnóstico observable pendiente de curaduría para esta planta. Las
-        cifras del estado de la planta están disponibles en los tabs SFV y
-        SFV+BESS.
+        Diagnóstico ejecutivo en preparación. Las cifras observadas de la
+        planta están disponibles en los apartados SFV y SFV+BESS.
       </p>
     </div>
   );

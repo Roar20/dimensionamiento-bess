@@ -1,36 +1,33 @@
 import { COPY_RESUMEN_EJECUTIVO } from "@/lib/copy/resumen-ejecutivo";
 
 /**
- * Sección 5 del tab Resumen Ejecutivo: "Supuestos y alcance". Tiene
- * presencia propia (no escondida en accordion ni minimizada como pie de
- * componente). Los tres disclaimers están despersonalizados por
- * diseño: nombran roles ("offtaker"), no personas.
+ * Sección "Supuestos y alcance". Capa de honestidad metodológica del
+ * documento: presencia editorial, no letra chica. Cuatro marcos con
+ * separadores sutiles entre ellos, sin borde tipo warning ni acento de
+ * color de alerta — el tono es serio y ejecutivo, no alarmante.
  */
 export function SeccionSupuestosYAlcance() {
   const copy = COPY_RESUMEN_EJECUTIVO.supuestos;
   return (
-    <section className="mb-10">
-      <h3 className="mb-3 text-[16px] font-medium text-[var(--color-text-primary)]">
+    <section className="mb-12">
+      <h3 className="mb-3 text-[17px] font-medium text-[var(--color-text-primary)]">
         {copy.titulo}
       </h3>
-      <p className="mb-4 max-w-[680px] text-[13px] leading-[1.55] text-[var(--color-text-secondary)]">
+      <p className="mb-7 max-w-[680px] text-[14px] leading-[1.6] text-[var(--color-text-secondary)]">
         {copy.intro}
       </p>
-      <ul className="flex flex-col gap-3">
+      <dl className="flex max-w-[720px] flex-col divide-y divide-[var(--color-border-light)]">
         {copy.items.map((item) => (
-          <li
-            key={item.etiqueta}
-            className="rounded-md border-[0.5px] border-l-[3px] border-l-[var(--color-warning)] border-[var(--color-border-light)] bg-white px-4 py-3"
-          >
-            <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+          <div key={item.etiqueta} className="py-5 first:pt-0 last:pb-0">
+            <dt className="mb-2 text-[14px] font-medium leading-[1.4] text-[var(--color-text-primary)]">
               {item.etiqueta}
-            </p>
-            <p className="text-[13px] leading-[1.55] text-[var(--color-text-primary)]">
+            </dt>
+            <dd className="text-[14px] leading-[1.65] text-[var(--color-text-secondary)]">
               {item.texto}
-            </p>
-          </li>
+            </dd>
+          </div>
         ))}
-      </ul>
+      </dl>
     </section>
   );
 }

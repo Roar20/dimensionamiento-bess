@@ -66,10 +66,10 @@ export function SeccionQueCambia({ curado, datosVisual, kpisOperaciones }: Props
       ) : (
         <div className="rounded-md border border-dashed border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-4">
           <p className="text-[13px] leading-[1.55] text-[var(--color-text-secondary)]">
-            La narrativa de "qué cambia con almacenamiento" depende de la
-            estrategia ejecutiva de cada planta y vive en el guion curado.
-            Las cifras crudas están disponibles en los tabs SFV+BESS y
-            Análisis financiero.
+            La interpretación ejecutiva del cambio con almacenamiento sigue
+            en preparación para esta planta. Las simulaciones detalladas
+            están disponibles en los apartados SFV+BESS y Análisis
+            financiero.
           </p>
         </div>
       )}

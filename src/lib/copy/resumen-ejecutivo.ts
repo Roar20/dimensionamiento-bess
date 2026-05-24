@@ -1,24 +1,23 @@
 /**
- * Strings cliente-facing del tab Resumen Ejecutivo.
+ * Strings cliente-facing del módulo Resumen Ejecutivo.
  *
- * Arquitectura:
- * - `COPY_RESUMEN_EJECUTIVO` agrupa lo *universal* (tab label, intros
- *   genéricas, sección 5 disclaimers, sección 6 metodología) — no
- *   depende de planta.
- * - `COPY_PLANTAS_CURADAS` indexa el copy *curado por planta* (hero,
- *   sección "¿Qué cambia?", recomendación preliminar). El componente
- *   degrada graduado:
- *     a) si la clave de planta existe → renderiza copy curado.
- *     b) si no existe → renderiza estado "vacío honesto" con
- *        `COPY_RESUMEN_EJECUTIVO.fallbackPlantaNoCurada`.
+ * Dos colecciones:
+ * - `COPY_RESUMEN_EJECUTIVO` — universal (encabezado, intro, fallback,
+ *   etiquetas de cards, supuestos y trazabilidad). No depende de planta.
+ * - `COPY_PLANTAS_CURADAS` — copy curado por planta (apertura, "qué pasa
+ *   hoy", "qué cambia con almacenamiento", "recomendación preliminar").
+ *   Texto verbatim del guion v2; no editar sin curaduría.
  *
- * Clave del mapa: por ahora `slugDePlanta(config.nombre)` (interim —
- * `DatosSFV` todavía no expone `planta_id` real del contrato JSON). El
- * componente nunca hace `if planta === 'tequila'`; siempre lee del
- * mapa. Cuando se introduzca `planta_id` en `DatosSFV`, solo cambia el
- * cálculo de la clave; los consumidores no se enteran.
- *
- * Cero hardcode en componentes, mismo patrón que `COPY_SFV_BESS`.
+ * Resolución de planta:
+ * El componente nunca ramifica por nombre hardcodeado. Llama a
+ * `buscarCopyDePlanta(slug)`, que itera el mapa y devuelve la entrada
+ * cuyo `aliases` contenga el slug. Esto desacopla el match del tecleo
+ * del operador en el onboarding: variantes razonables ("Tequila",
+ * "Tequila 1", "Planta Tequila") activan la misma entrada por
+ * construcción. La clave de cada entrada del mapa es el `planta_id`
+ * real del contrato JSON (`public/data/manifest.json`) para que el día
+ * que `DatosSFV` exponga `planta_id`, el lookup pase a ser directo y
+ * los aliases dejen de ser necesarios sin reescribir el mapa.
  */
 
 export const COPY_RESUMEN_EJECUTIVO = {
@@ -31,24 +30,21 @@ export const COPY_RESUMEN_EJECUTIVO = {
   contextoTab: {
     kicker: "Resumen para junta",
     intro:
-      "Este tab compila lo que un tomador de decisión necesita ver en una " +
-      "sola pasada: qué está pasando hoy, qué cambia con almacenamiento, " +
-      "qué se recomienda y bajo qué supuestos.",
+      "Este documento reúne, en una sola lectura, qué está pasando hoy con " +
+      "la planta, qué cambia al incorporar almacenamiento, qué se " +
+      "recomienda y bajo qué supuestos.",
   },
 
   fallbackPlantaNoCurada: {
-    kicker: "Sin curaduría ejecutiva",
-    titulo:
-      "Análisis ejecutivo pendiente de curaduría para esta planta.",
+    kicker: "Análisis en preparación",
+    titulo: "Narrativa ejecutiva pendiente de curaduría para esta planta.",
     cuerpo:
-      "Las secciones que dependen de copy curado (apertura, narrativa de " +
-      "cambio con almacenamiento, recomendación preliminar) se publican " +
-      "una vez que el equipo de análisis cierre el guion para esta planta. " +
-      "Las secciones que corren del motor (cards de operación, supuestos y " +
-      "alcance, trazabilidad) se renderizan igual con los datos cargados.",
+      "La estructura del documento está disponible; la interpretación " +
+      "ejecutiva sigue en preparación. Las cifras operativas y la " +
+      "simulación detallada se consultan, mientras tanto, en los apartados " +
+      "SFV y SFV+BESS.",
   },
 
-  // Etiquetas comunes de los bloques que sí corren del motor.
   cardsOperacion: {
     seccionLabel: "Cómo se opera la batería",
     contexto:
@@ -79,8 +75,8 @@ export const COPY_RESUMEN_EJECUTIVO = {
   supuestos: {
     titulo: "Supuestos y alcance",
     intro:
-      "Estos cuatro puntos enmarcan el alcance del análisis. No son letra " +
-      "chica: definen qué afirma el deck y qué queda fuera.",
+      "Cuatro marcos que enmarcan el alcance del análisis. No son letra " +
+      "chica: definen qué afirma este documento y qué queda fuera.",
     items: [
       {
         etiqueta: "Precios",
@@ -120,22 +116,27 @@ export const COPY_RESUMEN_EJECUTIVO = {
   metodologia: {
     titulo: "¿De dónde sale esto?",
     intro:
-      "Trazabilidad de los pantallazos y de la lógica de cálculo. Los " +
+      "Trazabilidad de las gráficas y de la lógica de cálculo. Los " +
       "supuestos materiales viven en la sección anterior; aquí solo se " +
-      "documenta de qué componente del software sale cada gráfica.",
-    nota: "Esta sección se completa cuando el tab incorpore el resto de los componentes.",
+      "documenta de qué componente del producto sale cada pieza.",
+    nota:
+      "Esta sección se completa cuando el documento incorpore el resto de " +
+      "los componentes.",
   },
 } as const;
 
 // ─── Mapa de copy curado por planta ──────────────────────────────────
-// Cada entrada concentra el copy curado de las secciones que NO corren
-// del motor: hero, "¿Qué pasa hoy?", "¿Qué cambia con almacenamiento?",
-// "Recomendación preliminar". El texto es verbatim del guion v2 curado:
-// NO inventar matices, NO sintetizar, NO reescribir. Para añadir una
-// planta nueva, agregar una entrada al mapa con su slug; el componente
-// degrada solo si la clave no existe.
 
 export type CopyPlantaCurada = {
+  /**
+   * Slugs que activan esta entrada. El componente busca por `aliases`
+   * (no por la clave del objeto), de modo que variantes razonables del
+   * nombre tecleado por el operador en el onboarding caen a la misma
+   * entrada sin requerir el nombre canónico verbatim. Mantener el
+   * `planta_id` del contrato como primer alias (declaración explícita
+   * del binding canónico).
+   */
+  aliases: readonly string[];
   hero: {
     kicker: string;
     titulo: string;
@@ -161,17 +162,9 @@ export type CopyPlantaCurada = {
   };
 };
 
-/**
- * Clave del mapa: alineada con la convención `planta_id` del contrato
- * JSON (`public/data/manifest.json`). Los slugs deben coincidir con lo
- * que produce `slugDePlanta(config.nombre)` desde el onboarding:
- *   - Escribir "Tequila 1" en el campo nombre → `tequila-1`.
- *   - Escribir "Estanzuela 1" en el campo nombre → `estanzuela-1`.
- * Si el operador escribe otro texto, se renderiza el estado vacío
- * honesto en lugar del copy curado.
- */
 export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = {
   "tequila-1": {
+    aliases: ["tequila-1", "tequila", "planta-tequila", "tequila-fv"],
     hero: {
       kicker: "Apertura",
       titulo:
@@ -217,6 +210,7 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
     },
   },
   "estanzuela-1": {
+    aliases: ["estanzuela-1", "estanzuela", "planta-estanzuela", "estanzuela-fv"],
     hero: {
       kicker: "Apertura",
       titulo:
@@ -260,3 +254,21 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
     },
   },
 } as const;
+
+/**
+ * Resuelve una entrada de copy curado a partir del slug producido por
+ * `slugDePlanta(config.nombre)`. Itera el mapa y devuelve la primera
+ * entrada cuyos `aliases` contengan el slug exacto. Devuelve `null` si
+ * ninguna planta curada lista el slug — el componente debe renderizar
+ * el fallback honesto en ese caso.
+ *
+ * La búsqueda es por alias, no por clave del objeto, para que el match
+ * no dependa del nombre verbatim tecleado por el operador.
+ */
+export function buscarCopyDePlanta(slug: string): CopyPlantaCurada | null {
+  if (!slug) return null;
+  for (const entrada of Object.values(COPY_PLANTAS_CURADAS)) {
+    if (entrada.aliases.includes(slug)) return entrada;
+  }
+  return null;
+}
