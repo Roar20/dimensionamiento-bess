@@ -33,6 +33,9 @@ export function CardsOperacion({ libre, restringida }: Props) {
   }
   return (
     <div>
+      <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+        {copy.seccionLabel}
+      </p>
       <p className="mb-3 text-[13px] leading-[1.55] text-[var(--color-text-secondary)]">
         {copy.contexto}
       </p>
@@ -48,6 +51,9 @@ export function CardsOperacion({ libre, restringida }: Props) {
           kpis={restringida}
         />
       </div>
+      <p className="mt-3 max-w-[680px] text-[12px] leading-[1.55] text-[var(--color-text-secondary)]">
+        {copy.notaBancoIlustrativo}
+      </p>
     </div>
   );
 }
