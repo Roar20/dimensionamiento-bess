@@ -46,11 +46,12 @@ export const COPY_RESUMEN_EJECUTIVO = {
   },
 
   cardsOperacion: {
-    seccionLabel: "Cómo se opera la batería",
+    seccionLabel: "Contraste operativo",
     contexto:
       "Dos formas de operar la misma batería sobre el mismo dato horario. " +
-      "La diferencia entre ambas es el argumento de por qué importa cuándo " +
-      "descarga la batería, no solo cuánto.",
+      "El punto del contraste no es afirmar una captura física exacta del " +
+      "sitio, sino mostrar por qué importa cuándo se descarga — no solo " +
+      "cuánto.",
     libre: {
       titulo: "Operación libre",
       descripcion:
@@ -63,10 +64,14 @@ export const COPY_RESUMEN_EJECUTIVO = {
         "tarifario (18:00–22:00).",
     },
     labels: {
-      captura: "Captura anual",
-      ciclos: "Utilización (ciclos)",
-      fraccion: "Fracción capturada",
+      captura: "Energía descargada",
+      ciclos: "Utilización (ciclos equivalentes)",
+      fraccion: "Fracción operada",
     },
+    notaBancoIlustrativo:
+      "Las cifras ilustran el contraste operativo sobre un banco del " +
+      "catálogo de referencia. El dimensionamiento recomendado más " +
+      "adelante es criterio consultivo: no se deriva de estas cifras.",
     sinDatos:
       "Sin parámetros suficientes para simular las dos operaciones. Carga " +
       "una planta para ver las cards con datos reales.",
