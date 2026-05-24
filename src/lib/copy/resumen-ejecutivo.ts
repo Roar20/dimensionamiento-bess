@@ -118,10 +118,10 @@ export const COPY_RESUMEN_EJECUTIVO = {
     intro:
       "Trazabilidad de las gráficas y de la lógica de cálculo. Los " +
       "supuestos materiales viven en la sección anterior; aquí solo se " +
-      "documenta de qué componente del producto sale cada pieza.",
+      "documenta de qué pieza del análisis proviene cada gráfica.",
     nota:
-      "Esta sección se completa cuando el documento incorpore el resto de " +
-      "los componentes.",
+      "El detalle metodológico se amplía conforme avanza la documentación " +
+      "del análisis.",
   },
 } as const;
 
@@ -148,8 +148,8 @@ export type CopyPlantaCurada = {
   queCambia: {
     /** Texto narrativo arriba del visual/cards. */
     parrafo: string;
-    /** Cuál visualización se usa: cards operación libre/restringida (Estanzuela)
-     *  o contraste de generación con sobreinstalación (Tequila). */
+    /** Cuál visualización se usa: cards operación libre/restringida
+     *  (Estanzuela) o contraste 1.0 vs +20% de generación (Tequila). */
     visual: "cards-operacion" | "factor-generacion";
     /** Nota debajo del visual, opcional. */
     nota?: string;

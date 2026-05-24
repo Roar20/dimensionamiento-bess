@@ -1,5 +1,6 @@
 import { SeccionGeneracionFactor } from "@/components/tab-financiero/SeccionGeneracionFactor";
 import type { CopyPlantaCurada } from "@/lib/copy/resumen-ejecutivo";
+import { aplicarFactorProduccion } from "@/lib/tab-financiero/calculos";
 import type { KPIsSimulacion } from "@/types/bess";
 import type { RegistroHorario } from "@/types/sfv";
 
@@ -8,7 +9,7 @@ import { CardsOperacion } from "./CardsOperacion";
 interface Props {
   /** Copy curado de la planta activa, o `null` si no hay curaduría. */
   curado: CopyPlantaCurada | null;
-  /** Datos crudos para alimentar visualizaciones que corren del motor. */
+  /** Datos crudos para alimentar visualizaciones que corren del producto. */
   datosVisual: {
     registros: readonly RegistroHorario[];
     capacidadPoiKw: number;
@@ -26,13 +27,14 @@ const TITULO = "¿Qué cambia con almacenamiento?";
 /**
  * Sección "¿Qué cambia con almacenamiento?" — la única sección cuyo
  * *visual* cambia por planta:
- *   - `visual: "cards-operacion"` (p. ej. Estanzuela) → `CardsOperacion`.
- *   - `visual: "factor-generacion"` (p. ej. Tequila) → `SeccionGeneracionFactor`
- *     (contraste de sobreinstalación 1.0× vs 1.20× — pendiente de
- *     implementación completa).
+ *   - `visual: "cards-operacion"` (Estanzuela) → `CardsOperacion`.
+ *   - `visual: "factor-generacion"` (Tequila) → dos `SeccionGeneracionFactor`
+ *     lado-a-lado: generación actual (factor 1.0×) y generación con +20%
+ *     adicional. El contraste muestra cómo aparece la zona capturable
+ *     cuando la curva cruza el punto de interconexión.
  *
- * El componente NO conoce los nombres de planta; lee `curado.queCambia.visual`
- * del mapa. Sin curaduría, degrada a estado vacío honesto.
+ * El componente lee `curado.queCambia.visual` del mapa; no conoce
+ * nombres de planta. Sin curaduría, degrada a estado vacío honesto.
  */
 export function SeccionQueCambia({ curado, datosVisual, kpisOperaciones }: Props) {
   return (
@@ -42,7 +44,7 @@ export function SeccionQueCambia({ curado, datosVisual, kpisOperaciones }: Props
       </h3>
       {curado ? (
         <>
-          <p className="mb-4 max-w-[680px] text-[14px] leading-[1.55] text-[var(--color-text-secondary)]">
+          <p className="mb-5 max-w-[680px] text-[14px] leading-[1.55] text-[var(--color-text-secondary)]">
             {curado.queCambia.parrafo}
           </p>
           {curado.queCambia.visual === "cards-operacion" ? (
@@ -51,14 +53,14 @@ export function SeccionQueCambia({ curado, datosVisual, kpisOperaciones }: Props
               restringida={kpisOperaciones.restringida}
             />
           ) : (
-            <VisualFactorGeneracionPendiente
+            <VisualContrasteFactor
               registros={datosVisual.registros}
               capacidadPoiKw={datosVisual.capacidadPoiKw}
               capacidadCargaBessKw={datosVisual.capacidadCargaBessKw}
             />
           )}
           {curado.queCambia.nota ? (
-            <p className="mt-3 text-[12px] italic leading-[1.55] text-[var(--color-text-tertiary)]">
+            <p className="mt-4 max-w-[680px] text-[12px] italic leading-[1.55] text-[var(--color-text-tertiary)]">
               {curado.queCambia.nota}
             </p>
           ) : null}
@@ -78,13 +80,12 @@ export function SeccionQueCambia({ curado, datosVisual, kpisOperaciones }: Props
 }
 
 /**
- * Andamio para el visual "1.0× vs 1.20×". Por ahora renderiza el
- * componente existente con factor 1.0 (registros tal cual) y deja
- * marcador honesto del contraste pendiente. Cuando la especificación
- * del visual 1.0/1.20 esté cerrada, se reemplaza por una composición
- * lado-a-lado con registros escalados.
+ * Contraste lado-a-lado: generación actual vs generación con +20%
+ * adicional. Cada panel reusa `SeccionGeneracionFactor` con su propio
+ * encabezado; la curva del panel izquierdo no cruza el POI (sin zona
+ * capturable), la del panel derecho sí (emerge zona capturable).
  */
-function VisualFactorGeneracionPendiente({
+function VisualContrasteFactor({
   registros,
   capacidadPoiKw,
   capacidadCargaBessKw,
@@ -93,26 +94,41 @@ function VisualFactorGeneracionPendiente({
   capacidadPoiKw: number;
   capacidadCargaBessKw: number;
 }) {
+  const registrosActual = aplicarFactorProduccion(registros, 1.0);
+  const registrosAumentado = aplicarFactorProduccion(registros, 1.2);
   return (
-    <div>
-      <div className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
-        Generación actual (factor 1.0×)
-      </div>
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <SeccionGeneracionFactor
-        registros_ajustados={registros}
+        registros_ajustados={registrosActual}
         capacidad_poi_kw={capacidadPoiKw}
         capacidad_carga_bess_kw={capacidadCargaBessKw}
+        header={<EncabezadoFactor titulo="Generación actual" descripcion="La curva no cruza el punto de interconexión: no hay zona capturable." />}
       />
-      <div className="mt-3 rounded-md border border-dashed border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-4 py-3">
-        <p className="text-[12px] leading-[1.55] text-[var(--color-text-secondary)]">
-          <strong className="font-medium text-[var(--color-text-primary)]">
-            Contraste con sobreinstalación 1.20×:
-          </strong>{" "}
-          el visual lado-a-lado y la cuantificación de excedentes que emergen
-          a 1.20× se incorporan en la próxima iteración. Por ahora se muestra
-          la generación actual como referencia.
-        </p>
-      </div>
+      <SeccionGeneracionFactor
+        registros_ajustados={registrosAumentado}
+        capacidad_poi_kw={capacidadPoiKw}
+        capacidad_carga_bess_kw={capacidadCargaBessKw}
+        header={<EncabezadoFactor titulo="Con +20% de generación" descripcion="La curva cruza el punto de interconexión y emerge una zona capturable en las horas centrales." />}
+      />
     </div>
+  );
+}
+
+function EncabezadoFactor({
+  titulo,
+  descripcion,
+}: {
+  titulo: string;
+  descripcion: string;
+}) {
+  return (
+    <header className="mb-3">
+      <h4 className="text-[14px] font-medium text-[var(--color-text-primary)]">
+        {titulo}
+      </h4>
+      <p className="text-[12px] leading-[1.55] text-[var(--color-text-secondary)]">
+        {descripcion}
+      </p>
+    </header>
   );
 }

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import type { ChartOptions } from "chart.js";
 import { Line } from "react-chartjs-2";
 
@@ -8,6 +8,15 @@ interface Props {
   registros_ajustados: readonly RegistroHorario[];
   capacidad_poi_kw: number;
   capacidad_carga_bess_kw: number;
+  /**
+   * Encabezado opcional. Si se omite, se renderiza el encabezado por
+   * defecto del flujo financiero ("Generación diaria bajo el factor
+   * configurado", con su párrafo de contexto). Pasar `false` para
+   * ocultar el encabezado (útil cuando el componente vive embebido en
+   * un layout que ya provee su propio título). Pasar un `ReactNode`
+   * para sustituirlo por completo.
+   */
+  header?: ReactNode | false;
 }
 
 const COLOR_GEN = "#B45309";
@@ -20,6 +29,7 @@ export function SeccionGeneracionFactor({
   registros_ajustados,
   capacidad_poi_kw,
   capacidad_carga_bess_kw,
+  header,
 }: Props) {
   const { promedioPorHora, capturable, noCapturable, poiLine } =
     useMemo(() => {
@@ -136,22 +146,31 @@ export function SeccionGeneracionFactor({
     },
   };
 
+  const headerRender =
+    header === undefined ? (
+      <>
+        <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+          Efecto operativo del factor
+        </p>
+        <header className="mb-3">
+          <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
+            Generación diaria bajo el factor configurado
+          </h2>
+          <p className="text-[12px] text-[var(--color-text-secondary)]">
+            El factor del panel ajusta la altura de la curva de generación.
+            La zona verde es el excedente que el BESS captura; la zona roja
+            es energía que no se aprovecha. Este perfil alimenta los
+            cálculos financieros mostrados abajo.
+          </p>
+        </header>
+      </>
+    ) : header === false ? null : (
+      header
+    );
+
   return (
     <section className="mb-8">
-      <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
-        Efecto operativo del factor
-      </p>
-      <header className="mb-3">
-        <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          Generación diaria bajo el factor configurado
-        </h2>
-        <p className="text-[12px] text-[var(--color-text-secondary)]">
-          El factor del panel ajusta la altura de la curva de generación. La
-          zona verde es el excedente que el BESS captura; la zona roja se
-          pierde por curtailment. Este perfil alimenta los cálculos
-          financieros mostrados abajo.
-        </p>
-      </header>
+      {headerRender}
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
           <Leyenda color={COLOR_GEN} texto="Generación promedio" />
