@@ -17,6 +17,14 @@ interface Props {
    * para sustituirlo por completo.
    */
   header?: ReactNode | false;
+  /**
+   * Etiqueta de la serie de generación (tooltip + leyenda). Default
+   * "Generación promedio" para preservar el comportamiento del Tab
+   * Financiero. El Tab Resumen Ejecutivo pasa "Generación (promedio
+   * horario)" para declarar explícitamente la granularidad de la curva
+   * y evitar que el lector la lea como perfil de día real.
+   */
+  labelGeneracion?: string;
 }
 
 const COLOR_GEN = "#B45309";
@@ -30,6 +38,7 @@ export function SeccionGeneracionFactor({
   capacidad_poi_kw,
   capacidad_carga_bess_kw,
   header,
+  labelGeneracion = "Generación promedio",
 }: Props) {
   const { promedioPorHora, capturable, noCapturable, poiLine } =
     useMemo(() => {
@@ -63,7 +72,7 @@ export function SeccionGeneracionFactor({
     labels,
     datasets: [
       {
-        label: "Generación promedio",
+        label: labelGeneracion,
         data: promedioPorHora,
         borderColor: COLOR_GEN,
         backgroundColor: "rgba(180, 83, 9, 0.08)",
@@ -173,7 +182,7 @@ export function SeccionGeneracionFactor({
       {headerRender}
       <div className="rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
         <div className="mb-3 flex flex-wrap gap-5 text-[12px] text-[var(--color-text-secondary)]">
-          <Leyenda color={COLOR_GEN} texto="Generación promedio" />
+          <Leyenda color={COLOR_GEN} texto={labelGeneracion} />
           <Leyenda color={COLOR_POI} dashed texto={`POI ${capacidad_poi_kw} kW`} />
           <Leyenda color="rgba(34, 197, 94, 0.85)" texto="Capturable BESS" />
           <Leyenda color="rgba(220, 38, 38, 0.85)" texto="No capturable" />

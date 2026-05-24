@@ -113,6 +113,7 @@ function VisualContrasteFactor({
           capacidad_poi_kw={capacidadPoiKw}
           capacidad_carga_bess_kw={capacidadCargaBessKw}
           header={<EncabezadoFactor titulo="Generación actual" descripcion="La curva no cruza el punto de interconexión: no hay zona capturable." />}
+          labelGeneracion="Generación (promedio horario)"
         />
       </div>
       <div>
@@ -121,6 +122,7 @@ function VisualContrasteFactor({
           capacidad_poi_kw={capacidadPoiKw}
           capacidad_carga_bess_kw={capacidadCargaBessKw}
           header={<EncabezadoFactor titulo="Con +20% de generación" descripcion="La curva cruza el punto de interconexión y emerge una zona capturable en las horas centrales." />}
+          labelGeneracion="Generación (promedio horario)"
         />
         <EtiquetaMetodologicaFactor />
       </div>
