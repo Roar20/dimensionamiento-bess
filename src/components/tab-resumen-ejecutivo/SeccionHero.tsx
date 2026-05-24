@@ -29,6 +29,15 @@ export function SeccionHero({ curado, nombrePlanta }: Props) {
             {curado.hero.apoyo}
           </p>
         ) : null}
+        {curado.supuestoBase ? (
+          <p className="mt-4 inline-flex max-w-[680px] items-baseline gap-2 rounded-md border-[0.5px] border-[var(--color-border-light)] bg-[var(--color-bg-secondary)] px-3 py-2 text-[12px] leading-[1.5] text-[var(--color-text-secondary)]">
+            <span className="text-[10px] font-medium uppercase tracking-[0.5px] text-[var(--color-text-tertiary)]">
+              Supuesto base
+            </span>
+            <span aria-hidden className="text-[var(--color-text-tertiary)]">·</span>
+            <span>{curado.supuestoBase}</span>
+          </p>
+        ) : null}
       </section>
     );
   }

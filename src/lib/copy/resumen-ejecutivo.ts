@@ -123,6 +123,19 @@ export const COPY_RESUMEN_EJECUTIVO = {
       "El detalle metodológico se amplía conforme avanza la documentación " +
       "del análisis.",
   },
+
+  /**
+   * Etiqueta metodológica visible junto al visual de contraste de
+   * generación (cuando la planta usa `visual: "factor-generacion"`).
+   * Declara el alcance real del dato base para evitar leer la zona
+   * sobre el POI como cuantificación física exacta del excedente.
+   */
+  metodologiaVisualFactor: {
+    kicker: "Alcance del análisis",
+    texto:
+      "Estimación basada en datos horarios. La cuantificación precisa " +
+      "del excedente requiere medición de 5 minutos del sitio.",
+  },
 } as const;
 
 // ─── Mapa de copy curado por planta ──────────────────────────────────
@@ -142,6 +155,13 @@ export type CopyPlantaCurada = {
     titulo: string;
     apoyo: string;
   };
+  /**
+   * Supuesto base del sitio, visible inmediatamente después del hero.
+   * Una sola línea, declarativa, ejecutiva. Marca rasgos no negociables
+   * del análisis (e.g. presencia o ausencia de tracker) para que el
+   * lector contextualice las afirmaciones que siguen.
+   */
+  supuestoBase: string;
   quePasaHoy: {
     parrafos: readonly string[];
   };
@@ -175,6 +195,8 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
         "a la instalación de un tracker— cuando los picos cruzan el punto " +
         "de interconexión.",
     },
+    supuestoBase:
+      "Análisis sin tracker. El aumento de generación modela ampliación de capacidad SFV.",
     quePasaHoy: {
       parrafos: [
         "La curva de generación promedio se mantiene por debajo del punto " +
@@ -221,6 +243,7 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
         "Sobre esa base, una batería de 450 kW × 4 horas sirve como " +
         "dimensionamiento de referencia.",
     },
+    supuestoBase: "Análisis con tracker instalado.",
     quePasaHoy: {
       parrafos: [
         "Sistema con tracker y terreno adicional, con un mes de datos de " +
