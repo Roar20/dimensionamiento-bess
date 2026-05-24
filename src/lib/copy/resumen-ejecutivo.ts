@@ -130,13 +130,10 @@ export const COPY_RESUMEN_EJECUTIVO = {
 // ─── Mapa de copy curado por planta ──────────────────────────────────
 // Cada entrada concentra el copy curado de las secciones que NO corren
 // del motor: hero, "¿Qué pasa hoy?", "¿Qué cambia con almacenamiento?",
-// "Recomendación preliminar". Los textos marcados con
-// PLACEHOLDER_GUION_V2 son strings de andamio hasta que el guion v2
-// curado se transcriba verbatim. NO inventar matices: editar solo
-// cuando llegue el copy oficial.
-
-const PLACEHOLDER_GUION_V2 =
-  "[Pendiente de transcribir verbatim desde el guion v2 curado.]";
+// "Recomendación preliminar". El texto es verbatim del guion v2 curado:
+// NO inventar matices, NO sintetizar, NO reescribir. Para añadir una
+// planta nueva, agregar una entrada al mapa con su slug; el componente
+// degrada solo si la clave no existe.
 
 export type CopyPlantaCurada = {
   hero: {
@@ -201,9 +198,13 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
     },
     recomendacionPreliminar: {
       kicker: "Recomendación preliminar",
-      titulo: "300×4 condicionado a sobreinstalación",
-      bullets: [PLACEHOLDER_GUION_V2],
-      nota: PLACEHOLDER_GUION_V2,
+      titulo: "300 kW × 4 horas como punto de partida",
+      bullets: [
+        "Punto de partida razonable, condicionado a que se incorpore mayor generación (tracker).",
+        "Condicionado a validar el comportamiento de precios PML en la zona.",
+        "Es un punto de partida, no la solución final.",
+      ],
+      nota: "La configuración final se afina con el histórico de precios PML.",
     },
   },
   estanzuela: {
@@ -241,9 +242,12 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
     },
     recomendacionPreliminar: {
       kicker: "Recomendación preliminar",
-      titulo: "450×4 como referencia",
-      bullets: [PLACEHOLDER_GUION_V2],
-      nota: PLACEHOLDER_GUION_V2,
+      titulo: "450 kW × 4 horas como dimensionamiento de referencia",
+      bullets: [
+        "Operación restringida que concentra la descarga en la ventana tarifaria de mayor valor (18–22h) como la de mayor aprovechamiento.",
+        "Con un mes de datos, la recomendación tiene sustento.",
+      ],
+      nota: "El histórico completo de precios fortalece la recomendación.",
     },
   },
 } as const;
