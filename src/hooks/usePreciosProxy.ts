@@ -7,8 +7,12 @@ import { useCallback, useState } from "react";
  *
  * Stateless: viven solo en memoria React. Sin persistencia.
  *
- * `potencia_firme_mxn_mw_mes` se captura inline pero NO se usa todavía en
- * `economia-preliminar.ts`. Integración real en PR del motor potencia firme.
+ * `potencia_firme_mxn_mw_mes` permanece en el hook pero su control fue
+ * desmontado del UI por dead input: no lo consume ningún KPI hoy. Se
+ * volverá a renderizar cuando el PR del motor de potencia firme lo
+ * integre en `economia-preliminar.ts`. El default 18000 quedó
+ * intencionalmente sin alinear a 333334 (`useParametrosFinancieros`) —
+ * esa alineación corresponde al mismo PR del motor.
  */
 export type PreciosProxy = {
   energia_mxn_mwh: number;
@@ -19,7 +23,7 @@ export type PreciosProxy = {
 export const PRECIOS_DEFAULT: PreciosProxy = {
   energia_mxn_mwh: 1010.8,
   potencia_firme_mxn_mw_mes: 18000,
-  cel_mxn: 285,
+  cel_mxn: 190,
 };
 
 export type PrecioKey = keyof PreciosProxy;
