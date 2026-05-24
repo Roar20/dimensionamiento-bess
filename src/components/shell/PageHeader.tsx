@@ -7,6 +7,7 @@ const NAV_ITEMS_FACTORY = (hayDatos: boolean): TabNavItem[] => [
   { label: "BESS", ruta: "/bess", habilitado: true },
   { label: "SFV + BESS", ruta: "/sfv-bess", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
   { label: "Análisis financiero", ruta: "/financiero", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
+  { label: "Resumen ejecutivo", ruta: "/resumen-ejecutivo", habilitado: hayDatos, tooltip: "Carga un archivo para habilitar el análisis" },
 ];
 
 interface Props {
