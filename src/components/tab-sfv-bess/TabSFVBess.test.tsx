@@ -69,7 +69,9 @@ describe("TabSFVBess — integración", () => {
         name: /análisis del sfv \+ bess.*tequila 1/i,
       })
     ).toBeInTheDocument();
-    expect(screen.getByText(/precios proxy editables/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/supuestos económicos editables/i)
+    ).toBeInTheDocument();
     expect(screen.getAllByText(/energía capturada/i).length).toBeGreaterThan(0);
     // Chart de despacho siempre presente; el de captura mensual puede
     // sustituirse por HallazgoEjecutivo cuando la captura agregada = 0.

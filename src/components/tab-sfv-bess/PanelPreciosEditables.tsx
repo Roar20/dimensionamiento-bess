@@ -13,6 +13,11 @@ const FORMATO_ENTERO_2DEC = new Intl.NumberFormat("es-MX", {
   maximumFractionDigits: 2,
 });
 
+const FORMATO_RESUMEN_CEL = new Intl.NumberFormat("es-MX", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
 interface Props {
   precios: PreciosProxy;
   setPrecio: (key: PrecioKey, next: number) => boolean;
@@ -32,42 +37,45 @@ export function PanelPreciosEditables({
 }: Props) {
   const copy = COPY_SFV_BESS.paneles.precios;
 
+  const resumen = `TC $${tipoCambio.toFixed(2)} · PPA $${FORMATO_ENTERO_2DEC.format(
+    precios.energia_mxn_mwh
+  )} MXN/MWh · CEL $${FORMATO_RESUMEN_CEL.format(
+    precios.cel_mxn
+  )} MXN · Precios proxy (editar)`;
+
   return (
-    <section className="mb-8 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
-      <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+    <details className="group mb-8 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white">
+      <summary className="flex cursor-pointer list-none flex-wrap items-baseline justify-between gap-2 p-5 [&::-webkit-details-marker]:hidden">
         <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-          {copy.titulo}
+          Supuestos económicos editables
         </h2>
-      </header>
-      <BannerProxyPrecios esProxy={esProxy} onReset={reset} />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <CampoTipoCambio valor={tipoCambio} onChange={setTipoCambio} />
-        <CampoPrecio
-          campo="energia_mxn_mwh"
-          label={copy.energia}
-          unidad={copy.energiaUnidad}
-          tooltip={TOOLTIPS_SFV_BESS.precio_energia}
-          valor={precios.energia_mxn_mwh}
-          onChange={(n) => setPrecio("energia_mxn_mwh", n)}
-        />
-        <CampoPrecio
-          campo="potencia_firme_mxn_mw_mes"
-          label={copy.potenciaFirme}
-          unidad={copy.potenciaFirmeUnidad}
-          tooltip={TOOLTIPS_SFV_BESS.precio_potencia_firme}
-          valor={precios.potencia_firme_mxn_mw_mes}
-          onChange={(n) => setPrecio("potencia_firme_mxn_mw_mes", n)}
-        />
-        <CampoPrecio
-          campo="cel_mxn"
-          label={copy.cel}
-          unidad={copy.celUnidad}
-          tooltip={TOOLTIPS_SFV_BESS.precio_cel}
-          valor={precios.cel_mxn}
-          onChange={(n) => setPrecio("cel_mxn", n)}
-        />
+        <p className="text-[12px] text-[var(--color-text-secondary)] group-open:opacity-0">
+          {resumen}
+        </p>
+      </summary>
+      <div className="border-t-[0.5px] border-[var(--color-border-light)] p-5 pt-4">
+        <BannerProxyPrecios esProxy={esProxy} onReset={reset} />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <CampoTipoCambio valor={tipoCambio} onChange={setTipoCambio} />
+          <CampoPrecio
+            campo="energia_mxn_mwh"
+            label={copy.energia}
+            unidad={copy.energiaUnidad}
+            tooltip={TOOLTIPS_SFV_BESS.precio_energia}
+            valor={precios.energia_mxn_mwh}
+            onChange={(n) => setPrecio("energia_mxn_mwh", n)}
+          />
+          <CampoPrecio
+            campo="cel_mxn"
+            label={copy.cel}
+            unidad={copy.celUnidad}
+            tooltip={TOOLTIPS_SFV_BESS.precio_cel}
+            valor={precios.cel_mxn}
+            onChange={(n) => setPrecio("cel_mxn", n)}
+          />
+        </div>
       </div>
-    </section>
+    </details>
   );
 }
 

@@ -24,10 +24,10 @@ function kpis(descargado_mwh: number): KPIsSimulacion {
 describe("calcularIngresoAnual", () => {
   it("ingreso = descargado × (precio energía + precio CEL); potencia firme NO se usa todavía", () => {
     const r = calcularIngresoAnual(kpis(100), PRECIOS_DEFAULT);
-    // 100 MWh × 1010.8 = 101,080. 100 × 285 = 28,500. Total = 129,580.
+    // 100 MWh × 1010.8 = 101,080. 100 × 190 = 19,000. Total = 120,080.
     expect(r.energia_mxn).toBeCloseTo(101_080, 2);
-    expect(r.cels_mxn).toBeCloseTo(28_500, 2);
-    expect(r.total_mxn).toBeCloseTo(129_580, 2);
+    expect(r.cels_mxn).toBeCloseTo(19_000, 2);
+    expect(r.total_mxn).toBeCloseTo(120_080, 2);
   });
 
   it("0 MWh descargados → ingreso 0", () => {

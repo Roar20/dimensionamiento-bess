@@ -22,7 +22,15 @@ function rend(overrides: Partial<Parameters<typeof PanelPreciosEditables>[0]> = 
 }
 
 describe("PanelPreciosEditables", () => {
-  it("renderiza los 4 controles (TC + 3 precios)", () => {
+  it("envuelve el panel en un <details> cerrado por default", () => {
+    rend();
+    const summary = screen.getByText(/supuestos económicos editables/i);
+    const details = summary.closest("details");
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute("open");
+  });
+
+  it("renderiza 3 controles (TC + energía + CEL) — potencia firme desmontada", () => {
     rend();
     expect(
       screen.getByLabelText(/tipo de cambio mxn por usd/i)
@@ -31,11 +39,11 @@ describe("PanelPreciosEditables", () => {
       screen.getByLabelText(/precio energía ppa en mxn\/mwh/i)
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText(/precio potencia firme en mxn\/mw-mes/i)
-    ).toBeInTheDocument();
-    expect(
       screen.getByLabelText(/precio cel en mxn\/mwh/i)
     ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/precio potencia firme/i)
+    ).not.toBeInTheDocument();
   });
 
   it("escribir en input + blur llama a setPrecio del hook controlado", async () => {
