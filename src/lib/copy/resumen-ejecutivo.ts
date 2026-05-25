@@ -207,8 +207,11 @@ export const COPY_PLANTAS_CURADAS: Readonly<Record<string, CopyPlantaCurada>> = 
         "La curva de generación promedio se mantiene por debajo del punto " +
           "de interconexión (500 kW); el pico no alcanza ese límite. Hoy " +
           "no hay energía excedente sobre el punto de interconexión que un " +
-          "almacenamiento pueda capturar: el sistema no topa su capacidad " +
-          "de inyección. Generación anual cercana a 913 MWh.",
+          "sistema de almacenamiento pueda capturar: la planta opera dentro " +
+          "de su capacidad actual de inyección. Generación anual cercana a " +
+          "913 MWh. Bajo estas condiciones, recomendar almacenamiento " +
+          "todavía no sería responsable; identificarlo a tiempo es parte " +
+          "del criterio del análisis.",
       ],
     },
     queCambia: {
