@@ -29,22 +29,27 @@ export function PanelConfiguracion({
 }: Props) {
   return (
     <section className="mb-8 rounded-[12px] border-[0.5px] border-[var(--color-border-light)] bg-white p-5">
-      <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <div>
-          <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
-            Configuración modelada
-          </h2>
-          <p className="text-[12px] text-[var(--color-text-secondary)]">
-            Modelo en vivo · recalcula con cada cambio
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ECFDF5] px-2.5 py-1 text-[11px] font-medium text-[#065F46]">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#10B981]" />
-          en vivo
-        </span>
-      </header>
+      <details className="panel-config-details">
+        <summary className="panel-config-summary flex cursor-pointer items-baseline justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="panel-config-indicator inline-block h-0 w-0 border-y-[5px] border-l-[7px] border-y-transparent border-l-[var(--color-text-tertiary)] transition-transform" />
+            <div>
+              <h2 className="text-[15px] font-medium text-[var(--color-text-primary)]">
+                Configuración modelada
+              </h2>
+              <p className="text-[12px] text-[var(--color-text-secondary)]">
+                Modelo en vivo · recalcula con cada cambio
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ECFDF5] px-2.5 py-1 text-[11px] font-medium text-[#065F46]">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+            en vivo
+          </span>
+        </summary>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
         <CampoSelector
           label="Equipo Hyperstrong"
           valor={params.equipo_id}
@@ -164,7 +169,14 @@ export function PanelConfiguracion({
             })
           }
         />
-      </div>
+        </div>
+        </div>
+      </details>
+      <style>{`
+        .panel-config-details > .panel-config-summary::-webkit-details-marker { display: none; }
+        .panel-config-details > .panel-config-summary { list-style: none; }
+        .panel-config-details[open] > .panel-config-summary .panel-config-indicator { transform: rotate(90deg); }
+      `}</style>
     </section>
   );
 }
