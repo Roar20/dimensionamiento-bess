@@ -1,0 +1,297 @@
+{
+  "meta": {
+    "planta": "tequila",
+    "version": "v0",
+    "fecha": "2026-05-30",
+    "fuente": "motor notebooks (Tequila real 2025 + PML 03TEQ-115)"
+  },
+  "sfv": {
+    "planta": "PV Tequila 1",
+    "ubicacion": "Tequila, Jalisco",
+    "poi_mw": 0.5,
+    "kpis": {
+      "generacion_anual_mwh": 913.3,
+      "factor_planta_pct": 20.9,
+      "horas_generacion": 12,
+      "potencia_media_mw": 0.1043
+    },
+    "perfil_mensual_mwh": {
+      "1": 69.8,
+      "2": 77.1,
+      "3": 91.1,
+      "4": 91.3,
+      "5": 82.4,
+      "6": 70.0,
+      "7": 80.9,
+      "8": 75.4,
+      "9": 74.8,
+      "10": 71.0,
+      "11": 67.9,
+      "12": 61.7
+    },
+    "perfil_horario_mwh": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 0.0,
+      "6": 0.0,
+      "7": 0.001,
+      "8": 0.032,
+      "9": 0.124,
+      "10": 0.225,
+      "11": 0.291,
+      "12": 0.33,
+      "13": 0.345,
+      "14": 0.332,
+      "15": 0.303,
+      "16": 0.25,
+      "17": 0.173,
+      "18": 0.079,
+      "19": 0.016,
+      "20": 0.001,
+      "21": 0.0,
+      "22": 0.0,
+      "23": 0.0,
+      "24": 0.0
+    },
+    "confianza": "measured"
+  },
+  "bess": {
+    "catalogo": [
+      {
+        "equipo": "HyperCube Plus",
+        "capacidad_kwh": 261.2,
+        "precio_usd": 55997,
+        "arquitectura": "AC+DC"
+      },
+      {
+        "equipo": "HyperCube Max",
+        "capacidad_kwh": 835.9,
+        "precio_usd": 147726,
+        "arquitectura": "AC+DC"
+      },
+      {
+        "equipo": "HyperBlock III",
+        "capacidad_kwh": 5015.96,
+        "precio_usd": 565008,
+        "arquitectura": "AC+DC"
+      }
+    ],
+    "parametros": {
+      "rte_pct": 85,
+      "dod_pct": 95,
+      "soc_min_pct": 5
+    },
+    "confianza": "datasheet"
+  },
+  "sfv_bess": {
+    "config_ref": "400 kW x 4 h",
+    "energia_desplazada_mwh": 464.6,
+    "perfil_operacion_mwh": {
+      "1": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "2": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "3": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "4": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "5": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "6": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "7": {
+        "carga": 0.53,
+        "descarga": 0.0
+      },
+      "8": {
+        "carga": 11.67,
+        "descarga": 0.0
+      },
+      "9": {
+        "carga": 45.18,
+        "descarga": 0.0
+      },
+      "10": {
+        "carga": 82.16,
+        "descarga": 0.0
+      },
+      "11": {
+        "carga": 106.06,
+        "descarga": 0.0
+      },
+      "12": {
+        "carga": 120.26,
+        "descarga": 0.0
+      },
+      "13": {
+        "carga": 116.69,
+        "descarga": 0.0
+      },
+      "14": {
+        "carga": 45.58,
+        "descarga": 0.0
+      },
+      "15": {
+        "carga": 10.57,
+        "descarga": 0.0
+      },
+      "16": {
+        "carga": 5.23,
+        "descarga": 0.0
+      },
+      "17": {
+        "carga": 2.67,
+        "descarga": 0.0
+      },
+      "18": {
+        "carga": 0.0,
+        "descarga": 7.87
+      },
+      "19": {
+        "carga": 0.0,
+        "descarga": 75.77
+      },
+      "20": {
+        "carga": 0.0,
+        "descarga": 144.84
+      },
+      "21": {
+        "carga": 0.0,
+        "descarga": 144.71
+      },
+      "22": {
+        "carga": 0.0,
+        "descarga": 91.43
+      },
+      "23": {
+        "carga": 0.0,
+        "descarga": 0.0
+      },
+      "24": {
+        "carga": 0.0,
+        "descarga": 0.0
+      }
+    },
+    "estrategia": "ventana_cfe",
+    "confianza": "derived"
+  },
+  "financial": {
+    "config": "400 kW x 4 h",
+    "capex_mxn": 5600000,
+    "opex_anual_mxn": 28000,
+    "ingreso_anual_mxn": 701552,
+    "arbitraje_anual_mxn": 184751,
+    "potencia_firme_anual_mxn": 516801,
+    "van_mxn": 377348,
+    "tir_pct": 10.0,
+    "payback_anios": 9,
+    "supuestos": {
+      "capex_usd_kwh": 200.0,
+      "wacc_pct": 9,
+      "horizonte_anios": 20,
+      "tc_mxn_usd": 17.5
+    },
+    "confianza": "derived"
+  },
+  "executive": {
+    "veredicto": "Viable con la operación correcta",
+    "tono": "neutral",
+    "tres_preguntas": {
+      "cuanto_cuesta_mxn": 5600000,
+      "valor_anual_mxn": 701552,
+      "retorno": {
+        "van_mxn": 377348,
+        "tir_pct": 10.0,
+        "payback_anios": 9
+      }
+    },
+    "recomendacion": "Dimensionar 400 kW x 4 h con descarga en la punta de precio (18-22 h). El valor descansa en la potencia firme; el arbitraje es complemento.",
+    "confianza": "derived"
+  },
+  "decision": {
+    "alternativas": [
+      {
+        "nombre": "Sin SAEE (solo SFV)",
+        "van_mxn": 0,
+        "nota": "línea base"
+      },
+      {
+        "nombre": "BESS 400 kW x 4 h",
+        "van_mxn": 377348,
+        "tir_pct": 10.0,
+        "payback_anios": 9,
+        "recomendada": true
+      }
+    ],
+    "fuentes_valor": [
+      {
+        "fuente": "Potencia firme",
+        "mxn_anual": 516801
+      },
+      {
+        "fuente": "Arbitraje de energía",
+        "mxn_anual": 184751
+      }
+    ],
+    "variables_criticas": [
+      {
+        "variable": "Credibilidad potencia firme",
+        "van_bajo": -802063,
+        "van_alto": 1556758,
+        "rango": 2358821
+      },
+      {
+        "variable": "CAPEX ±20%",
+        "van_bajo": -742652,
+        "van_alto": 1497348,
+        "rango": 2240000
+      },
+      {
+        "variable": "WACC 11%/8%",
+        "van_bajo": -374412,
+        "van_alto": 821565,
+        "rango": 1195977
+      },
+      {
+        "variable": "Precio PML ±25%",
+        "van_bajo": -1478,
+        "van_alto": 756174,
+        "rango": 757653
+      }
+    ],
+    "estrategia_operativa": "Concentrar descarga en h20-21 (pico de precio). Repartir en toda la noche destruye valor.",
+    "recomendacion_estrategica": "Proceder con BESS 400 kW x 4 h. Asegurar el CAPEX y el reconocimiento de potencia firme.",
+    "confianza": "derived"
+  },
+  "disclaimers": [
+    {
+      "campo": "CAPEX",
+      "estado": "proxy",
+      "nota": "Genérico 200 USD/kWh; pendiente catálogo Hyperstrong."
+    },
+    {
+      "campo": "Nodo PML",
+      "estado": "proxy",
+      "nota": "Perfil 03TEQ-115; nodo de liquidación por confirmar."
+    },
+    {
+      "campo": "Frontera PPA",
+      "estado": "proxy",
+      "nota": "Asume toda la generación candidata; estructura por confirmar."
+    }
+  ]
+}
